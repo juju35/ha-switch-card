@@ -410,39 +410,41 @@ test("I18N: sr is written in Cyrillic and sr-Latn in Latin (acronyms and units a
   for (const v of flat(I18N["sr-Latn"])) assert.doesNotMatch(v, /[\u0400-\u04FF]/, `sr-Latn: ${v}`);
 });
 
+const cssRule = (css, selector) => {
+  const m = css.match(new RegExp(`(?:^|\\}|\\*/)\\s*${selector.replace(/[.*+?^${}()|[\]\\>]/g, "\\$&")} \\{([^}]*)\\}`));
+  assert.ok(m, `rule ${selector}`);
+  return m[1];
+};
+
 // Narrow header (6 columns of the Sections view, ~230 px): the status pill used to keep its full width
-// ("Niedostępny", "Unavailable") and squeeze the name down to a lone "…".
-test("narrow header: the pill shrinks and truncates, the name keeps a few characters, the toggle and icon never shrink", () => {
+// ("Niedostępny", "Unavailable") and squeeze the name down to a lone "…". Then (1.8.6 draft) the name took its
+// whole text width first (flex-basis auto) and a 50% cap plus a 280px container query cut the pill, or reduced
+// it to its icon, on cards up to 304 px wide, where its whole text fits.
+test("narrow header: the name gives way to the pill down to a few characters, then the pill wraps under it", () => {
   const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
   const css = HaSwitchCard.styles.replace(/\s+/g, " ");
-  const rule = (selector) => {
-    const m = css.match(new RegExp(`(?:^|\\}|\\*/)\\s*${selector.replace(/[.*+?^${}()|[\]\\>]/g, "\\$&")} \\{([^}]*)\\}`));
-    assert.ok(m, `rule ${selector}`);
-    return m[1];
-  };
+  const rule = (selector) => cssRule(css, selector);
+  const name = rule(".title-row > .name");
+  assert.match(name, /flex: 1 1 0[;\s]/);
+  assert.match(name, /min-width: (?:[4-9]|\d{2,})(?:\.\d+)?ch/);
   const pill = rule(".title-row > .chip");
   assert.match(pill, /flex: 0 1 auto/);
   assert.match(pill, /min-width: 0/);
-  assert.match(pill, /max-width: 50%/);
   assert.match(pill, /overflow: hidden/);
+  // No cap: the pill is only cut when it does not fit even on a line of its own.
+  assert.doesNotMatch(pill, /max-width/);
+  assert.match(rule(".title-row"), /flex-wrap: wrap/);
+  assert.match(rule(".titles"), /flex: 1 1 0[;\s]/);
   const text = rule(".chip span");
   assert.match(text, /min-width: 0/);
   assert.match(text, /text-overflow: ellipsis/);
   assert.match(text, /white-space: nowrap/);
   assert.match(rule(".title-row > .chip ha-icon"), /flex: none/);
-  const name = rule(".title-row > .name");
-  assert.match(name, /flex: 1 1 auto/);
-  assert.match(name, /min-width: [\d.]+ch/);
-  assert.match(rule(".titles"), /flex: 1 1 auto/);
   assert.match(rule("ha-switch"), /flex: none/);
   assert.match(rule(".ic"), /flex: none/);
-  // Under the threshold the pill keeps only its icon (the text stays in title / aria-label).
-  assert.match(rule(".header"), /container-type: inline-size/);
-  const cq = css.match(/@container \(max-width: (\d+)px\) \{(.*?\})\s*\}/);
-  assert.ok(cq, "container query");
-  assert.match(cq[2], /\.title-row > \.chip span \{[^}]*display: none/);
-  // An icon-only pill keeps its whole icon (no shrinking below it).
-  assert.match(cq[2], /\.title-row > \.chip \{[^}]*flex: none/);
+  // No size container: inline-size containment drops the element's intrinsic width, which collapses a card
+  // placed in a shrink-to-fit parent (inline-block, a grid "auto" column, layout-card, button-card).
+  assert.doesNotMatch(css, /container-type|container:|@container/);
 });
 
 test("the status pill carries its full text in title and aria-label, so a truncated or icon-only pill stays readable", () => {

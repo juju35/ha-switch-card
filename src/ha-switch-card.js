@@ -1034,8 +1034,7 @@ class HaSwitchCard extends HTMLElement {
       ha-card { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
       [data-entity], [data-url] { cursor: pointer; }
       /* The body starts 8px under the header (the card gap is 10px between body blocks). */
-      /* The header is a size container: under 280px the status pill keeps only its icon (see the @container rule). */
-      .header { display: flex; align-items: center; gap: 10px; margin-bottom: -2px; container-type: inline-size; }
+      .header { display: flex; align-items: center; gap: 10px; margin-bottom: -2px; }
       .ic {
         --size: 32px;
         width: var(--size); height: var(--size); border-radius: 50%;
@@ -1043,17 +1042,15 @@ class HaSwitchCard extends HTMLElement {
         color: var(--c); background: color-mix(in srgb, var(--c) 15%, transparent);
       }
       .ic.big { --size: 40px; --mdc-icon-size: 24px; background: color-mix(in srgb, var(--c) 16%, transparent); }
-      .titles { flex: 1 1 auto; min-width: 0; }
+      .titles { flex: 1 1 0; min-width: 0; }
       /* The status pill shares the title's line, right of the name (left of the power toggle), whatever the subtitle.
-         At narrow widths both shrink: the name keeps about four characters, the pill at most half the line, with ellipses. */
-      .title-row { display: flex; align-items: center; gap: 8px; }
-      .title-row > .name { flex: 1 1 auto; min-width: 5ch; }
-      .title-row > .chip { flex: 0 1 auto; min-width: 0; max-width: 50%; overflow: hidden; }
+         The name only takes the room the pill leaves (flex-basis 0), but keeps about four characters: when the pill's
+         full text no longer fits beside them, the pill wraps under the name with its whole text, and is only cut
+         with an ellipsis when even a line of its own is too short. */
+      .title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; }
+      .title-row > .name { flex: 1 1 0; min-width: 5ch; }
+      .title-row > .chip { flex: 0 1 auto; min-width: 0; overflow: hidden; }
       .title-row > .chip ha-icon { flex: none; }
-      @container (max-width: 280px) {
-        .title-row > .chip { flex: none; max-width: none; padding: 1px 5px; }
-        .title-row > .chip span { display: none; }
-      }
       .name { font-size: 16px; font-weight: 500; line-height: 1.25; color: var(--primary-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .sub { font-size: 12px; color: var(--secondary-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       ha-switch {
