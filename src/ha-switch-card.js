@@ -190,6 +190,98 @@ const I18N = {
     online: 'En línea',
     idle: 'Inactivo',
   },
+  sr: {
+    card_name: 'Картица мрежног свича',
+    card_desc: 'Приказује мрежни свич: статус, време рада, портове и саобраћај.',
+    in: 'Долазни саобраћај',
+    out: 'Одлазни саобраћај',
+    port: 'Порт',
+    default: 'Подразумевано',
+    colon: ': ',
+    lang_auto: 'Аутоматски',
+    sections: {
+      entities: 'Ентитети',
+      ports: 'Портови',
+      status: 'Статус',
+      appearance: 'Изглед',
+    },
+    fields: {
+      name: 'Назив',
+      subtitle: 'Поднаслов',
+      icon: 'Иконица',
+      url: 'URL за администрацију (додир на слику)',
+      switch_entity: 'Прекидач напајања',
+      status_entity: 'Општи статус',
+      connectivity_entity: 'Повезаност',
+      uptime_entity: 'Време рада',
+      uptime_unit: 'Јединица времена рада',
+      traffic_in_entity: 'Долазни саобраћај',
+      traffic_out_entity: 'Одлазни саобраћај',
+      ports: 'Број портова',
+      port_pattern: 'Шаблон ентитета портова ({n} = број)',
+      port_on_state: 'Стање „порт активан“',
+      online_state: 'Стање „на мрежи“',
+      idle_state: 'Стање „неактиван“',
+      model: 'Модел (нацртана предња плоча)',
+      image: 'Прилагођена слика (замењује модел)',
+      port_start: 'Положај првог порта (%)',
+      port_step: 'Размак између портова (%)',
+      port_bottom: 'Висина портова (% од дна)',
+      language: 'Језик',
+    },
+    units: { timeticks: 'Стотинке секунде (SNMP)', seconds: 'Секунде' },
+    day: 'd',
+    generic: 'Генерички',
+    open_admin: 'Отвори страницу за администрацију',
+    online: 'На мрежи',
+    idle: 'Неактиван',
+  },
+  'sr-Latn': {
+    card_name: 'Kartica mrežnog sviča',
+    card_desc: 'Prikazuje mrežni svič: status, vreme rada, portove i saobraćaj.',
+    in: 'Dolazni saobraćaj',
+    out: 'Odlazni saobraćaj',
+    port: 'Port',
+    default: 'Podrazumevano',
+    colon: ': ',
+    lang_auto: 'Automatski',
+    sections: {
+      entities: 'Entiteti',
+      ports: 'Portovi',
+      status: 'Status',
+      appearance: 'Izgled',
+    },
+    fields: {
+      name: 'Naziv',
+      subtitle: 'Podnaslov',
+      icon: 'Ikonica',
+      url: 'URL za administraciju (dodir na sliku)',
+      switch_entity: 'Prekidač napajanja',
+      status_entity: 'Opšti status',
+      connectivity_entity: 'Povezanost',
+      uptime_entity: 'Vreme rada',
+      uptime_unit: 'Jedinica vremena rada',
+      traffic_in_entity: 'Dolazni saobraćaj',
+      traffic_out_entity: 'Odlazni saobraćaj',
+      ports: 'Broj portova',
+      port_pattern: 'Šablon entiteta portova ({n} = broj)',
+      port_on_state: 'Stanje „port aktivan“',
+      online_state: 'Stanje „na mreži“',
+      idle_state: 'Stanje „neaktivan“',
+      model: 'Model (nacrtana prednja ploča)',
+      image: 'Prilagođena slika (zamenjuje model)',
+      port_start: 'Položaj prvog porta (%)',
+      port_step: 'Razmak između portova (%)',
+      port_bottom: 'Visina portova (% od dna)',
+      language: 'Jezik',
+    },
+    units: { timeticks: 'Stotinke sekunde (SNMP)', seconds: 'Sekunde' },
+    day: 'd',
+    generic: 'Generički',
+    open_admin: 'Otvori stranicu za administraciju',
+    online: 'Na mreži',
+    idle: 'Neaktivan',
+  },
 };
 
 const DEFAULTS = {
@@ -233,10 +325,12 @@ const COLORS = {
 // Darker shade of a port color, for its contacts and LEDs.
 const shade = (color) => `color-mix(in srgb, ${color} 45%, #000)`;
 
-// `language` from the card config wins over the Home Assistant language.
+// `language` from the card config wins over the Home Assistant language. The full code when it has its own
+// dictionary (`sr-Latn`), else its base language (`fr-FR` → `fr`), else English.
 const getLang = (hass, config) => {
-  const l = String(config?.language || hass?.locale?.language || hass?.language || navigator.language || 'en').slice(0, 2);
-  return I18N[l] ? l : 'en';
+  const l = String(config?.language || hass?.locale?.language || hass?.language || navigator.language || 'en');
+  const base = l.split('-')[0];
+  return I18N[l] ? l : I18N[base] ? base : 'en';
 };
 
 const esc = (s) =>
@@ -892,6 +986,8 @@ class HaSwitchCardEditor extends HTMLElement {
                   { value: 'fr', label: 'Français' },
                   { value: 'de', label: 'Deutsch' },
                   { value: 'es', label: 'Español' },
+                  { value: 'sr', label: 'Српски' },
+                  { value: 'sr-Latn', label: 'Srpski (latinica)' },
                 ],
               },
             },
