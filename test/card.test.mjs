@@ -134,14 +134,19 @@ test("I18N parity: every language has exactly the keys of en, placeholders inclu
     Object.entries(o).flatMap(([k, v]) => (v && typeof v === "object" ? flat(v, `${p}${k}.`) : [[`${p}${k}`, v]]));
   const ref = new Map(flat(I18N.en));
   const placeholders = (s) => String(s).match(/\{\w+\}/g) || [];
-  for (const lang of ["fr", "de", "es", "sr", "sr-Latn"]) {
+  for (const lang of ["fr", "de", "es", "sr", "sr-Latn", "it", "nl", "pt", "pl"]) {
     assert.ok(I18N[lang], lang);
     const entries = new Map(flat(I18N[lang]));
     assert.deepEqual([...entries.keys()].sort(), [...ref.keys()].sort(), lang);
-    for (const [k, v] of entries) assert.deepEqual(placeholders(v), placeholders(ref.get(k)), `${lang}.${k}`);
+    for (const [k, v] of entries) {
+      assert.deepEqual(placeholders(v), placeholders(ref.get(k)), `${lang}.${k}`);
+      assert.ok(String(v).trim(), `${lang}.${k} is empty`);
+    }
   }
-  // The card is drawn in German, Spanish and Serbian when the dashboard uses them.
-  for (const [language, label] of [["de", "Inaktiv"], ["es", "Inactivo"], ["sr", "Неактиван"], ["sr-Latn", "Neaktivan"]]) {
+  // The card is drawn in each language when the dashboard uses it.
+  const idle = [["de", "Inaktiv"], ["es", "Inactivo"], ["sr", "Неактиван"], ["sr-Latn", "Neaktivan"]];
+  idle.push(["it", "Inattivo"], ["nl", "Inactief"], ["pt", "Inativo"], ["pl", "Bezczynny"]);
+  for (const [language, label] of idle) {
     const card = new HaSwitchCard();
     card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", status_entity: "sensor.s" });
     card.hass = { language, states: { "sensor.s": { state: "idle", attributes: {} } } };
@@ -262,6 +267,10 @@ test("language option overrides the Home Assistant language; default helper sepa
   assert.equal(helper("fr"), "Défaut : 8");
   assert.equal(helper("sr"), "Подразумевано: 8");
   assert.equal(helper("sr-Latn"), "Podrazumevano: 8");
+  assert.equal(helper("it"), "Predefinito: 8");
+  assert.equal(helper("nl"), "Standaard: 8");
+  assert.equal(helper("pt"), "Predefinição: 8");
+  assert.equal(helper("pl"), "Domyślnie: 8");
   assert.equal(helper("en", { language: "fr" }), "Défaut : 8");
 });
 
@@ -348,7 +357,7 @@ test("other empty YAML keys fall back to their defaults too", () => {
 
 test("I18N: every editor section label is shown by the editor (no orphan section keys)", () => {
   const { I18N, HaSwitchCardEditor } = loadCard("ha-switch-card.js", ["I18N", "HaSwitchCardEditor"]);
-  for (const lang of ["en", "fr", "de", "es", "sr", "sr-Latn"]) {
+  for (const lang of ["en", "fr", "de", "es", "sr", "sr-Latn", "it", "nl", "pt", "pl"]) {
     const t = I18N[lang];
     const titles = new HaSwitchCardEditor()._schema(t).filter((s) => s.type === "expandable").map((s) => s.title);
     for (const [key, label] of Object.entries(t.sections)) {
@@ -361,7 +370,9 @@ test("I18N: every editor section label is shown by the editor (no orphan section
 
 test("language resolution: full code if it has a dictionary, else its base language, else English", () => {
   const { getLang } = loadCard("ha-switch-card.js", ["getLang"]);
-  const cases = [["fr-FR", "fr"], ["sr-Latn", "sr-Latn"], ["sr", "sr"], ["pt-BR", "en"], ["de", "de"], ["en-GB", "en"]];
+  const cases = [["fr-FR", "fr"], ["sr-Latn", "sr-Latn"], ["sr", "sr"], ["de", "de"], ["en-GB", "en"]];
+  // Italian, Dutch, Portuguese (European, also picked for pt-BR) and Polish; unknown languages fall back to English.
+  cases.push(["it-IT", "it"], ["nl-BE", "nl"], ["pt", "pt"], ["pt-BR", "pt"], ["pl-PL", "pl"], ["ja", "en"]);
   for (const [language, want] of cases) {
     assert.equal(getLang({ language }), want, `hass.language ${language}`);
     assert.equal(getLang({ language: "en", locale: { language } }), want, `hass.locale.language ${language}`);
@@ -385,6 +396,9 @@ test("I18N: the editor offers every language of the dictionary, Serbian in both 
   assert.deepEqual([...options.map((o) => o.value).filter(Boolean)].sort(), [...Object.keys(I18N)].sort());
   assert.equal(options.find((o) => o.value === "sr").label, "Српски");
   assert.equal(options.find((o) => o.value === "sr-Latn").label, "Srpski (latinica)");
+  for (const [value, label] of [["it", "Italiano"], ["nl", "Nederlands"], ["pt", "Português (Portugal)"], ["pl", "Polski"]]) {
+    assert.equal(options.find((o) => o.value === value)?.label, label, value);
+  }
 });
 
 test("I18N: sr is written in Cyrillic and sr-Latn in Latin (acronyms and units aside)", () => {
