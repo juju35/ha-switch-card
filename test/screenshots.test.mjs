@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { deflateSync } from "node:zlib";
-import { decodePng, samePixels } from "../scripts/screenshots.mjs";
+import { decodePng, samePixels } from "../scripts/png.mjs";
 
 // Minimal 8-bit RGB PNG encoder (no CRC check on read), with a choice of row filter and compression level.
 const png = (w, h, rgb, { filter = 0, level = 6 } = {}) => {
