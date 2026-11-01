@@ -47,6 +47,8 @@ const I18N = {
     },
     units: { timeticks: 'Centièmes de seconde (SNMP)', seconds: 'Secondes' },
     day: 'j',
+    hour: 'h',
+    minute: 'min',
     generic: 'Générique',
     open_admin: 'Ouvrir la page d’administration',
     online: 'En ligne',
@@ -93,6 +95,8 @@ const I18N = {
     },
     units: { timeticks: 'Hundredths of a second (SNMP)', seconds: 'Seconds' },
     day: 'd',
+    hour: 'h',
+    minute: 'min',
     generic: 'Generic',
     open_admin: 'Open the admin page',
     online: 'Online',
@@ -139,6 +143,8 @@ const I18N = {
     },
     units: { timeticks: 'Hundertstelsekunden (SNMP)', seconds: 'Sekunden' },
     day: 'T',
+    hour: 'h',
+    minute: 'min',
     generic: 'Generisch',
     open_admin: 'Admin-Seite öffnen',
     online: 'Online',
@@ -185,6 +191,8 @@ const I18N = {
     },
     units: { timeticks: 'Centésimas de segundo (SNMP)', seconds: 'Segundos' },
     day: 'd',
+    hour: 'h',
+    minute: 'min',
     generic: 'Genérico',
     open_admin: 'Abrir la página de administración',
     online: 'En línea',
@@ -230,7 +238,9 @@ const I18N = {
       language: 'Језик',
     },
     units: { timeticks: 'Стотинке секунде (SNMP)', seconds: 'Секунде' },
-    day: 'd',
+    day: 'д',
+    hour: 'ч',
+    minute: 'мин',
     generic: 'Генерички',
     open_admin: 'Отвори страницу за администрацију',
     online: 'На мрежи',
@@ -277,6 +287,8 @@ const I18N = {
     },
     units: { timeticks: 'Stotinke sekunde (SNMP)', seconds: 'Sekunde' },
     day: 'd',
+    hour: 'h',
+    minute: 'min',
     generic: 'Generički',
     open_admin: 'Otvori stranicu za administraciju',
     online: 'Na mreži',
@@ -323,6 +335,8 @@ const I18N = {
     },
     units: { timeticks: 'Centesimi di secondo (SNMP)', seconds: 'Secondi' },
     day: 'g',
+    hour: 'h',
+    minute: 'min',
     generic: 'Generico',
     open_admin: 'Apri la pagina di amministrazione',
     online: 'Online',
@@ -369,6 +383,8 @@ const I18N = {
     },
     units: { timeticks: 'Honderdsten van een seconde (SNMP)', seconds: 'Seconden' },
     day: 'd',
+    hour: 'h',
+    minute: 'min',
     generic: 'Generiek',
     open_admin: 'Beheerpagina openen',
     online: 'Online',
@@ -415,6 +431,8 @@ const I18N = {
     },
     units: { timeticks: 'Centésimos de segundo (SNMP)', seconds: 'Segundos' },
     day: 'd',
+    hour: 'h',
+    minute: 'min',
     generic: 'Genérico',
     open_admin: 'Abrir a página de administração',
     online: 'Online',
@@ -461,6 +479,8 @@ const I18N = {
     },
     units: { timeticks: 'Setne części sekundy (SNMP)', seconds: 'Sekundy' },
     day: 'd',
+    hour: 'h',
+    minute: 'min',
     generic: 'Ogólny',
     open_admin: 'Otwórz stronę administracyjną',
     online: 'Online',
@@ -550,14 +570,15 @@ const formatBytes = (v) => {
   return `${v.toFixed(i === 0 ? 0 : 2)} ${units[i]}`;
 };
 
-const formatUptime = (raw, unit, day = 'd') => {
+// Uptime as "12d 16h 15min", with the unit letters of the card language (day / hour / minute of its I18N entry).
+const formatUptime = (raw, unit, u = { day: 'd', hour: 'h', minute: 'min' }) => {
   const n = parseInt(raw, 10);
   if (!Number.isFinite(n)) return '—';
   const t = unit === 'seconds' ? n : Math.floor(n / 100);
   const d = Math.floor(t / 86400);
   const h = Math.floor((t % 86400) / 3600);
   const m = Math.floor((t % 3600) / 60);
-  return `${d > 0 ? `${d}${day} ` : ''}${h}h ${m}min`;
+  return `${d > 0 ? `${d}${u.day} ` : ''}${h}${u.hour} ${m}${u.minute}`;
 };
 
 const portSvg = (color, dark) => `
@@ -778,7 +799,7 @@ class HaSwitchCard extends HTMLElement {
   }
 
   getGridOptions() {
-    return { columns: 12, min_columns: 6 };
+    return { columns: 12, min_columns: 8 };
   }
 
   /* --- helpers --- */
@@ -897,7 +918,9 @@ class HaSwitchCard extends HTMLElement {
       pill = conChip;
     }
     if (c.uptime_entity) {
-      chips.push(this._chip(c.uptime_entity, 'mdi:clock-outline', COLORS.neutral, formatUptime(this._state(c.uptime_entity)?.state, c.uptime_unit, t.day)));
+      // Unavailable / unknown read as Home Assistant shows them (translated), not as a dash or a duration.
+      const up = this._state(c.uptime_entity);
+      chips.push(this._chip(c.uptime_entity, 'mdi:clock-outline', COLORS.neutral, isUnavailable(up) ? this._formatState(up) : formatUptime(up?.state, c.uptime_unit, t)));
     }
 
     /* ports */
@@ -995,7 +1018,8 @@ class HaSwitchCard extends HTMLElement {
   }
 
   _chip(entity, icon, color, content) {
-    return `<div class="chip" style="--c:${color}" data-entity="${esc(entity)}" role="button" tabindex="0">
+    // The full text also in title / aria-label: the pill may be truncated, or reduced to its icon on a narrow card.
+    return `<div class="chip" style="--c:${color}" data-entity="${esc(entity)}" role="button" tabindex="0" title="${esc(content)}" aria-label="${esc(content)}">
       <ha-icon icon="${icon}"></ha-icon><span>${esc(content)}</span>
     </div>`;
   }
@@ -1010,7 +1034,8 @@ class HaSwitchCard extends HTMLElement {
       ha-card { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
       [data-entity], [data-url] { cursor: pointer; }
       /* The body starts 8px under the header (the card gap is 10px between body blocks). */
-      .header { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; margin-bottom: -2px; }
+      /* The header is a size container: under 280px the status pill keeps only its icon (see the @container rule). */
+      .header { display: flex; align-items: center; gap: 10px; margin-bottom: -2px; container-type: inline-size; }
       .ic {
         --size: 32px;
         width: var(--size); height: var(--size); border-radius: 50%;
@@ -1018,14 +1043,21 @@ class HaSwitchCard extends HTMLElement {
         color: var(--c); background: color-mix(in srgb, var(--c) 15%, transparent);
       }
       .ic.big { --size: 40px; --mdc-icon-size: 24px; background: color-mix(in srgb, var(--c) 16%, transparent); }
-      .titles { min-width: 0; }
-      /* The status pill shares the title's line, right of the name (left of the power toggle), whatever the subtitle. */
+      .titles { flex: 1 1 auto; min-width: 0; }
+      /* The status pill shares the title's line, right of the name (left of the power toggle), whatever the subtitle.
+         At narrow widths both shrink: the name keeps about four characters, the pill at most half the line, with ellipses. */
       .title-row { display: flex; align-items: center; gap: 8px; }
-      .title-row > .name { flex: 1; min-width: 0; }
-      .title-row > .chip { flex: none; white-space: nowrap; }
+      .title-row > .name { flex: 1 1 auto; min-width: 5ch; }
+      .title-row > .chip { flex: 0 1 auto; min-width: 0; max-width: 50%; overflow: hidden; }
+      .title-row > .chip ha-icon { flex: none; }
+      @container (max-width: 280px) {
+        .title-row > .chip { flex: none; max-width: none; padding: 1px 5px; }
+        .title-row > .chip span { display: none; }
+      }
       .name { font-size: 16px; font-weight: 500; line-height: 1.25; color: var(--primary-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .sub { font-size: 12px; color: var(--secondary-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       ha-switch {
+        flex: none;
         --switch-checked-color: var(--success-color, #43a047);
         --switch-checked-button-color: #fff;
         --switch-checked-track-color: var(--success-color, #43a047);
@@ -1046,6 +1078,8 @@ class HaSwitchCard extends HTMLElement {
         --mdc-icon-size: 14px;
       }
       .chip ha-icon { --mdc-icon-size: 13px; }
+      .chip { max-width: 100%; box-sizing: border-box; }
+      .chip span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .device { position: relative; width: 100%; border-radius: 10px; overflow: hidden; }
       .device img { width: 100%; display: block; }
       .device svg { width: 100%; height: auto; display: block; }
