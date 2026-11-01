@@ -1093,7 +1093,8 @@ class HaSwitchCard extends HTMLElement {
               background: var(--secondary-background-color, rgba(127,127,127,.08)); }
       .tile .ic { --mdc-icon-size: 20px; }
       .tile .txt { min-width: 0; }
-      .tile .k { font-size: 11px; color: var(--secondary-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      /* The label wraps rather than being cut: "Ruch przychodzący" or "Eingehender Datenverkehr" in a 140px tile. */
+      .tile .k { font-size: 11px; color: var(--secondary-text-color); overflow-wrap: anywhere; }
       .tile .v { font-size: 14px; font-weight: 500; color: var(--primary-text-color); }
     `;
   }

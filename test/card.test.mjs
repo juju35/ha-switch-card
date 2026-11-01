@@ -447,6 +447,15 @@ test("narrow header: the name gives way to the pill down to a few characters, th
   assert.doesNotMatch(css, /container-type|container:|@container/);
 });
 
+// pl / sr-Latn traffic labels ("Ruch przychodzący", "Dolazni saobraćaj") were cut to "Ruch przychod…" in the two
+// 140px tiles of a 320 px card, and "Eingehender Datenverkehr" (de) at most widths.
+test("traffic tile labels wrap instead of being cut", () => {
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const k = cssRule(HaSwitchCard.styles.replace(/\s+/g, " "), ".tile .k");
+  assert.doesNotMatch(k, /nowrap|ellipsis/);
+  assert.match(k, /overflow-wrap: anywhere/);
+});
+
 test("the status pill carries its full text in title and aria-label, so a truncated or icon-only pill stays readable", () => {
   const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
   const card = new HaSwitchCard();
