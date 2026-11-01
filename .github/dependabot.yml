@@ -15,8 +15,9 @@ updates:
       npm-dev:
         dependency-type: development
         patterns: ["*"]
-  # Bumps the hook revisions in .pre-commit-config.yaml. The biome hook's additional_dependencies pin
-  # (@biomejs/biome) is not touched by Dependabot: keep it, biome.json and the Lint workflow in step by hand.
+  # Bumps the hook revisions in .pre-commit-config.yaml, including the biome hook's
+  # additional_dependencies pin (@biomejs/biome). The Lint workflow reads the Biome version from that
+  # file; only the biome.json $schema must be bumped by hand (the Lint workflow fails until it is).
   - package-ecosystem: pre-commit
     directory: /
     schedule:
