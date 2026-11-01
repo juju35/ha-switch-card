@@ -456,6 +456,24 @@ test("traffic tile labels wrap instead of being cut", () => {
   assert.match(k, /overflow-wrap: anywhere/);
 });
 
+// Focus restored after a redraw must not scroll the dashboard: a state change while a port has the focus
+// would otherwise jump the view back to the card.
+test("the focus is restored after a redraw without scrolling", () => {
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const card = new HaSwitchCard();
+  card.setConfig({ ports: 2, port_pattern: "sensor.p{n}" });
+  card.hass = { language: "en", states: { "sensor.p1": { state: "1", attributes: {} } } };
+  const attrs = { class: "port", "data-entity": "sensor.p1", tabindex: "0" };
+  const el = (calls) => ({ getAttribute: (n) => attrs[n] ?? null, focus: (...a) => calls.push(a) });
+  const calls = [];
+  card.shadowRoot.activeElement = el([]);
+  card.shadowRoot.querySelectorAll = () => [el(calls)];
+  card.hass = { language: "en", states: { "sensor.p1": { state: "2", attributes: {} } } };
+  assert.equal(calls.length, 1, "focus restored once");
+  // The card runs in its own realm (vm): compare by value.
+  assert.equal(JSON.stringify(calls[0]), JSON.stringify([{ preventScroll: true }]));
+});
+
 test("the status pill carries its full text in title and aria-label, so a truncated or icon-only pill stays readable", () => {
   const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
   const card = new HaSwitchCard();
