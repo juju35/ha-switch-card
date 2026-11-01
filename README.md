@@ -135,7 +135,7 @@ The generic front panel is an SVG drawn by the card: up to 12 ports on one row, 
 npm install
 npm run build        # stamps the version of package.json into dist/ha-switch-card.js
 npm run check        # builds and checks the card (run in CI)
-npm run screenshots  # renders the card with mock entities into screenshots/
+npm run screenshots  # renders the card with mock entities into screenshots/ (a file is only rewritten when its pixels change)
 ```
 
 `dist/` is not committed: `npm run build` creates it locally, CI builds it on every push, and the release workflow attaches the built file to the release, which is where HACS downloads it from.
