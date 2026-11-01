@@ -396,7 +396,7 @@ test("I18N: the editor offers every language of the dictionary, Serbian in both 
   assert.deepEqual([...options.map((o) => o.value).filter(Boolean)].sort(), [...Object.keys(I18N)].sort());
   assert.equal(options.find((o) => o.value === "sr").label, "Српски");
   assert.equal(options.find((o) => o.value === "sr-Latn").label, "Srpski (latinica)");
-  for (const [value, label] of [["it", "Italiano"], ["nl", "Nederlands"], ["pt", "Português"], ["pl", "Polski"]]) {
+  for (const [value, label] of [["it", "Italiano"], ["nl", "Nederlands"], ["pt", "Português (Portugal)"], ["pl", "Polski"]]) {
     assert.equal(options.find((o) => o.value === value)?.label, label, value);
   }
 });
