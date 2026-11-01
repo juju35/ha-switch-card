@@ -23,7 +23,7 @@ Custom Lovelace card for Home Assistant displaying a managed network switch (SNM
 - Built-in devices: a drawn generic front panel (1–52 ports) that follows the light or dark theme, or a drawn Netgear GS308T (S350) front panel with its ports and link LEDs
 - Custom image support with an adjustable port overlay
 - Status colors from the Home Assistant theme
-- Visual editor in the dashboard UI (no YAML needed), English, French, German and Spanish
+- Visual editor in the dashboard UI (no YAML needed), in every supported language
 - Single file, no dependencies (no mushroom, card-mod or button-card)
 
 ## Prerequisites
@@ -125,7 +125,7 @@ Tapping any chip, tile or port opens its more-info dialog.
 
 Ports are read from `port_pattern` with `{n}` replaced by the port number, and drawn green when their state equals `port_on_state`, red otherwise, grey when the entity is missing, `unavailable` or `unknown` (so a failed SNMP poll does not show every port as down). The header icon and the power LED follow `status_entity` (`online_state` green, `idle_state` orange, `unavailable` / `unknown` or missing grey, anything else red), or `connectivity_entity` when no status is set (`on` green, `unavailable` / `unknown` grey, otherwise red).
 
-As in the other juju35 cards, the status pill sits on the right of the header, on the title's line (left of the power toggle): it shows `status_entity`, or `connectivity_entity` when no status is set. The other chips (connectivity when a status is set, uptime) are shown under the header.
+As in the other juju35 cards, the status pill sits on the right of the header, on the title's line (left of the power toggle): it shows `status_entity`, or `connectivity_entity` when no status is set. The other chips (connectivity when a status is set, uptime) are shown under the header. On a narrow card the pill text is shortened with an ellipsis, then reduced to its icon (the full text stays in the tooltip). In the Sections view the card is at least 8 columns wide.
 
 The generic front panel is an SVG drawn by the card: up to 12 ports on one row, beyond that odd ports on top and even ports below, like real switches. Its body is derived from the theme's card and text colors, so it stays readable in light and dark mode.
 
