@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.8.6 - 2026-11-01
+
+### Fixes
+- On a narrow card the status pill no longer hides the switch name: the name keeps at least a few characters, and when the pill's whole text ("Unavailable", "Niedostępny") no longer fits beside them, the pill moves under the name instead of being cut. It is only shortened with an ellipsis when even that line is too short; its full text stays in the tooltip and for screen readers.
+- The card can no longer be made narrower than 8 of the 12 columns in the Sections view: at 6 columns of a narrow section, the name and the status pill slid under the power toggle.
+- Serbian (Cyrillic): the uptime reads "12д 16ч 15мин" instead of the Latin "12d 16h 15min".
+- An unavailable or unknown uptime sensor shows its state as Home Assistant translates it, instead of a dash.
+- Traffic tile labels wrap onto a second line instead of being cut ("Ruch przychodzący", "Eingehender Datenverkehr" in two tiles side by side).
+
+### Maintenance
+- README: the visual editor is translated into every supported language, not only English, French, German and Spanish.
+- The screenshot script only rewrites a screenshot whose pixels changed, so a different PNG encoder no longer produces a commit of identical-looking images.
+
 ## 1.8.5 - 2026-11-01
 
 ### What's new

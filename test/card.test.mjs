@@ -404,11 +404,118 @@ test("I18N: the editor offers every language of the dictionary, Serbian in both 
 test("I18N: sr is written in Cyrillic and sr-Latn in Latin (acronyms and units aside)", () => {
   const { I18N } = loadCard("ha-switch-card.js", ["I18N"]);
   const flat = (o) => Object.values(o).flatMap((v) => (v && typeof v === "object" ? flat(v) : [String(v)]));
-  // Allowed Latin in sr: acronyms (URL, SNMP), the day unit and placeholders.
+  // Allowed Latin in sr: acronyms (URL, SNMP) and placeholders. The uptime units are Cyrillic too.
   const strip = (s) => s.replace(/\{\w+\}|\bURL\b|\bSNMP\b/g, "");
-  for (const v of flat(I18N.sr)) {
-    if (v === "d") continue;
-    assert.doesNotMatch(strip(v), /[A-Za-z]/, `sr: ${v}`);
-  }
+  for (const v of flat(I18N.sr)) assert.doesNotMatch(strip(v), /[A-Za-z]/, `sr: ${v}`);
   for (const v of flat(I18N["sr-Latn"])) assert.doesNotMatch(v, /[\u0400-\u04FF]/, `sr-Latn: ${v}`);
+});
+
+const cssRule = (css, selector) => {
+  const m = css.match(new RegExp(`(?:^|\\}|\\*/)\\s*${selector.replace(/[.*+?^${}()|[\]\\>]/g, "\\$&")} \\{([^}]*)\\}`));
+  assert.ok(m, `rule ${selector}`);
+  return m[1];
+};
+
+// Narrow header (6 columns of the Sections view, ~230 px): the status pill used to keep its full width
+// ("Niedostępny", "Unavailable") and squeeze the name down to a lone "…". Then (1.8.6 draft) the name took its
+// whole text width first (flex-basis auto) and a 50% cap plus a 280px container query cut the pill, or reduced
+// it to its icon, on cards up to 304 px wide, where its whole text fits.
+test("narrow header: the name gives way to the pill down to a few characters, then the pill wraps under it", () => {
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const css = HaSwitchCard.styles.replace(/\s+/g, " ");
+  const rule = (selector) => cssRule(css, selector);
+  const name = rule(".title-row > .name");
+  assert.match(name, /flex: 1 1 0[;\s]/);
+  assert.match(name, /min-width: (?:[4-9]|\d{2,})(?:\.\d+)?ch/);
+  const pill = rule(".title-row > .chip");
+  assert.match(pill, /flex: 0 1 auto/);
+  assert.match(pill, /min-width: 0/);
+  assert.match(pill, /overflow: hidden/);
+  // No cap: the pill is only cut when it does not fit even on a line of its own.
+  assert.doesNotMatch(pill, /max-width/);
+  assert.match(rule(".title-row"), /flex-wrap: wrap/);
+  assert.match(rule(".titles"), /flex: 1 1 0[;\s]/);
+  const text = rule(".chip span");
+  assert.match(text, /min-width: 0/);
+  assert.match(text, /text-overflow: ellipsis/);
+  assert.match(text, /white-space: nowrap/);
+  assert.match(rule(".title-row > .chip ha-icon"), /flex: none/);
+  assert.match(rule("ha-switch"), /flex: none/);
+  assert.match(rule(".ic"), /flex: none/);
+  // No size container: inline-size containment drops the element's intrinsic width, which collapses a card
+  // placed in a shrink-to-fit parent (inline-block, a grid "auto" column, layout-card, button-card).
+  assert.doesNotMatch(css, /container-type|container:|@container/);
+});
+
+// pl / sr-Latn traffic labels ("Ruch przychodzący", "Dolazni saobraćaj") were cut to "Ruch przychod…" in the two
+// 140px tiles of a 320 px card, and "Eingehender Datenverkehr" (de) at most widths.
+test("traffic tile labels wrap instead of being cut", () => {
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const k = cssRule(HaSwitchCard.styles.replace(/\s+/g, " "), ".tile .k");
+  assert.doesNotMatch(k, /nowrap|ellipsis/);
+  assert.match(k, /overflow-wrap: anywhere/);
+});
+
+// Focus restored after a redraw must not scroll the dashboard: a state change while a port has the focus
+// would otherwise jump the view back to the card.
+test("the focus is restored after a redraw without scrolling", () => {
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const card = new HaSwitchCard();
+  card.setConfig({ ports: 2, port_pattern: "sensor.p{n}" });
+  card.hass = { language: "en", states: { "sensor.p1": { state: "1", attributes: {} } } };
+  const attrs = { class: "port", "data-entity": "sensor.p1", tabindex: "0" };
+  const el = (calls) => ({ getAttribute: (n) => attrs[n] ?? null, focus: (...a) => calls.push(a) });
+  const calls = [];
+  card.shadowRoot.activeElement = el([]);
+  card.shadowRoot.querySelectorAll = () => [el(calls)];
+  card.hass = { language: "en", states: { "sensor.p1": { state: "2", attributes: {} } } };
+  assert.equal(calls.length, 1, "focus restored once");
+  // The card runs in its own realm (vm): compare by value.
+  assert.equal(JSON.stringify(calls[0]), JSON.stringify([{ preventScroll: true }]));
+});
+
+test("the status pill carries its full text in title and aria-label, so a truncated or icon-only pill stays readable", () => {
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const card = new HaSwitchCard();
+  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", status_entity: "sensor.s", language: "pl" });
+  card.hass = { language: "en", states: { "sensor.s": { state: "unavailable", attributes: {} } }, formatEntityState: () => "Niedostępny" };
+  const pill = card.shadowRoot.innerHTML.match(/<div class="title-row">.*?<div class="chip"([^>]*)>/s)[1];
+  assert.match(pill, /title="Niedostępny"/);
+  assert.match(pill, /aria-label="Niedostępny"/);
+  // Escaped like the visible text.
+  card.hass = { language: "en", states: { "sensor.s": { state: "x", attributes: {} } }, formatEntityState: () => `a"<b` };
+  assert.match(card.shadowRoot.innerHTML, /title="a&quot;&lt;b"/);
+});
+
+// sr (Cyrillic) showed "12d 16h 15min" in the middle of a Cyrillic card.
+test("uptime units follow the card language (Cyrillic in sr), every language has them", () => {
+  const { HaSwitchCard, I18N } = loadCard("ha-switch-card.js", ["HaSwitchCard", "I18N"]);
+  const uptime = (language, state, unit) => {
+    const card = new HaSwitchCard();
+    card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", uptime_entity: "sensor.up", language, ...(unit ? { uptime_unit: unit } : {}) });
+    const states = state === undefined ? {} : { "sensor.up": { state, attributes: {} } };
+    card.hass = { language: "en", states, formatEntityState: (st) => (st.state === "unavailable" ? "Недоступно" : st.state) };
+    return card.shadowRoot.innerHTML.match(/data-entity="sensor\.up"[^>]*>\s*<ha-icon[^>]*><\/ha-icon><span>([^<]*)<\/span>/)[1];
+  };
+  // 12 d 16 h 15 min, in SNMP timeticks.
+  assert.equal(uptime("sr", "109530000"), "12д 16ч 15мин");
+  assert.equal(uptime("sr-Latn", "109530000"), "12d 16h 15min");
+  assert.equal(uptime("en", "109530000"), "12d 16h 15min");
+  assert.equal(uptime("fr", "109530000"), "12j 16h 15min");
+  // Under a day: no day part; seconds unit.
+  assert.equal(uptime("sr", "3720", "seconds"), "1ч 2мин");
+  // Unavailable: Home Assistant's translated state, never "NaN" or a duration; missing entity: a dash.
+  assert.equal(uptime("sr", "unavailable"), "Недоступно");
+  assert.equal(uptime("sr", undefined), "—");
+  for (const [lang, t] of Object.entries(I18N)) for (const k of ["day", "hour", "minute"]) assert.ok(t[k], `${lang}.${k}`);
+});
+
+// A Sections view section is 320 px wide at its narrowest: 6 of its 12 columns (~155 px) left the name and the
+// status pill under the power toggle. 8 columns (~210 px) keep the icon, about four characters of the name,
+// the icon-only pill and the toggle side by side.
+test("getGridOptions: the card cannot be made narrower than 8 columns", () => {
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const o = new HaSwitchCard().getGridOptions();
+  assert.equal(o.columns, 12);
+  assert.equal(o.min_columns, 8);
 });
