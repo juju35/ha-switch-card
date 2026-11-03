@@ -26,6 +26,14 @@ Custom Lovelace card for Home Assistant displaying a managed network switch (SNM
 - Visual editor in the dashboard UI (no YAML needed), in every supported language
 - Single file, no dependencies (no mushroom, card-mod or button-card)
 
+## Supported integrations
+
+| Integration | What the card reads |
+|---|---|
+| [SNMP](https://www.home-assistant.io/integrations/snmp/) (built in, YAML) | One sensor per port with its operational status, plus optional status, connectivity, uptime (timeticks) and traffic sensors |
+
+Any other integration works as long as its port entities follow a pattern (`port_pattern`, with `{n}` for the port number); status, connectivity, uptime (seconds), traffic and power switch entities are optional.
+
 ## Prerequisites
 
 Home Assistant 2024.8 or later, and:
