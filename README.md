@@ -5,7 +5,7 @@
 [![Validate](https://github.com/juju35/ha-switch-card/actions/workflows/validate.yml/badge.svg)](https://github.com/juju35/ha-switch-card/actions/workflows/validate.yml)
 [![Lint](https://github.com/juju35/ha-switch-card/actions/workflows/lint.yml/badge.svg)](https://github.com/juju35/ha-switch-card/actions/workflows/lint.yml)
 [![Release](https://img.shields.io/github/v/release/juju35/ha-switch-card)](https://github.com/juju35/ha-switch-card/releases/latest)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/juju35/ha-switch-card/blob/main/LICENSE)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/julienstep9)
 
 Custom Lovelace card for Home Assistant displaying a managed network switch (SNMP): power toggle, global status, connectivity, uptime, per-port state and traffic. Pure JavaScript, no dependencies (no mushroom, card-mod or button-card required). Fully configurable from the visual editor. English, French, German, Spanish, Serbian (Cyrillic and Latin), Italian, Dutch, European Portuguese, Polish, Romanian, Danish, Swedish, Bulgarian, Russian, Ukrainian, Hungarian, Slovak, Czech, Slovenian, Latvian and Greek, auto-detected from Home Assistant or set with `language`.
@@ -128,8 +128,8 @@ Tapping any chip, tile or port opens its more-info dialog.
 
 | | Light | Dark |
 |---|---|---|
-| Generic front panel | ![card](screenshots/card.png) | ![card dark](screenshots/card-dark.png) |
-| Netgear GS308T | ![GS308T](screenshots/card-gs308t.png) | ![GS308T dark](screenshots/card-gs308t-dark.png) |
+| Generic front panel | ![card](https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card.png) | ![card dark](https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-dark.png) |
+| Netgear GS308T | ![GS308T](https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-gs308t.png) | ![GS308T dark](https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-gs308t-dark.png) |
 
 ## How it works
 
@@ -153,7 +153,7 @@ npm run screenshots  # renders the card with mock entities into screenshots/ (a 
 ### Releasing
 
 1. Bump `version` in `package.json`
-2. Add a `## <version>` section at the top of [CHANGELOG.md](CHANGELOG.md)
+2. Add a `## <version>` section at the top of [CHANGELOG.md](https://github.com/juju35/ha-switch-card/blob/main/CHANGELOG.md)
 3. Push to `main`: the **Release** workflow builds the card, creates the tag and the GitHub release with the changelog section as notes, and attaches `ha-switch-card.js`
 
 ## Translations
@@ -189,7 +189,7 @@ Contributions for additional languages are welcome!
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/juju35/ha-switch-card/blob/main/LICENSE)
 
 ## Support
 
