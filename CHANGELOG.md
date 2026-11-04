@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.8.7 - 2026-11-04
+
+### What's new
+- Added Romanian, Danish, Swedish, Bulgarian, Russian, Ukrainian, Hungarian, Slovak, Czech, Slovenian, Latvian and Greek translations: `ro`, `da`, `sv`, `bg`, `ru`, `uk`, `hu`, `sk`, `cs`, `sl`, `lv` and `el`, picked automatically from the Home Assistant language or set with `language`.
+
 ## 1.8.6 - 2026-11-01
 
 ### Fixes
