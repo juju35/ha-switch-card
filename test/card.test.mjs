@@ -134,7 +134,7 @@ test("I18N parity: every language has exactly the keys of en, placeholders inclu
     Object.entries(o).flatMap(([k, v]) => (v && typeof v === "object" ? flat(v, `${p}${k}.`) : [[`${p}${k}`, v]]));
   const ref = new Map(flat(I18N.en));
   const placeholders = (s) => String(s).match(/\{\w+\}/g) || [];
-  for (const lang of ["fr", "de", "es", "sr", "sr-Latn", "it", "nl", "pt", "pl", "ro", "da", "sv", "bg", "ru", "uk", "hu", "ga", "sk", "cs", "sl", "mt", "lv", "el"]) {
+  for (const lang of ["fr", "de", "es", "sr", "sr-Latn", "it", "nl", "pt", "pl", "ro", "da", "sv", "bg", "ru", "uk", "hu", "sk", "cs", "sl", "lv", "el"]) {
     assert.ok(I18N[lang], lang);
     const entries = new Map(flat(I18N[lang]));
     assert.deepEqual([...entries.keys()].sort(), [...ref.keys()].sort(), lang);
@@ -147,7 +147,7 @@ test("I18N parity: every language has exactly the keys of en, placeholders inclu
   const idle = [["de", "Inaktiv"], ["es", "Inactivo"], ["sr", "Неактиван"], ["sr-Latn", "Neaktivan"]];
   idle.push(["it", "Inattivo"], ["nl", "Inactief"], ["pt", "Inativo"], ["pl", "Bezczynny"]);
   idle.push(["ro", "Inactiv"], ["da", "Inaktiv"], ["sv", "Inaktiv"], ["bg", "Неактивен"], ["ru", "Неактивен"], ["uk", "Неактивний"], ["hu", "Inaktív"]);
-  idle.push(["ga", "Díomhaoin"], ["sk", "Nečinný"], ["cs", "Nečinný"], ["sl", "Nedejavno"], ["mt", "Inattiv"], ["lv", "Dīkstāvē"], ["el", "Ανενεργό"]);
+  idle.push(["sk", "Nečinný"], ["cs", "Nečinný"], ["sl", "Nedejavno"], ["lv", "Dīkstāvē"], ["el", "Ανενεργό"]);
   for (const [language, label] of idle) {
     const card = new HaSwitchCard();
     card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", status_entity: "sensor.s" });
@@ -362,7 +362,7 @@ test("other empty YAML keys fall back to their defaults too", () => {
 
 test("I18N: every editor section label is shown by the editor (no orphan section keys)", () => {
   const { I18N, HaSwitchCardEditor } = loadCard("ha-switch-card.js", ["I18N", "HaSwitchCardEditor"]);
-  for (const lang of ["en", "fr", "de", "es", "sr", "sr-Latn", "it", "nl", "pt", "pl", "ro", "da", "sv", "bg", "ru", "uk", "hu", "ga", "sk", "cs", "sl", "mt", "lv", "el"]) {
+  for (const lang of ["en", "fr", "de", "es", "sr", "sr-Latn", "it", "nl", "pt", "pl", "ro", "da", "sv", "bg", "ru", "uk", "hu", "sk", "cs", "sl", "lv", "el"]) {
     const t = I18N[lang];
     const titles = new HaSwitchCardEditor()._schema(t).filter((s) => s.type === "expandable").map((s) => s.title);
     for (const [key, label] of Object.entries(t.sections)) {
@@ -379,7 +379,7 @@ test("language resolution: full code if it has a dictionary, else its base langu
   // Italian, Dutch, Portuguese (European, also picked for pt-BR) and Polish; unknown languages fall back to English.
   cases.push(["it-IT", "it"], ["nl-BE", "nl"], ["pt", "pt"], ["pt-BR", "pt"], ["pl-PL", "pl"], ["ja", "en"]);
   cases.push(["ro-RO", "ro"], ["da", "da"], ["sv-SE", "sv"], ["bg", "bg"], ["ru-RU", "ru"], ["uk", "uk"], ["hu", "hu"]);
-  cases.push(["ga-IE", "ga"], ["sk", "sk"], ["cs-CZ", "cs"], ["sl", "sl"], ["mt", "mt"], ["lv-LV", "lv"], ["el-GR", "el"]);
+  cases.push(["sk", "sk"], ["cs-CZ", "cs"], ["sl", "sl"], ["lv-LV", "lv"], ["el-GR", "el"]);
   for (const [language, want] of cases) {
     assert.equal(getLang({ language }), want, `hass.language ${language}`);
     assert.equal(getLang({ language: "en", locale: { language } }), want, `hass.locale.language ${language}`);
@@ -405,7 +405,7 @@ test("I18N: the editor offers every language of the dictionary, Serbian in both 
   assert.equal(options.find((o) => o.value === "sr-Latn").label, "Srpski (latinica)");
   const labels = [["it", "Italiano"], ["nl", "Nederlands"], ["pt", "Português (Portugal)"], ["pl", "Polski"]];
   labels.push(["ro", "Română"], ["da", "Dansk"], ["sv", "Svenska"], ["bg", "Български"], ["ru", "Русский"], ["uk", "Українська"], ["hu", "Magyar"]);
-  labels.push(["ga", "Gaeilge"], ["sk", "Slovenčina"], ["cs", "Čeština"], ["sl", "Slovenščina"], ["mt", "Malti"], ["lv", "Latviešu"], ["el", "Ελληνικά"]);
+  labels.push(["sk", "Slovenčina"], ["cs", "Čeština"], ["sl", "Slovenščina"], ["lv", "Latviešu"], ["el", "Ελληνικά"]);
   for (const [value, label] of labels) {
     assert.equal(options.find((o) => o.value === value)?.label, label, value);
   }
