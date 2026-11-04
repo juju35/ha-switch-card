@@ -14,7 +14,7 @@ Custom Lovelace card for Home Assistant displaying a managed network switch (SNM
 
 | Generic front panel | Netgear GS308T (drawn front panel) |
 |---|---|
-| ![card](https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card.png) | ![GS308T](https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-gs308t.png) |
+| <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card.png" alt="card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-gs308t.png" alt="GS308T" width="400"> |
 
 ## Features
 
@@ -128,8 +128,8 @@ Tapping any chip, tile or port opens its more-info dialog.
 
 | | Light | Dark |
 |---|---|---|
-| Generic front panel | ![card](https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card.png) | ![card dark](https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-dark.png) |
-| Netgear GS308T | ![GS308T](https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-gs308t.png) | ![GS308T dark](https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-gs308t-dark.png) |
+| Generic front panel | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card.png" alt="card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-dark.png" alt="card dark" width="400"> |
+| Netgear GS308T | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-gs308t.png" alt="GS308T" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-gs308t-dark.png" alt="GS308T dark" width="400"> |
 
 ## How it works
 
