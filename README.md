@@ -1,6 +1,6 @@
 # ha-switch-card
 
-[![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+[![Marketplace](https://img.shields.io/badge/Marketplace-Custom-41BDF5.svg)](https://www.home-assistant.io/integrations/marketplace/)
 [![HACS Validation](https://github.com/juju35/ha-switch-card/actions/workflows/hacs.yml/badge.svg)](https://github.com/juju35/ha-switch-card/actions/workflows/hacs.yml)
 [![Validate](https://github.com/juju35/ha-switch-card/actions/workflows/validate.yml/badge.svg)](https://github.com/juju35/ha-switch-card/actions/workflows/validate.yml)
 [![Lint](https://github.com/juju35/ha-switch-card/actions/workflows/lint.yml/badge.svg)](https://github.com/juju35/ha-switch-card/actions/workflows/lint.yml)
@@ -10,7 +10,7 @@
 
 Custom Lovelace card for Home Assistant displaying a managed network switch (SNMP): power toggle, global status, connectivity, uptime, per-port state and traffic. Pure JavaScript, no dependencies (no mushroom, card-mod or button-card required). Fully configurable from the visual editor. English, French, German, Spanish, Serbian (Cyrillic and Latin), Italian, Dutch, European Portuguese, Polish, Romanian, Danish, Swedish, Bulgarian, Russian, Ukrainian, Hungarian, Slovak, Czech, Slovenian, Latvian and Greek, auto-detected from Home Assistant or set with `language`.
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=juju35&repository=ha-switch-card&category=plugin)
+[![Open your Home Assistant instance and open a repository inside the Marketplace.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=juju35&repository=ha-switch-card&category=plugin)
 
 | Generic front panel | Netgear GS308T (drawn front panel) |
 |---|---|
@@ -44,19 +44,19 @@ Entities describing your switch, usually from the [SNMP integration](https://www
 
 ## Installation
 
-### Via HACS (recommended)
+### Via the Marketplace (recommended)
 
 Click the button below to add the repository directly:
 
-[![Add to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=juju35&repository=ha-switch-card&category=plugin)
+[![Add to the Marketplace](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=juju35&repository=ha-switch-card&category=plugin)
 
-Then click **Download**, and reload your browser when HACS asks you to.
+Then click **Install**, and reload your browser when the Marketplace asks you to.
 
 Or manually:
 
-1. Open HACS → **⋮** (top right) → **Custom repositories**
+1. Open **Settings → Marketplace → Add from link** (top right; this needs a GitHub account connected)
 2. Add `https://github.com/juju35/ha-switch-card` — Type: **Dashboard**
-3. Search for **Network Switch Card** and click **Download**
+3. Open **Network Switch Card** and click **Install**
 4. Clear your browser cache and refresh
 
 ### Manual
@@ -148,7 +148,7 @@ npm run check        # builds and checks the card (run in CI)
 npm run screenshots  # renders the card with mock entities into screenshots/ (a file is only rewritten when its pixels change)
 ```
 
-`dist/` is not committed: `npm run build` creates it locally, CI builds it on every push, and the release workflow attaches the built file to the release, which is where HACS downloads it from.
+`dist/` is not committed: `npm run build` creates it locally, CI builds it on every push, and the release workflow attaches the built file to the release, which is where the Marketplace installs it from.
 
 ### Releasing
 
