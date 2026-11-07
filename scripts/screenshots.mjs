@@ -143,6 +143,7 @@ window.formatEntityState = (st) => {
 const extra = formatter + `
 customElements.define("ha-switch", class extends HTMLElement {
   set checked(v) { this._c = v; this._draw(); }
+  get checked() { return this._c; }
   connectedCallback() { this._draw(); }
   _draw() {
     const on = this._c !== false;
@@ -180,6 +181,13 @@ const config = {
 const ws = `window.__ws = async (msg) => Object.fromEntries((msg.statistic_ids || []).map((id, k) => [id,
   Array.from({ length: 288 }, (_, i) => ({ change: 300 * (k ? 0.15 : 1) * 1048576 * (2 + 14 * Math.exp(-((i - 240) ** 2) / 900) + 6 * Math.exp(-((i - 110) ** 2) / 400) + Math.sin(i * 0.12 + k) ** 2) }))]));`;
 const hass = { states };
+// Flips the power toggle off as a user would: the card asks for a confirmation first.
+const turnOff = (page) =>
+  page.evaluate(() => {
+    const toggle = document.querySelector("ha-switch-card").shadowRoot.querySelector("ha-switch");
+    toggle.checked = false;
+    toggle.dispatchEvent(new Event("change"));
+  });
 
 await render(
   [
@@ -187,6 +195,8 @@ await render(
     { file: "card-dark", type: "ha-switch-card", theme: "dark", width: 460, config: { ...config, subtitle: "Generic" } },
     { file: "card-gs308t", type: "ha-switch-card", theme: "light", width: 460, config: { ...config, model: "gs308t" } },
     { file: "card-gs308t-dark", type: "ha-switch-card", theme: "dark", width: 460, config: { ...config, model: "gs308t" } },
+    { file: "card-confirm-off", type: "ha-switch-card", theme: "light", width: 460, config: { ...config, subtitle: "Generic" }, after: turnOff },
+    { file: "card-confirm-off-dark", type: "ha-switch-card", theme: "dark", width: 460, config: { ...config, subtitle: "Generic" }, after: turnOff },
     { file: "mini-card", type: "ha-switch-mini-card", theme: "light", width: 380, config: { ...config, model: "gs308t" } },
     { file: "mini-card-dark", type: "ha-switch-mini-card", theme: "dark", width: 380, config: { ...config, model: "gs308t" } },
     // A phone: 6 columns of a section, then the narrowest mini card.

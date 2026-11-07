@@ -48,6 +48,7 @@ const I18N = {
       watched_ports: 'Ports surveillés (rouges si coupés)',
       show_history: 'Historique 24 h du trafic',
       zoom: 'Bouton détail',
+      confirm_off: 'Confirmer avant d’éteindre',
     },
     units: { timeticks: 'Centièmes de seconde (SNMP)', seconds: 'Secondes' },
     day: 'j',
@@ -60,6 +61,9 @@ const I18N = {
     total: 'Total',
     zoom_in: 'Afficher la carte complète',
     zoom_out: 'Revenir à la vue compacte',
+    confirm_text: 'Éteindre {name} ?',
+    cancel: 'Annuler',
+    turn_off: 'Éteindre',
     mini_name: 'Mini-carte switch réseau',
     mini_desc: 'Switch réseau compact : façade, ports et trafic, avec un bouton pour afficher la carte complète.',
   },
@@ -105,6 +109,7 @@ const I18N = {
       watched_ports: 'Watched ports (red when down)',
       show_history: '24 h traffic history',
       zoom: 'Detail button',
+      confirm_off: 'Confirm before turning off',
     },
     units: { timeticks: 'Hundredths of a second (SNMP)', seconds: 'Seconds' },
     day: 'd',
@@ -117,6 +122,9 @@ const I18N = {
     total: 'Total',
     zoom_in: 'Show the full card',
     zoom_out: 'Back to the compact view',
+    confirm_text: 'Turn off {name}?',
+    cancel: 'Cancel',
+    turn_off: 'Turn off',
     mini_name: 'Network switch mini card',
     mini_desc: 'Compact network switch: front panel, ports and traffic, with a button to show the full card.',
   },
@@ -162,6 +170,7 @@ const I18N = {
       watched_ports: 'Überwachte Ports (rot bei Ausfall)',
       show_history: '24-h-Verlauf des Datenverkehrs',
       zoom: 'Detail-Schaltfläche',
+      confirm_off: 'Vor dem Ausschalten bestätigen',
     },
     units: { timeticks: 'Hundertstelsekunden (SNMP)', seconds: 'Sekunden' },
     day: 'T',
@@ -174,6 +183,9 @@ const I18N = {
     total: 'Gesamt',
     zoom_in: 'Vollständige Karte anzeigen',
     zoom_out: 'Zurück zur kompakten Ansicht',
+    confirm_text: '{name} ausschalten?',
+    cancel: 'Abbrechen',
+    turn_off: 'Ausschalten',
     mini_name: 'Netzwerk-Switch-Minikarte',
     mini_desc: 'Kompakter Netzwerk-Switch: Frontansicht, Ports und Datenverkehr, mit einer Schaltfläche für die vollständige Karte.',
   },
@@ -219,6 +231,7 @@ const I18N = {
       watched_ports: 'Puertos vigilados (rojos si caen)',
       show_history: 'Historial de 24 h del tráfico',
       zoom: 'Botón de detalle',
+      confirm_off: 'Confirmar antes de apagar',
     },
     units: { timeticks: 'Centésimas de segundo (SNMP)', seconds: 'Segundos' },
     day: 'd',
@@ -231,6 +244,9 @@ const I18N = {
     total: 'Total',
     zoom_in: 'Mostrar la tarjeta completa',
     zoom_out: 'Volver a la vista compacta',
+    confirm_text: '¿Apagar {name}?',
+    cancel: 'Cancelar',
+    turn_off: 'Apagar',
     mini_name: 'Minitarjeta de switch de red',
     mini_desc: 'Switch de red compacto: frontal, puertos y tráfico, con un botón para mostrar la tarjeta completa.',
   },
@@ -276,6 +292,7 @@ const I18N = {
       watched_ports: 'Праћени портови (црвени када падну)',
       show_history: 'Историја саобраћаја за 24 ч',
       zoom: 'Дугме за детаље',
+      confirm_off: 'Потврди пре искључивања',
     },
     units: { timeticks: 'Стотинке секунде (SNMP)', seconds: 'Секунде' },
     day: 'д',
@@ -288,6 +305,9 @@ const I18N = {
     total: 'Укупно',
     zoom_in: 'Прикажи целу картицу',
     zoom_out: 'Назад на компактни приказ',
+    confirm_text: 'Искључити {name}?',
+    cancel: 'Откажи',
+    turn_off: 'Искључи',
     mini_name: 'Мини картица мрежног свича',
     mini_desc: 'Компактни мрежни свич: предња плоча, портови и саобраћај, са дугметом за целу картицу.',
   },
@@ -333,6 +353,7 @@ const I18N = {
       watched_ports: 'Praćeni portovi (crveni kada padnu)',
       show_history: 'Istorija saobraćaja za 24 č',
       zoom: 'Dugme za detalje',
+      confirm_off: 'Potvrdi pre isključivanja',
     },
     units: { timeticks: 'Stotinke sekunde (SNMP)', seconds: 'Sekunde' },
     day: 'd',
@@ -345,6 +366,9 @@ const I18N = {
     total: 'Ukupno',
     zoom_in: 'Prikaži celu karticu',
     zoom_out: 'Nazad na kompaktni prikaz',
+    confirm_text: 'Isključiti {name}?',
+    cancel: 'Otkaži',
+    turn_off: 'Isključi',
     mini_name: 'Mini kartica mrežnog sviča',
     mini_desc: 'Kompaktni mrežni svič: prednja ploča, portovi i saobraćaj, sa dugmetom za celu karticu.',
   },
@@ -390,6 +414,7 @@ const I18N = {
       watched_ports: 'Porte sorvegliate (rosse se giù)',
       show_history: 'Storico 24 h del traffico',
       zoom: 'Pulsante dettagli',
+      confirm_off: 'Conferma prima di spegnere',
     },
     units: { timeticks: 'Centesimi di secondo (SNMP)', seconds: 'Secondi' },
     day: 'g',
@@ -402,6 +427,9 @@ const I18N = {
     total: 'Totale',
     zoom_in: 'Mostra la scheda completa',
     zoom_out: 'Torna alla vista compatta',
+    confirm_text: 'Spegnere {name}?',
+    cancel: 'Annulla',
+    turn_off: 'Spegni',
     mini_name: 'Mini scheda switch di rete',
     mini_desc: 'Switch di rete compatto: frontale, porte e traffico, con un pulsante per la scheda completa.',
   },
@@ -447,6 +475,7 @@ const I18N = {
       watched_ports: 'Bewaakte poorten (rood bij uitval)',
       show_history: '24-uursgeschiedenis van het verkeer',
       zoom: 'Detailknop',
+      confirm_off: 'Bevestigen voor uitschakelen',
     },
     units: { timeticks: 'Honderdsten van een seconde (SNMP)', seconds: 'Seconden' },
     day: 'd',
@@ -459,6 +488,9 @@ const I18N = {
     total: 'Totaal',
     zoom_in: 'Volledige kaart tonen',
     zoom_out: 'Terug naar de compacte weergave',
+    confirm_text: '{name} uitschakelen?',
+    cancel: 'Annuleren',
+    turn_off: 'Uitschakelen',
     mini_name: 'Netwerkswitch-minikaart',
     mini_desc: 'Compacte netwerkswitch: frontpaneel, poorten en verkeer, met een knop voor de volledige kaart.',
   },
@@ -504,6 +536,7 @@ const I18N = {
       watched_ports: 'Portas vigiadas (vermelhas se caírem)',
       show_history: 'Histórico de 24 h do tráfego',
       zoom: 'Botão de detalhe',
+      confirm_off: 'Confirmar antes de desligar',
     },
     units: { timeticks: 'Centésimos de segundo (SNMP)', seconds: 'Segundos' },
     day: 'd',
@@ -516,6 +549,9 @@ const I18N = {
     total: 'Total',
     zoom_in: 'Mostrar o cartão completo',
     zoom_out: 'Voltar à vista compacta',
+    confirm_text: 'Desligar {name}?',
+    cancel: 'Cancelar',
+    turn_off: 'Desligar',
     mini_name: 'Mini cartão de switch de rede',
     mini_desc: 'Switch de rede compacto: painel frontal, portas e tráfego, com um botão para o cartão completo.',
   },
@@ -561,6 +597,7 @@ const I18N = {
       watched_ports: 'Monitorowane porty (czerwone po awarii)',
       show_history: 'Historia ruchu z 24 h',
       zoom: 'Przycisk szczegółów',
+      confirm_off: 'Potwierdzaj przed wyłączeniem',
     },
     units: { timeticks: 'Setne części sekundy (SNMP)', seconds: 'Sekundy' },
     day: 'd',
@@ -573,6 +610,9 @@ const I18N = {
     total: 'Łącznie',
     zoom_in: 'Pokaż pełną kartę',
     zoom_out: 'Wróć do widoku kompaktowego',
+    confirm_text: 'Wyłączyć {name}?',
+    cancel: 'Anuluj',
+    turn_off: 'Wyłącz',
     mini_name: 'Mini karta przełącznika sieciowego',
     mini_desc: 'Kompaktowy przełącznik sieciowy: panel przedni, porty i ruch, z przyciskiem pełnej karty.',
   },
@@ -618,6 +658,7 @@ const I18N = {
       watched_ports: 'Porturi supravegheate (roșii la cădere)',
       show_history: 'Istoricul traficului pe 24 h',
       zoom: 'Buton de detalii',
+      confirm_off: 'Confirmare înainte de oprire',
     },
     units: { timeticks: 'Sutimi de secundă (SNMP)', seconds: 'Secunde' },
     day: 'z',
@@ -630,6 +671,9 @@ const I18N = {
     total: 'Total',
     zoom_in: 'Afișează cardul complet',
     zoom_out: 'Înapoi la vizualizarea compactă',
+    confirm_text: 'Opriți {name}?',
+    cancel: 'Anulare',
+    turn_off: 'Oprire',
     mini_name: 'Mini card switch de rețea',
     mini_desc: 'Switch de rețea compact: panou frontal, porturi și trafic, cu un buton pentru cardul complet.',
   },
@@ -675,6 +719,7 @@ const I18N = {
       watched_ports: 'Overvågede porte (røde ved nedbrud)',
       show_history: '24-timers trafikhistorik',
       zoom: 'Detaljeknap',
+      confirm_off: 'Bekræft før slukning',
     },
     units: { timeticks: 'Hundrededele sekunder (SNMP)', seconds: 'Sekunder' },
     day: 'd',
@@ -687,6 +732,9 @@ const I18N = {
     total: 'I alt',
     zoom_in: 'Vis hele kortet',
     zoom_out: 'Tilbage til kompakt visning',
+    confirm_text: 'Sluk {name}?',
+    cancel: 'Annuller',
+    turn_off: 'Sluk',
     mini_name: 'Netværksswitch-minikort',
     mini_desc: 'Kompakt netværksswitch: frontpanel, porte og trafik, med en knap til hele kortet.',
   },
@@ -732,6 +780,7 @@ const I18N = {
       watched_ports: 'Övervakade portar (röda vid avbrott)',
       show_history: '24 h-trafikhistorik',
       zoom: 'Detaljknapp',
+      confirm_off: 'Bekräfta före avstängning',
     },
     units: { timeticks: 'Hundradels sekunder (SNMP)', seconds: 'Sekunder' },
     day: 'd',
@@ -744,6 +793,9 @@ const I18N = {
     total: 'Totalt',
     zoom_in: 'Visa hela kortet',
     zoom_out: 'Tillbaka till kompakt vy',
+    confirm_text: 'Stäng av {name}?',
+    cancel: 'Avbryt',
+    turn_off: 'Stäng av',
     mini_name: 'Minikort för nätverksswitch',
     mini_desc: 'Kompakt nätverksswitch: frontpanel, portar och trafik, med en knapp för hela kortet.',
   },
@@ -789,6 +841,7 @@ const I18N = {
       watched_ports: 'Наблюдавани портове (червени при отпадане)',
       show_history: 'История на трафика за 24 ч',
       zoom: 'Бутон за подробности',
+      confirm_off: 'Потвърждение преди изключване',
     },
     units: { timeticks: 'Стотни от секундата (SNMP)', seconds: 'Секунди' },
     day: 'д',
@@ -801,6 +854,9 @@ const I18N = {
     total: 'Общо',
     zoom_in: 'Покажи цялата карта',
     zoom_out: 'Обратно към компактния изглед',
+    confirm_text: 'Изключване на {name}?',
+    cancel: 'Отказ',
+    turn_off: 'Изключи',
     mini_name: 'Мини карта на мрежов суич',
     mini_desc: 'Компактен мрежов суич: преден панел, портове и трафик, с бутон за цялата карта.',
   },
@@ -846,6 +902,7 @@ const I18N = {
       watched_ports: 'Отслеживаемые порты (красные при падении)',
       show_history: 'История трафика за 24 ч',
       zoom: 'Кнопка подробностей',
+      confirm_off: 'Подтверждать выключение',
     },
     units: { timeticks: 'Сотые доли секунды (SNMP)', seconds: 'Секунды' },
     day: 'д',
@@ -858,6 +915,9 @@ const I18N = {
     total: 'Всего',
     zoom_in: 'Показать полную карточку',
     zoom_out: 'Вернуться к компактному виду',
+    confirm_text: 'Выключить {name}?',
+    cancel: 'Отмена',
+    turn_off: 'Выключить',
     mini_name: 'Мини-карточка сетевого коммутатора',
     mini_desc: 'Компактный сетевой коммутатор: передняя панель, порты и трафик, с кнопкой полной карточки.',
   },
@@ -903,6 +963,7 @@ const I18N = {
       watched_ports: 'Відстежувані порти (червоні при падінні)',
       show_history: 'Історія трафіку за 24 год',
       zoom: 'Кнопка деталей',
+      confirm_off: 'Підтверджувати вимкнення',
     },
     units: { timeticks: 'Соті частки секунди (SNMP)', seconds: 'Секунди' },
     day: 'д',
@@ -915,6 +976,9 @@ const I18N = {
     total: 'Усього',
     zoom_in: 'Показати повну картку',
     zoom_out: 'Повернутися до компактного вигляду',
+    confirm_text: 'Вимкнути {name}?',
+    cancel: 'Скасувати',
+    turn_off: 'Вимкнути',
     mini_name: 'Міні-картка мережевого комутатора',
     mini_desc: 'Компактний мережевий комутатор: передня панель, порти й трафік, з кнопкою повної картки.',
   },
@@ -960,6 +1024,7 @@ const I18N = {
       watched_ports: 'Figyelt portok (pirosak kieséskor)',
       show_history: '24 órás forgalmi előzmények',
       zoom: 'Részletek gomb',
+      confirm_off: 'Megerősítés kikapcsolás előtt',
     },
     units: { timeticks: 'Századmásodperc (SNMP)', seconds: 'Másodperc' },
     day: 'n',
@@ -972,6 +1037,9 @@ const I18N = {
     total: 'Összesen',
     zoom_in: 'Teljes kártya megjelenítése',
     zoom_out: 'Vissza a kompakt nézethez',
+    confirm_text: '{name} kikapcsolása?',
+    cancel: 'Mégse',
+    turn_off: 'Kikapcsolás',
     mini_name: 'Hálózati switch mini kártya',
     mini_desc: 'Kompakt hálózati switch: előlap, portok és forgalom, a teljes kártya gombjával.',
   },
@@ -1017,6 +1085,7 @@ const I18N = {
       watched_ports: 'Sledované porty (červené pri výpadku)',
       show_history: '24 h história prevádzky',
       zoom: 'Tlačidlo podrobností',
+      confirm_off: 'Potvrdiť pred vypnutím',
     },
     units: { timeticks: 'Stotiny sekundy (SNMP)', seconds: 'Sekundy' },
     day: 'd',
@@ -1029,6 +1098,9 @@ const I18N = {
     total: 'Spolu',
     zoom_in: 'Zobraziť celú kartu',
     zoom_out: 'Späť na kompaktné zobrazenie',
+    confirm_text: 'Vypnúť {name}?',
+    cancel: 'Zrušiť',
+    turn_off: 'Vypnúť',
     mini_name: 'Mini karta sieťového prepínača',
     mini_desc: 'Kompaktný sieťový prepínač: predný panel, porty a prevádzka, s tlačidlom celej karty.',
   },
@@ -1074,6 +1146,7 @@ const I18N = {
       watched_ports: 'Sledované porty (červené při výpadku)',
       show_history: '24h historie provozu',
       zoom: 'Tlačítko podrobností',
+      confirm_off: 'Potvrdit před vypnutím',
     },
     units: { timeticks: 'Setiny sekundy (SNMP)', seconds: 'Sekundy' },
     day: 'd',
@@ -1086,6 +1159,9 @@ const I18N = {
     total: 'Celkem',
     zoom_in: 'Zobrazit celou kartu',
     zoom_out: 'Zpět na kompaktní zobrazení',
+    confirm_text: 'Vypnout {name}?',
+    cancel: 'Zrušit',
+    turn_off: 'Vypnout',
     mini_name: 'Mini karta síťového přepínače',
     mini_desc: 'Kompaktní síťový přepínač: přední panel, porty a provoz, s tlačítkem celé karty.',
   },
@@ -1131,6 +1207,7 @@ const I18N = {
       watched_ports: 'Nadzorovana vrata (rdeča ob izpadu)',
       show_history: '24-urna zgodovina prometa',
       zoom: 'Gumb za podrobnosti',
+      confirm_off: 'Potrdi pred izklopom',
     },
     units: { timeticks: 'Stotinke sekunde (SNMP)', seconds: 'Sekunde' },
     day: 'd',
@@ -1143,6 +1220,9 @@ const I18N = {
     total: 'Skupaj',
     zoom_in: 'Prikaži celotno kartico',
     zoom_out: 'Nazaj na kompaktni pogled',
+    confirm_text: 'Želite izklopiti {name}?',
+    cancel: 'Prekliči',
+    turn_off: 'Izklopi',
     mini_name: 'Mini kartica omrežnega stikala',
     mini_desc: 'Kompaktno omrežno stikalo: sprednja plošča, vrata in promet, z gumbom za celotno kartico.',
   },
@@ -1188,6 +1268,7 @@ const I18N = {
       watched_ports: 'Uzraudzītie porti (sarkani, ja krīt)',
       show_history: 'Datplūsmas 24 h vēsture',
       zoom: 'Detaļu poga',
+      confirm_off: 'Apstiprināt pirms izslēgšanas',
     },
     units: { timeticks: 'Sekundes simtdaļas (SNMP)', seconds: 'Sekundes' },
     day: 'd',
@@ -1200,6 +1281,9 @@ const I18N = {
     total: 'Kopā',
     zoom_in: 'Rādīt pilno karti',
     zoom_out: 'Atpakaļ uz kompakto skatu',
+    confirm_text: 'Izslēgt {name}?',
+    cancel: 'Atcelt',
+    turn_off: 'Izslēgt',
     mini_name: 'Tīkla komutatora mini karte',
     mini_desc: 'Kompakts tīkla komutators: priekšējais panelis, porti un datplūsma, ar pogu pilnajai kartei.',
   },
@@ -1245,6 +1329,7 @@ const I18N = {
       watched_ports: 'Θύρες υπό παρακολούθηση (κόκκινες σε πτώση)',
       show_history: 'Ιστορικό κίνησης 24 ωρών',
       zoom: 'Κουμπί λεπτομερειών',
+      confirm_off: 'Επιβεβαίωση πριν από την απενεργοποίηση',
     },
     units: { timeticks: 'Εκατοστά του δευτερολέπτου (SNMP)', seconds: 'Δευτερόλεπτα' },
     day: 'η',
@@ -1257,6 +1342,9 @@ const I18N = {
     total: 'Σύνολο',
     zoom_in: 'Εμφάνιση πλήρους κάρτας',
     zoom_out: 'Επιστροφή στη συμπαγή προβολή',
+    confirm_text: 'Απενεργοποίηση του {name};',
+    cancel: 'Ακύρωση',
+    turn_off: 'Απενεργοποίηση',
     mini_name: 'Μίνι κάρτα μεταγωγέα δικτύου',
     mini_desc: 'Συμπαγής μεταγωγέας δικτύου: πρόσοψη, θύρες και κίνηση, με κουμπί για την πλήρη κάρτα.',
   },
@@ -1326,6 +1414,10 @@ const isSafeUrl = (url) => {
 // After a successful power toggle call, how long to wait for the switch to report its new state
 // before redrawing the toggle from the unchanged one.
 const TOGGLE_CHECK_MS = 2000;
+
+// After the power-off confirmation closes, clicks on the card are ignored for this long: the second click of a
+// double click on Turn off would otherwise land on what lies under the button (a port, opening its more-info).
+const CONFIRM_GUARD_MS = 400;
 
 // An entity Home Assistant has no value for: drawn grey (state unknown), not red (off / down).
 const isUnavailable = (st) => st?.state === 'unavailable' || st?.state === 'unknown';
@@ -1579,6 +1671,38 @@ class HaSwitchCard extends HTMLElement {
       ev.preventDefault();
       this._onClick(ev);
     });
+    // While the power-off confirmation is open: Escape cancels it, Tab and Shift+Tab stay on its two buttons.
+    // Listened on the window: a re-render or a click on its text can take the focus out of the card.
+    this._onConfirmKey = (ev) => {
+      if (!this._confirm) return;
+      if (ev.key === 'Tab') {
+        const btns = [...(this.shadowRoot.querySelectorAll?.('.modal .btn') || [])];
+        if (!btns.length) return;
+        ev.preventDefault();
+        const i = btns.indexOf(this.shadowRoot.activeElement);
+        btns[(i + (ev.shiftKey ? -1 : 1) + btns.length) % btns.length].focus({ preventScroll: true });
+        return;
+      }
+      if (ev.key !== 'Escape') return;
+      ev.stopPropagation();
+      this._closeConfirm();
+    };
+    // A click outside the card (and not in a dialog opened from it) cancels the confirmation.
+    this._onConfirmOutside = (ev) => {
+      if (this._confirm && !ev.composedPath().includes(this) && !inDialog(ev)) this._closeConfirm(false);
+    };
+  }
+
+  // Reattached with the confirmation still open (view switch, editor): Escape and outside clicks keep closing it.
+  connectedCallback() {
+    if (!this._confirm) return;
+    window.addEventListener('keydown', this._onConfirmKey);
+    document.addEventListener('click', this._onConfirmOutside, true);
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('keydown', this._onConfirmKey);
+    document.removeEventListener('click', this._onConfirmOutside, true);
   }
 
   static getConfigElement() {
@@ -1750,6 +1874,23 @@ class HaSwitchCard extends HTMLElement {
 
   _onClick(ev) {
     const path = ev.composedPath();
+    // Just closed: the rest of a double click on Turn off does nothing.
+    if (!this._confirm && Date.now() - (this._confirmClosedAt ?? 0) < CONFIRM_GUARD_MS) {
+      ev.stopPropagation?.();
+      return;
+    }
+    // Confirmation open: only its buttons and the backdrop itself (outside the popup) act.
+    if (this._confirm) {
+      ev.stopPropagation?.();
+      const action = path.find((el) => el.dataset?.action)?.dataset.action;
+      if (action === 'confirm_ok') {
+        this._closeConfirm();
+        this._power('turn_off');
+      } else if (action === 'confirm_cancel' || (action === 'confirm_backdrop' && path[0]?.dataset?.action === action)) {
+        this._closeConfirm();
+      }
+      return;
+    }
     if (path.some((el) => el.tagName === 'HA-SWITCH')) return;
     const target = path.find((el) => el.dataset && (el.dataset.entity || el.dataset.url));
     if (!target) return;
@@ -1782,6 +1923,9 @@ class HaSwitchCard extends HTMLElement {
     const t = I18N[lang];
     const statusColor = this._statusColor();
     const sw = this._state(c.switch_entity);
+    // Turned off (or gone) meanwhile, from elsewhere, or back to the compact mini card (no toggle): nothing to confirm.
+    if (this._confirm && (sw?.state !== 'on' || this._compact())) this._dropConfirm();
+    const confirm = this._confirm;
 
     /* status pill (header, right of the title) and chips */
     const chips = [];
@@ -1885,7 +2029,7 @@ class HaSwitchCard extends HTMLElement {
     const focused = focusKey(this.shadowRoot.activeElement);
     this.shadowRoot.innerHTML = `
       <style>${HaSwitchCard.styles}</style>
-      <ha-card class="${compact ? 'mini' : ''}">
+      <ha-card class="${compact ? 'mini' : ''}${confirm ? 'dialog-open' : ''}">
         <div class="header">
           <div class="ic big" style="--c:${statusColor}" ${headerEntity ? `data-entity="${esc(headerEntity)}" role="button" tabindex="0" aria-label="${esc(this._state(headerEntity)?.attributes?.friendly_name || headerEntity)}"` : ''}>
             <ha-icon icon="${esc(c.icon)}"></ha-icon>
@@ -1896,7 +2040,7 @@ class HaSwitchCard extends HTMLElement {
           </div>
           ${sw && !compact ? `<ha-switch></ha-switch>` : ''}${this._zoomButton()}
         </div>
-        ${body}
+        ${body}${confirm ? this._confirmHtml(t) : ''}
       </ha-card>`;
 
     // innerHTML replaced the focused element: focus its counterpart so keyboard navigation keeps its place.
@@ -1910,29 +2054,82 @@ class HaSwitchCard extends HTMLElement {
       toggle.checked = sw.state === 'on';
       toggle.disabled = sw.state === 'unavailable' || sw.state === 'unknown';
       toggle.addEventListener('change', (ev) => {
-        const [domain] = c.switch_entity.split('.');
-        const before = sw.state;
-        // When the call fails, or succeeds but the entity keeps its state (a switch that does not answer),
-        // the render key does not change and the toggle would stay visually flipped: redraw from the real state.
-        // A failure redraws at once. A success waits: MQTT, cloud or polled SNMP switches report their new state
-        // after the call returns, and an immediate redraw would bounce the toggle back until it arrives.
-        const redraw = () => {
-          this._key = '';
-          this._render();
-        };
-        clearTimeout(this._toggleCheck);
-        Promise.resolve(this._hass.callService(domain, ev.target.checked ? 'turn_on' : 'turn_off', { entity_id: c.switch_entity })).then(
-          () => {
-            // One pending check per card, even when the calls of quick successive clicks settle out of order.
-            clearTimeout(this._toggleCheck);
-            this._toggleCheck = setTimeout(() => {
-              if (this._state(c.switch_entity)?.state === before) redraw();
-            }, TOGGLE_CHECK_MS);
-          },
-          redraw
-        );
+        // Turning the switch off can cut the network Home Assistant itself runs on: ask first (`confirm_off: false`
+        // turns it off at once). Until confirmed, the toggle shows the real state again.
+        if (!ev.target.checked && c.confirm_off !== false) {
+          ev.target.checked = true;
+          this._openConfirm();
+          return;
+        }
+        this._power(ev.target.checked ? 'turn_on' : 'turn_off');
       });
     }
+  }
+
+  // Power toggle service call.
+  _power(service) {
+    const c = this._config;
+    const [domain] = c.switch_entity.split('.');
+    const before = this._state(c.switch_entity)?.state;
+    // When the call fails, or succeeds but the entity keeps its state (a switch that does not answer),
+    // the render key does not change and the toggle would stay visually flipped: redraw from the real state.
+    // A failure redraws at once. A success waits: MQTT, cloud or polled SNMP switches report their new state
+    // after the call returns, and an immediate redraw would bounce the toggle back until it arrives.
+    const redraw = () => {
+      this._key = '';
+      this._render();
+    };
+    clearTimeout(this._toggleCheck);
+    Promise.resolve(this._hass.callService(domain, service, { entity_id: c.switch_entity })).then(
+      () => {
+        // One pending check per card, even when the calls of quick successive clicks settle out of order.
+        clearTimeout(this._toggleCheck);
+        this._toggleCheck = setTimeout(() => {
+          if (this._state(c.switch_entity)?.state === before) redraw();
+        }, TOGGLE_CHECK_MS);
+      },
+      redraw
+    );
+  }
+
+  // In-card confirmation before turning the switch off, at the top of the card like the other ha-* cards' popups
+  // (window.confirm() is blocking and silently neutralised in some webviews). Cancel, Escape, the backdrop and a
+  // click outside the card close it without acting.
+  _openConfirm() {
+    this._confirm = true;
+    window.addEventListener('keydown', this._onConfirmKey);
+    document.addEventListener('click', this._onConfirmOutside, true);
+    this._key = '';
+    this._render();
+    // preventScroll: opening the popup must not bring a scrolled page back to the card.
+    this.shadowRoot.querySelector('.modal .primary')?.focus?.({ preventScroll: true });
+  }
+
+  _dropConfirm() {
+    this._confirm = false;
+    this._confirmClosedAt = Date.now();
+    window.removeEventListener('keydown', this._onConfirmKey);
+    document.removeEventListener('click', this._onConfirmOutside, true);
+  }
+
+  // restoreFocus: back on the power toggle, unless closed by a click elsewhere (the focus goes where it put it).
+  _closeConfirm(restoreFocus = true) {
+    this._dropConfirm();
+    this._key = '';
+    this._render();
+    if (restoreFocus) this.shadowRoot.querySelector('ha-switch')?.focus?.({ preventScroll: true });
+  }
+
+  _confirmHtml(t) {
+    return `<div class="backdrop" data-action="confirm_backdrop">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirm-msg">
+        <div class="msg" id="confirm-msg">${esc(t.confirm_text.replace('{name}', this._config.name))}</div>
+        <div class="modal-actions">
+          <button type="button" class="btn" tabindex="0" data-action="confirm_cancel">${esc(t.cancel)}</button>
+          <button type="button" class="btn primary" tabindex="0" data-action="confirm_ok">${esc(t.turn_off)}</button>
+        </div>
+      </div>
+    </div>`;
   }
 
   // `count`: the status pill, followed by the ports up out of all ("· 6/8"); on the narrowest mini card the pill keeps
@@ -2068,6 +2265,19 @@ class HaSwitchCard extends HTMLElement {
       /* The label wraps rather than being cut: "Ruch przychodzący" or "Eingehender Datenverkehr" in a 140px tile. */
       .tile .k { font-size: 11px; color: var(--secondary-text-color); overflow-wrap: anywhere; }
       .tile .v { font-size: 14px; font-weight: 500; color: var(--primary-text-color); }
+
+      /* Power-off confirmation: a backdrop over the card with a small popup at its top, so it stays in view. */
+      ha-card.dialog-open { position: relative; min-height: 150px; }
+      .backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: flex-start; justify-content: center;
+                  padding-top: 12px; box-sizing: border-box; z-index: 9; border-radius: inherit; }
+      .modal { background: var(--card-background-color, #1c1c1c); color: var(--primary-text-color); width: min(92%, 340px); max-height: calc(100% - 24px);
+               box-sizing: border-box; border-radius: 14px; padding: 16px; box-shadow: 0 8px 30px rgba(0,0,0,.4); display: flex; flex-direction: column; gap: 12px; }
+      .modal .msg { font-size: 14px; line-height: 1.4; }
+      .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+      .modal-actions .btn { border: none; border-radius: 8px; padding: 8px 14px; font: inherit; font-size: 13px; font-weight: 500; cursor: pointer;
+                            background: var(--secondary-background-color, rgba(127,127,127,.12)); color: var(--primary-text-color); }
+      .modal-actions .btn.primary { background: color-mix(in srgb, var(--primary-color, #03a9f4) 15%, transparent); color: var(--primary-color, #03a9f4); }
+      .modal-actions .btn:focus-visible { outline: 2px solid var(--primary-color, #03a9f4); outline-offset: 2px; }
     `;
   }
 }
@@ -2097,10 +2307,12 @@ class HaSwitchMiniCard extends HaSwitchCard {
   }
 
   connectedCallback() {
+    super.connectedCallback();
     document.addEventListener('click', this._onOutside, true);
   }
 
   disconnectedCallback() {
+    super.disconnectedCallback();
     document.removeEventListener('click', this._onOutside, true);
   }
 
@@ -2150,6 +2362,9 @@ class HaSwitchMiniCard extends HaSwitchCard {
 /* ------------------------------------------------------------------ */
 /* Visual editor                                                       */
 /* ------------------------------------------------------------------ */
+// Editor toggles whose default is on, and that default.
+const EDITOR_TOGGLES = { confirm_off: true };
+
 class HaSwitchCardEditor extends HTMLElement {
   setConfig(config) {
     this._config = config;
@@ -2176,6 +2391,7 @@ class HaSwitchCardEditor extends HTMLElement {
         type: 'expandable', name: 'entities', flatten: true, title: t.sections.entities, icon: 'mdi:format-list-bulleted',
         schema: [
           { name: 'switch_entity', selector: { entity: { domain: ['switch', 'input_boolean'] } } },
+          { name: 'confirm_off', selector: { boolean: {} } },
           { name: 'status_entity', selector: { entity: {} } },
           { name: 'connectivity_entity', selector: { entity: { domain: 'binary_sensor' } } },
           { name: 'uptime_entity', selector: { entity: { domain: 'sensor' } } },
@@ -2298,7 +2514,8 @@ class HaSwitchCardEditor extends HTMLElement {
         ev.stopPropagation();
         const config = { ...ev.detail.value };
         Object.keys(config).forEach((k) => {
-          if (config[k] === '' || config[k] === undefined) delete config[k];
+          // Toggles left at their default stay out of the YAML too.
+          if (config[k] === '' || config[k] === undefined || EDITOR_TOGGLES[k] === config[k]) delete config[k];
         });
         this._config = config;
         this.dispatchEvent(new CustomEvent('config-changed', { detail: { config }, bubbles: true, composed: true }));
@@ -2306,7 +2523,8 @@ class HaSwitchCardEditor extends HTMLElement {
       this.appendChild(this._form);
     }
     this._form.hass = this._hass;
-    this._form.data = this._config;
+    // A toggle on by default shows checked while the YAML does not set it.
+    this._form.data = { ...EDITOR_TOGGLES, ...this._config };
     this._form.schema = this._schema(t);
     this._form.computeLabel = (s) => t.fields[s.name] ?? s.name;
     this._form.computeHelper = (s) => {

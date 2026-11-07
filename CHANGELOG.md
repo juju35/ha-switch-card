@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.10.0 - 2026-11-07
+
+### What's new
+- Turning the switch off from the header power toggle now asks for a confirmation in a small popup at the top of the card (Cancel / Turn off; Escape or a click outside cancels), since cutting its power can cut the network Home Assistant runs on. Turning it on stays immediate. The new `confirm_off` option (on by default, in the editor) turns it off at once when set to `false`.
+
 ## 1.9.1 - 2026-11-07
 
 ### Fixes
