@@ -179,7 +179,7 @@ const config = {
 // Recorder statistics of the byte counters: 5-minute changes over a day (quiet night, busy evening), so the rates
 // and their 24 h curves show.
 const ws = `window.__ws = async (msg) => Object.fromEntries((msg.statistic_ids || []).map((id, k) => [id,
-  Array.from({ length: 288 }, (_, i) => ({ change: 300 * (k ? 0.15 : 1) * 1048576 * (2 + 14 * Math.exp(-((i - 240) ** 2) / 900) + 6 * Math.exp(-((i - 110) ** 2) / 400) + Math.sin(i * 0.12 + k) ** 2) }))]));`;
+  Array.from({ length: 288 }, (_, i) => ({ start: Date.now() - (288 - i) * 300000, change: 300 * (k ? 0.15 : 1) * 1048576 * (2 + 14 * Math.exp(-((i - 240) ** 2) / 900) + 6 * Math.exp(-((i - 110) ** 2) / 400) + Math.sin(i * 0.12 + k) ** 2) }))]));`;
 const hass = { states };
 // Flips the power toggle off as a user would: the card asks for a confirmation first.
 const turnOff = (page) =>

@@ -1476,13 +1476,30 @@ const portName = (c, n) => {
 // Under a drawn port, its name fits in about 7 characters: shortened with an ellipsis beyond (the tooltip has it whole).
 const shortName = (name) => (name.length > 7 ? `${name.slice(0, 6)}…` : name);
 
-// 24 h curve of a series (rates), scaled from 0 to its peak; nothing under two points.
+// 24 h curve of a series (rates) of { t, v } points (t in ms, the 5-minute bucket's start), scaled from 0 to its
+// peak, on a real time axis ending at `end`: where buckets are missing (more than two periods apart) the curve
+// breaks instead of joining across the hole. Nothing under two points.
 const HIST_REFRESH = 5 * 60000;
-const spark = (values) => {
-  if (!values || values.length < 2) return '';
-  const peak = Math.max(...values) || 1;
-  const pts = values.map((v, i) => `${((i / (values.length - 1)) * 100).toFixed(2)},${(30 - (Math.max(0, v) / peak) * 28).toFixed(2)}`).join('L');
-  return `<svg class="spark" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path class="spark-a" d="M0,30L${pts}L100,30Z"/><path class="spark-l" d="M${pts}"/></svg>`;
+const HIST_WINDOW = 864e5;
+const HIST_PERIOD = 300000;
+const spark = (points, end) => {
+  const start = end - HIST_WINDOW;
+  const pts = (points || []).filter((p) => p.t >= start && p.t <= end);
+  if (pts.length < 2) return '';
+  const peak = Math.max(...pts.map((p) => p.v)) || 1;
+  const x = (t) => (((t - start) / HIST_WINDOW) * 100).toFixed(2);
+  const y = (v) => (30 - (Math.max(0, v) / peak) * 28).toFixed(2);
+  const runs = [];
+  pts.forEach((p, i) => {
+    if (!i || p.t - pts[i - 1].t > 2 * HIST_PERIOD) runs.push([]);
+    runs.at(-1).push(p);
+  });
+  // A lone bucket between two holes is drawn over its own 5 minutes.
+  const segs = runs.map((run) => (run.length > 1 ? run : [...run, { t: Math.min(end, run[0].t + HIST_PERIOD), v: run[0].v }]));
+  const xy = (run) => run.map((p) => `${x(p.t)},${y(p.v)}`).join('L');
+  const line = segs.map((run) => `M${xy(run)}`).join('');
+  const area = segs.map((run) => `M${x(run[0].t)},30L${xy(run)}L${x(run.at(-1).t)},30Z`).join('');
+  return `<svg class="spark" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path class="spark-a" d="${area}"/><path class="spark-l" d="${line}"/></svg>`;
 };
 
 const portSvg = (color, dark) => `
@@ -1826,7 +1843,7 @@ class HaSwitchCard extends HTMLElement {
     }
     if (this._rates[id] != null) return this._rates[id];
     const h = this._hist?.[id];
-    return h?.length ? h[h.length - 1] : null;
+    return h?.length ? h[h.length - 1].v : null;
   }
 
   // 24 h of 5-minute statistics of the traffic sensors, fetched again every 5 minutes: the rate of a byte counter
@@ -1837,10 +1854,11 @@ class HaSwitchCard extends HTMLElement {
     if (key && this._hass.callWS && (this._histKey !== key || Date.now() - this._histAt > HIST_REFRESH)) {
       this._histKey = key;
       this._histAt = Date.now();
+      const end = this._histAt;
       Promise.resolve(
         this._hass.callWS({
           type: 'recorder/statistics_during_period',
-          start_time: new Date(Date.now() - 864e5).toISOString(),
+          start_time: new Date(end - HIST_WINDOW).toISOString(),
           statistic_ids: ids,
           period: '5minute',
           types: ['mean', 'change'],
@@ -1848,12 +1866,16 @@ class HaSwitchCard extends HTMLElement {
       )
         .then((r) => {
           if (this._histKey !== key) return;
+          this._histEnd = end;
           this._hist = Object.fromEntries(
             ids.map((id) => {
               const f = this._byteFactor(this._state(id));
-              const pts = r?.[id] || [];
-              const vals = f ? pts.map((p) => (Number.isFinite(p.change) ? (p.change * f) / 300 : null)) : pts.map((p) => p.mean);
-              return [id, vals.filter(Number.isFinite)];
+              // `start`: milliseconds, or an ISO string from older recorders. A bucket without a value is a hole.
+              const pts = (r?.[id] || []).map((p) => ({
+                t: typeof p.start === 'number' ? p.start : Date.parse(p.start),
+                v: f ? (Number.isFinite(p.change) ? (p.change * f) / 300 : null) : p.mean,
+              }));
+              return [id, pts.filter((p) => Number.isFinite(p.t) && Number.isFinite(p.v))];
             })
           );
           this._key = '';
@@ -2005,7 +2027,7 @@ class HaSwitchCard extends HTMLElement {
     };
     const tile = (id, icon, color, label) =>
       id
-        ? `<div class="tile" style="--c:${color}" data-entity="${esc(id)}" role="button" tabindex="0">${spark(hist?.[id])}
+        ? `<div class="tile" style="--c:${color}" data-entity="${esc(id)}" role="button" tabindex="0">${spark(hist?.[id], this._histEnd)}
              <div class="ic"><ha-icon icon="${icon}"></ha-icon></div>
              <div class="txt"><div class="k">${label}</div><div class="v">${esc(value(id))}</div>${total(id) ? `<div class="t">${esc(total(id))}</div>` : ''}</div>
            </div>`
@@ -2014,7 +2036,7 @@ class HaSwitchCard extends HTMLElement {
     // Mini card: the rates only, beside the front panel (under it on a narrow card), each with its curve.
     const rate = (id, icon, color, label) =>
       id
-        ? `<div class="rt" style="--c:${color}" data-entity="${esc(id)}" role="button" tabindex="0" title="${esc(label)}">${spark(hist?.[id])}<div><ha-icon icon="${icon}"></ha-icon><span>${esc(value(id))}</span></div></div>`
+        ? `<div class="rt" style="--c:${color}" data-entity="${esc(id)}" role="button" tabindex="0" title="${esc(label)}">${spark(hist?.[id], this._histEnd)}<div><ha-icon icon="${icon}"></ha-icon><span>${esc(value(id))}</span></div></div>`
         : '';
     const compact = this._compact();
     const rates = rate(c.traffic_in_entity, 'mdi:arrow-down-bold', COLORS.green, t.in) + rate(c.traffic_out_entity, 'mdi:arrow-up-bold', COLORS.blue, t.out);

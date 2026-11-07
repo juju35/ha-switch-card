@@ -740,7 +740,7 @@ test("traffic history: 24 h of 5-minute statistics, a counter's change as a rate
     states: { "sensor.in": { state: "5000", attributes: { unit_of_measurement: "B" } } },
     callWS: async (msg) => {
       calls.push(msg);
-      return { "sensor.in": [{ change: 3000 }, { change: 6000 }] };
+      return { "sensor.in": [{ start: Date.now() - 600000, change: 3000 }, { start: Date.now() - 300000, change: 6000 }] };
     },
   };
   assert.equal(calls.length, 1);
@@ -751,6 +751,57 @@ test("traffic history: 24 h of 5-minute statistics, a counter's change as a rate
   assert.match(html, /<svg class="spark"/);
   // 6000 B in 5 minutes: 20 B/s until the sensor changes twice.
   assert.match(html, /class="v">20 B\/s<\/div>/);
+});
+
+test("traffic history: the curve sits on a real 24 h time axis and breaks where buckets are missing", async (t) => {
+  t.mock.timers.enable({ apis: ["Date"], now: Date.parse("2026-11-07T12:00:00Z") });
+  const now = Date.now();
+  const at = (h) => now - h * 3600000;
+  for (const [Card, cls] of [
+    ["HaSwitchCard", "tile"],
+    ["HaSwitchMiniCard", "rt"],
+  ]) {
+    const card = new (loadCard("ha-switch-card.js", [Card])[Card])();
+    card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", traffic_in_entity: "sensor.in" });
+    card.hass = {
+      ...portsHass(),
+      states: { "sensor.in": { state: "5", attributes: { unit_of_measurement: "Mbit/s" } } },
+      // Six hours ago for six minutes (the empty bucket between is not a hole), then a hole until the last hour (ISO
+      // starts, as older recorders send);
+      // an empty bucket and one older than the window are left out.
+      callWS: async () => ({
+        "sensor.in": [
+          { start: at(30), mean: 99 },
+          { start: at(6), mean: 4 },
+          { start: at(5.95), mean: null },
+          { start: at(5.9), mean: 8 },
+          { start: new Date(at(1)).toISOString(), mean: 2 },
+          { start: new Date(at(1) + 300000).toISOString(), mean: 6 },
+        ],
+      }),
+    };
+    await new Promise((r) => setImmediate(r));
+    const html = card.shadowRoot.innerHTML;
+    assert.match(html, new RegExp(`class="${cls}"[^>]*><svg class="spark"`));
+    // x = 75 (6 h before the end), y from the peak (8): two runs, the hole is not joined.
+    assert.match(html, /<path class="spark-l" d="M75\.00,16\.00L75\.42,2\.00M95\.83,23\.00L96\.18,9\.00"\/>/);
+    assert.match(html, /<path class="spark-a" d="M75\.00,30L75\.00,16\.00L75\.42,2\.00L75\.42,30ZM95\.83,30L95\.83,23\.00L96\.18,9\.00L96\.18,30Z"\/>/);
+  }
+});
+
+test("traffic history: a lone bucket between two holes is drawn over its 5 minutes", async (t) => {
+  t.mock.timers.enable({ apis: ["Date"], now: Date.parse("2026-11-07T12:00:00Z") });
+  const now = Date.now();
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const card = new HaSwitchCard();
+  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", traffic_in_entity: "sensor.in" });
+  card.hass = {
+    ...portsHass(),
+    states: { "sensor.in": { state: "5", attributes: { unit_of_measurement: "Mbit/s" } } },
+    callWS: async () => ({ "sensor.in": [{ start: now - 12 * 3600000, mean: 4 }, { start: now - 3600000, mean: 4 }] }),
+  };
+  await new Promise((r) => setImmediate(r));
+  assert.match(card.shadowRoot.innerHTML, /d="M50\.00,2\.00L50\.35,2\.00M95\.83,2\.00L96\.18,2\.00"/);
 });
 
 test("mini card: compact front panel and rates, no power toggle; the detail button switches to the full card", () => {
