@@ -44,6 +44,10 @@ const I18N = {
       port_step: 'Écart entre ports (%)',
       port_bottom: 'Hauteur des ports (% depuis le bas)',
       language: 'Langue',
+      port_names: 'Noms des ports (dans l’ordre)',
+      watched_ports: 'Ports surveillés (rouges si coupés)',
+      show_history: 'Historique 24 h du trafic',
+      zoom: 'Bouton détail',
     },
     units: { timeticks: 'Centièmes de seconde (SNMP)', seconds: 'Secondes' },
     day: 'j',
@@ -53,6 +57,11 @@ const I18N = {
     open_admin: 'Ouvrir la page d’administration',
     online: 'En ligne',
     idle: 'Inactif',
+    total: 'Total',
+    zoom_in: 'Afficher la carte complète',
+    zoom_out: 'Revenir à la vue compacte',
+    mini_name: 'Mini-carte switch réseau',
+    mini_desc: 'Switch réseau compact : façade, ports et trafic, avec un bouton pour afficher la carte complète.',
   },
   en: {
     card_name: 'Network switch card',
@@ -92,6 +101,10 @@ const I18N = {
       port_step: 'Spacing between ports (%)',
       port_bottom: 'Port height (% from bottom)',
       language: 'Language',
+      port_names: 'Port names (in order)',
+      watched_ports: 'Watched ports (red when down)',
+      show_history: '24 h traffic history',
+      zoom: 'Detail button',
     },
     units: { timeticks: 'Hundredths of a second (SNMP)', seconds: 'Seconds' },
     day: 'd',
@@ -101,6 +114,11 @@ const I18N = {
     open_admin: 'Open the admin page',
     online: 'Online',
     idle: 'Idle',
+    total: 'Total',
+    zoom_in: 'Show the full card',
+    zoom_out: 'Back to the compact view',
+    mini_name: 'Network switch mini card',
+    mini_desc: 'Compact network switch: front panel, ports and traffic, with a button to show the full card.',
   },
   de: {
     card_name: 'Netzwerk-Switch-Karte',
@@ -140,6 +158,10 @@ const I18N = {
       port_step: 'Abstand zwischen den Ports (%)',
       port_bottom: 'Höhe der Ports (% von unten)',
       language: 'Sprache',
+      port_names: 'Portnamen (in Reihenfolge)',
+      watched_ports: 'Überwachte Ports (rot bei Ausfall)',
+      show_history: '24-h-Verlauf des Datenverkehrs',
+      zoom: 'Detail-Schaltfläche',
     },
     units: { timeticks: 'Hundertstelsekunden (SNMP)', seconds: 'Sekunden' },
     day: 'T',
@@ -149,6 +171,11 @@ const I18N = {
     open_admin: 'Admin-Seite öffnen',
     online: 'Online',
     idle: 'Inaktiv',
+    total: 'Gesamt',
+    zoom_in: 'Vollständige Karte anzeigen',
+    zoom_out: 'Zurück zur kompakten Ansicht',
+    mini_name: 'Netzwerk-Switch-Minikarte',
+    mini_desc: 'Kompakter Netzwerk-Switch: Frontansicht, Ports und Datenverkehr, mit einer Schaltfläche für die vollständige Karte.',
   },
   es: {
     card_name: 'Tarjeta de switch de red',
@@ -188,6 +215,10 @@ const I18N = {
       port_step: 'Separación entre puertos (%)',
       port_bottom: 'Altura de los puertos (% desde abajo)',
       language: 'Idioma',
+      port_names: 'Nombres de los puertos (en orden)',
+      watched_ports: 'Puertos vigilados (rojos si caen)',
+      show_history: 'Historial de 24 h del tráfico',
+      zoom: 'Botón de detalle',
     },
     units: { timeticks: 'Centésimas de segundo (SNMP)', seconds: 'Segundos' },
     day: 'd',
@@ -197,6 +228,11 @@ const I18N = {
     open_admin: 'Abrir la página de administración',
     online: 'En línea',
     idle: 'Inactivo',
+    total: 'Total',
+    zoom_in: 'Mostrar la tarjeta completa',
+    zoom_out: 'Volver a la vista compacta',
+    mini_name: 'Minitarjeta de switch de red',
+    mini_desc: 'Switch de red compacto: frontal, puertos y tráfico, con un botón para mostrar la tarjeta completa.',
   },
   sr: {
     card_name: 'Картица мрежног свича',
@@ -236,6 +272,10 @@ const I18N = {
       port_step: 'Размак између портова (%)',
       port_bottom: 'Висина портова (% од дна)',
       language: 'Језик',
+      port_names: 'Називи портова (редом)',
+      watched_ports: 'Праћени портови (црвени када падну)',
+      show_history: 'Историја саобраћаја за 24 ч',
+      zoom: 'Дугме за детаље',
     },
     units: { timeticks: 'Стотинке секунде (SNMP)', seconds: 'Секунде' },
     day: 'д',
@@ -245,6 +285,11 @@ const I18N = {
     open_admin: 'Отвори страницу за администрацију',
     online: 'На мрежи',
     idle: 'Неактиван',
+    total: 'Укупно',
+    zoom_in: 'Прикажи целу картицу',
+    zoom_out: 'Назад на компактни приказ',
+    mini_name: 'Мини картица мрежног свича',
+    mini_desc: 'Компактни мрежни свич: предња плоча, портови и саобраћај, са дугметом за целу картицу.',
   },
   'sr-Latn': {
     card_name: 'Kartica mrežnog sviča',
@@ -284,6 +329,10 @@ const I18N = {
       port_step: 'Razmak između portova (%)',
       port_bottom: 'Visina portova (% od dna)',
       language: 'Jezik',
+      port_names: 'Nazivi portova (redom)',
+      watched_ports: 'Praćeni portovi (crveni kada padnu)',
+      show_history: 'Istorija saobraćaja za 24 č',
+      zoom: 'Dugme za detalje',
     },
     units: { timeticks: 'Stotinke sekunde (SNMP)', seconds: 'Sekunde' },
     day: 'd',
@@ -293,6 +342,11 @@ const I18N = {
     open_admin: 'Otvori stranicu za administraciju',
     online: 'Na mreži',
     idle: 'Neaktivan',
+    total: 'Ukupno',
+    zoom_in: 'Prikaži celu karticu',
+    zoom_out: 'Nazad na kompaktni prikaz',
+    mini_name: 'Mini kartica mrežnog sviča',
+    mini_desc: 'Kompaktni mrežni svič: prednja ploča, portovi i saobraćaj, sa dugmetom za celu karticu.',
   },
   it: {
     card_name: 'Scheda switch di rete',
@@ -332,6 +386,10 @@ const I18N = {
       port_step: 'Distanza tra le porte (%)',
       port_bottom: 'Altezza delle porte (% dal basso)',
       language: 'Lingua',
+      port_names: 'Nomi delle porte (in ordine)',
+      watched_ports: 'Porte sorvegliate (rosse se giù)',
+      show_history: 'Storico 24 h del traffico',
+      zoom: 'Pulsante dettagli',
     },
     units: { timeticks: 'Centesimi di secondo (SNMP)', seconds: 'Secondi' },
     day: 'g',
@@ -341,6 +399,11 @@ const I18N = {
     open_admin: 'Apri la pagina di amministrazione',
     online: 'Online',
     idle: 'Inattivo',
+    total: 'Totale',
+    zoom_in: 'Mostra la scheda completa',
+    zoom_out: 'Torna alla vista compatta',
+    mini_name: 'Mini scheda switch di rete',
+    mini_desc: 'Switch di rete compatto: frontale, porte e traffico, con un pulsante per la scheda completa.',
   },
   nl: {
     card_name: 'Netwerkswitchkaart',
@@ -380,6 +443,10 @@ const I18N = {
       port_step: 'Afstand tussen de poorten (%)',
       port_bottom: 'Hoogte van de poorten (% van onderen)',
       language: 'Taal',
+      port_names: 'Poortnamen (op volgorde)',
+      watched_ports: 'Bewaakte poorten (rood bij uitval)',
+      show_history: '24-uursgeschiedenis van het verkeer',
+      zoom: 'Detailknop',
     },
     units: { timeticks: 'Honderdsten van een seconde (SNMP)', seconds: 'Seconden' },
     day: 'd',
@@ -389,6 +456,11 @@ const I18N = {
     open_admin: 'Beheerpagina openen',
     online: 'Online',
     idle: 'Inactief',
+    total: 'Totaal',
+    zoom_in: 'Volledige kaart tonen',
+    zoom_out: 'Terug naar de compacte weergave',
+    mini_name: 'Netwerkswitch-minikaart',
+    mini_desc: 'Compacte netwerkswitch: frontpaneel, poorten en verkeer, met een knop voor de volledige kaart.',
   },
   pt: {
     card_name: 'Cartão de switch de rede',
@@ -428,6 +500,10 @@ const I18N = {
       port_step: 'Espaçamento entre portas (%)',
       port_bottom: 'Altura das portas (% de baixo)',
       language: 'Idioma',
+      port_names: 'Nomes das portas (por ordem)',
+      watched_ports: 'Portas vigiadas (vermelhas se caírem)',
+      show_history: 'Histórico de 24 h do tráfego',
+      zoom: 'Botão de detalhe',
     },
     units: { timeticks: 'Centésimos de segundo (SNMP)', seconds: 'Segundos' },
     day: 'd',
@@ -437,6 +513,11 @@ const I18N = {
     open_admin: 'Abrir a página de administração',
     online: 'Online',
     idle: 'Inativo',
+    total: 'Total',
+    zoom_in: 'Mostrar o cartão completo',
+    zoom_out: 'Voltar à vista compacta',
+    mini_name: 'Mini cartão de switch de rede',
+    mini_desc: 'Switch de rede compacto: painel frontal, portas e tráfego, com um botão para o cartão completo.',
   },
   pl: {
     card_name: 'Karta przełącznika sieciowego',
@@ -476,6 +557,10 @@ const I18N = {
       port_step: 'Odstęp między portami (%)',
       port_bottom: 'Wysokość portów (% od dołu)',
       language: 'Język',
+      port_names: 'Nazwy portów (po kolei)',
+      watched_ports: 'Monitorowane porty (czerwone po awarii)',
+      show_history: 'Historia ruchu z 24 h',
+      zoom: 'Przycisk szczegółów',
     },
     units: { timeticks: 'Setne części sekundy (SNMP)', seconds: 'Sekundy' },
     day: 'd',
@@ -485,6 +570,11 @@ const I18N = {
     open_admin: 'Otwórz stronę administracyjną',
     online: 'Online',
     idle: 'Bezczynny',
+    total: 'Łącznie',
+    zoom_in: 'Pokaż pełną kartę',
+    zoom_out: 'Wróć do widoku kompaktowego',
+    mini_name: 'Mini karta przełącznika sieciowego',
+    mini_desc: 'Kompaktowy przełącznik sieciowy: panel przedni, porty i ruch, z przyciskiem pełnej karty.',
   },
   ro: {
     card_name: 'Card switch de rețea',
@@ -524,6 +614,10 @@ const I18N = {
       port_step: 'Spațiere între porturi (%)',
       port_bottom: 'Înălțimea porturilor (% de jos)',
       language: 'Limbă',
+      port_names: 'Numele porturilor (în ordine)',
+      watched_ports: 'Porturi supravegheate (roșii la cădere)',
+      show_history: 'Istoricul traficului pe 24 h',
+      zoom: 'Buton de detalii',
     },
     units: { timeticks: 'Sutimi de secundă (SNMP)', seconds: 'Secunde' },
     day: 'z',
@@ -533,6 +627,11 @@ const I18N = {
     open_admin: 'Deschide pagina de administrare',
     online: 'Online',
     idle: 'Inactiv',
+    total: 'Total',
+    zoom_in: 'Afișează cardul complet',
+    zoom_out: 'Înapoi la vizualizarea compactă',
+    mini_name: 'Mini card switch de rețea',
+    mini_desc: 'Switch de rețea compact: panou frontal, porturi și trafic, cu un buton pentru cardul complet.',
   },
   da: {
     card_name: 'Netværksswitch-kort',
@@ -572,6 +671,10 @@ const I18N = {
       port_step: 'Afstand mellem porte (%)',
       port_bottom: 'Porthøjde (% fra bunden)',
       language: 'Sprog',
+      port_names: 'Portnavne (i rækkefølge)',
+      watched_ports: 'Overvågede porte (røde ved nedbrud)',
+      show_history: '24-timers trafikhistorik',
+      zoom: 'Detaljeknap',
     },
     units: { timeticks: 'Hundrededele sekunder (SNMP)', seconds: 'Sekunder' },
     day: 'd',
@@ -581,6 +684,11 @@ const I18N = {
     open_admin: 'Åbn administrationssiden',
     online: 'Online',
     idle: 'Inaktiv',
+    total: 'I alt',
+    zoom_in: 'Vis hele kortet',
+    zoom_out: 'Tilbage til kompakt visning',
+    mini_name: 'Netværksswitch-minikort',
+    mini_desc: 'Kompakt netværksswitch: frontpanel, porte og trafik, med en knap til hele kortet.',
   },
   sv: {
     card_name: 'Nätverksswitchkort',
@@ -620,6 +728,10 @@ const I18N = {
       port_step: 'Avstånd mellan portar (%)',
       port_bottom: 'Portarnas höjd (% från botten)',
       language: 'Språk',
+      port_names: 'Portnamn (i ordning)',
+      watched_ports: 'Övervakade portar (röda vid avbrott)',
+      show_history: '24 h-trafikhistorik',
+      zoom: 'Detaljknapp',
     },
     units: { timeticks: 'Hundradels sekunder (SNMP)', seconds: 'Sekunder' },
     day: 'd',
@@ -629,6 +741,11 @@ const I18N = {
     open_admin: 'Öppna administrationssidan',
     online: 'Online',
     idle: 'Inaktiv',
+    total: 'Totalt',
+    zoom_in: 'Visa hela kortet',
+    zoom_out: 'Tillbaka till kompakt vy',
+    mini_name: 'Minikort för nätverksswitch',
+    mini_desc: 'Kompakt nätverksswitch: frontpanel, portar och trafik, med en knapp för hela kortet.',
   },
   bg: {
     card_name: 'Карта за мрежов суич',
@@ -668,6 +785,10 @@ const I18N = {
       port_step: 'Разстояние между портовете (%)',
       port_bottom: 'Височина на портовете (% отдолу)',
       language: 'Език',
+      port_names: 'Имена на портовете (по ред)',
+      watched_ports: 'Наблюдавани портове (червени при отпадане)',
+      show_history: 'История на трафика за 24 ч',
+      zoom: 'Бутон за подробности',
     },
     units: { timeticks: 'Стотни от секундата (SNMP)', seconds: 'Секунди' },
     day: 'д',
@@ -677,6 +798,11 @@ const I18N = {
     open_admin: 'Отвори страницата за администриране',
     online: 'На линия',
     idle: 'Неактивен',
+    total: 'Общо',
+    zoom_in: 'Покажи цялата карта',
+    zoom_out: 'Обратно към компактния изглед',
+    mini_name: 'Мини карта на мрежов суич',
+    mini_desc: 'Компактен мрежов суич: преден панел, портове и трафик, с бутон за цялата карта.',
   },
   ru: {
     card_name: 'Карточка сетевого коммутатора',
@@ -716,6 +842,10 @@ const I18N = {
       port_step: 'Расстояние между портами (%)',
       port_bottom: 'Высота портов (% от низа)',
       language: 'Язык',
+      port_names: 'Имена портов (по порядку)',
+      watched_ports: 'Отслеживаемые порты (красные при падении)',
+      show_history: 'История трафика за 24 ч',
+      zoom: 'Кнопка подробностей',
     },
     units: { timeticks: 'Сотые доли секунды (SNMP)', seconds: 'Секунды' },
     day: 'д',
@@ -725,6 +855,11 @@ const I18N = {
     open_admin: 'Открыть страницу администрирования',
     online: 'В сети',
     idle: 'Неактивен',
+    total: 'Всего',
+    zoom_in: 'Показать полную карточку',
+    zoom_out: 'Вернуться к компактному виду',
+    mini_name: 'Мини-карточка сетевого коммутатора',
+    mini_desc: 'Компактный сетевой коммутатор: передняя панель, порты и трафик, с кнопкой полной карточки.',
   },
   uk: {
     card_name: 'Картка мережевого комутатора',
@@ -764,6 +899,10 @@ const I18N = {
       port_step: 'Відстань між портами (%)',
       port_bottom: 'Висота портів (% від низу)',
       language: 'Мова',
+      port_names: 'Назви портів (по порядку)',
+      watched_ports: 'Відстежувані порти (червоні при падінні)',
+      show_history: 'Історія трафіку за 24 год',
+      zoom: 'Кнопка деталей',
     },
     units: { timeticks: 'Соті частки секунди (SNMP)', seconds: 'Секунди' },
     day: 'д',
@@ -773,6 +912,11 @@ const I18N = {
     open_admin: 'Відкрити сторінку адміністрування',
     online: 'У мережі',
     idle: 'Неактивний',
+    total: 'Усього',
+    zoom_in: 'Показати повну картку',
+    zoom_out: 'Повернутися до компактного вигляду',
+    mini_name: 'Міні-картка мережевого комутатора',
+    mini_desc: 'Компактний мережевий комутатор: передня панель, порти й трафік, з кнопкою повної картки.',
   },
   hu: {
     card_name: 'Hálózati switch kártya',
@@ -812,6 +956,10 @@ const I18N = {
       port_step: 'Portok közötti távolság (%)',
       port_bottom: 'Portok magassága (% alulról)',
       language: 'Nyelv',
+      port_names: 'Portnevek (sorrendben)',
+      watched_ports: 'Figyelt portok (pirosak kieséskor)',
+      show_history: '24 órás forgalmi előzmények',
+      zoom: 'Részletek gomb',
     },
     units: { timeticks: 'Századmásodperc (SNMP)', seconds: 'Másodperc' },
     day: 'n',
@@ -821,6 +969,11 @@ const I18N = {
     open_admin: 'Adminisztrációs oldal megnyitása',
     online: 'Online',
     idle: 'Inaktív',
+    total: 'Összesen',
+    zoom_in: 'Teljes kártya megjelenítése',
+    zoom_out: 'Vissza a kompakt nézethez',
+    mini_name: 'Hálózati switch mini kártya',
+    mini_desc: 'Kompakt hálózati switch: előlap, portok és forgalom, a teljes kártya gombjával.',
   },
   sk: {
     card_name: 'Karta sieťového prepínača',
@@ -860,6 +1013,10 @@ const I18N = {
       port_step: 'Rozostup medzi portami (%)',
       port_bottom: 'Výška portov (% zdola)',
       language: 'Jazyk',
+      port_names: 'Názvy portov (v poradí)',
+      watched_ports: 'Sledované porty (červené pri výpadku)',
+      show_history: '24 h história prevádzky',
+      zoom: 'Tlačidlo podrobností',
     },
     units: { timeticks: 'Stotiny sekundy (SNMP)', seconds: 'Sekundy' },
     day: 'd',
@@ -869,6 +1026,11 @@ const I18N = {
     open_admin: 'Otvoriť stránku administrácie',
     online: 'Online',
     idle: 'Nečinný',
+    total: 'Spolu',
+    zoom_in: 'Zobraziť celú kartu',
+    zoom_out: 'Späť na kompaktné zobrazenie',
+    mini_name: 'Mini karta sieťového prepínača',
+    mini_desc: 'Kompaktný sieťový prepínač: predný panel, porty a prevádzka, s tlačidlom celej karty.',
   },
   cs: {
     card_name: 'Karta síťového přepínače',
@@ -908,6 +1070,10 @@ const I18N = {
       port_step: 'Rozestup mezi porty (%)',
       port_bottom: 'Výška portů (% zdola)',
       language: 'Jazyk',
+      port_names: 'Názvy portů (v pořadí)',
+      watched_ports: 'Sledované porty (červené při výpadku)',
+      show_history: '24h historie provozu',
+      zoom: 'Tlačítko podrobností',
     },
     units: { timeticks: 'Setiny sekundy (SNMP)', seconds: 'Sekundy' },
     day: 'd',
@@ -917,6 +1083,11 @@ const I18N = {
     open_admin: 'Otevřít stránku administrace',
     online: 'Online',
     idle: 'Nečinný',
+    total: 'Celkem',
+    zoom_in: 'Zobrazit celou kartu',
+    zoom_out: 'Zpět na kompaktní zobrazení',
+    mini_name: 'Mini karta síťového přepínače',
+    mini_desc: 'Kompaktní síťový přepínač: přední panel, porty a provoz, s tlačítkem celé karty.',
   },
   sl: {
     card_name: 'Kartica omrežnega stikala',
@@ -956,6 +1127,10 @@ const I18N = {
       port_step: 'Razmik med vrati (%)',
       port_bottom: 'Višina vrat (% od spodaj)',
       language: 'Jezik',
+      port_names: 'Imena vrat (po vrsti)',
+      watched_ports: 'Nadzorovana vrata (rdeča ob izpadu)',
+      show_history: '24-urna zgodovina prometa',
+      zoom: 'Gumb za podrobnosti',
     },
     units: { timeticks: 'Stotinke sekunde (SNMP)', seconds: 'Sekunde' },
     day: 'd',
@@ -965,6 +1140,11 @@ const I18N = {
     open_admin: 'Odpri stran za skrbništvo',
     online: 'Povezano',
     idle: 'Nedejavno',
+    total: 'Skupaj',
+    zoom_in: 'Prikaži celotno kartico',
+    zoom_out: 'Nazaj na kompaktni pogled',
+    mini_name: 'Mini kartica omrežnega stikala',
+    mini_desc: 'Kompaktno omrežno stikalo: sprednja plošča, vrata in promet, z gumbom za celotno kartico.',
   },
   lv: {
     card_name: 'Tīkla komutatora kartīte',
@@ -1004,6 +1184,10 @@ const I18N = {
       port_step: 'Attālums starp portiem (%)',
       port_bottom: 'Portu augstums (% no apakšas)',
       language: 'Valoda',
+      port_names: 'Portu nosaukumi (secībā)',
+      watched_ports: 'Uzraudzītie porti (sarkani, ja krīt)',
+      show_history: 'Datplūsmas 24 h vēsture',
+      zoom: 'Detaļu poga',
     },
     units: { timeticks: 'Sekundes simtdaļas (SNMP)', seconds: 'Sekundes' },
     day: 'd',
@@ -1013,6 +1197,11 @@ const I18N = {
     open_admin: 'Atvērt administrēšanas lapu',
     online: 'Tiešsaistē',
     idle: 'Dīkstāvē',
+    total: 'Kopā',
+    zoom_in: 'Rādīt pilno karti',
+    zoom_out: 'Atpakaļ uz kompakto skatu',
+    mini_name: 'Tīkla komutatora mini karte',
+    mini_desc: 'Kompakts tīkla komutators: priekšējais panelis, porti un datplūsma, ar pogu pilnajai kartei.',
   },
   el: {
     card_name: 'Κάρτα μεταγωγέα δικτύου',
@@ -1052,6 +1241,10 @@ const I18N = {
       port_step: 'Απόσταση μεταξύ θυρών (%)',
       port_bottom: 'Ύψος θυρών (% από κάτω)',
       language: 'Γλώσσα',
+      port_names: 'Ονόματα θυρών (με σειρά)',
+      watched_ports: 'Θύρες υπό παρακολούθηση (κόκκινες σε πτώση)',
+      show_history: 'Ιστορικό κίνησης 24 ωρών',
+      zoom: 'Κουμπί λεπτομερειών',
     },
     units: { timeticks: 'Εκατοστά του δευτερολέπτου (SNMP)', seconds: 'Δευτερόλεπτα' },
     day: 'η',
@@ -1061,6 +1254,11 @@ const I18N = {
     open_admin: 'Άνοιγμα σελίδας διαχείρισης',
     online: 'Σε σύνδεση',
     idle: 'Ανενεργό',
+    total: 'Σύνολο',
+    zoom_in: 'Εμφάνιση πλήρους κάρτας',
+    zoom_out: 'Επιστροφή στη συμπαγή προβολή',
+    mini_name: 'Μίνι κάρτα μεταγωγέα δικτύου',
+    mini_desc: 'Συμπαγής μεταγωγέας δικτύου: πρόσοψη, θύρες και κίνηση, με κουμπί για την πλήρη κάρτα.',
   },
 };
 
@@ -1157,6 +1355,44 @@ const formatUptime = (raw, unit, u = { day: 'd', hour: 'h', minute: 'min' }) => 
   return `${d > 0 ? `${d}${u.day} ` : ''}${h}${u.hour} ${m}${u.minute}`;
 };
 
+// Byte counters (an SNMP ifInOctets sensor): their unit's size in bytes. A traffic sensor in one of these units is a
+// running total, from which the card computes a rate; any other unit (kB/s, Mbit/s…) is already a rate.
+const BYTE_UNITS = { B: 1, bytes: 1, octets: 1, o: 1, kB: 1e3, KB: 1024, KiB: 1024, MB: 1e6, MiB: 1048576, GB: 1e9, GiB: 1073741824 };
+// A rate with three significant digits at most ("3.2 MB/s", "584 KB/s"), so it fits beside the mini card's panel.
+const formatRate = (bps) => {
+  if (!Number.isFinite(bps)) return '—';
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let v = bps;
+  let i = 0;
+  while (v >= 1000 && i < units.length - 1) {
+    v /= 1024;
+    i++;
+  }
+  return `${v.toFixed(i === 0 || v >= 10 ? 0 : 1)} ${units[i]}/s`;
+};
+
+// Ports whose loss of link is an alarm (red): `watched_ports` as a list (YAML or the editor) or "1, 3, 8".
+const watchedPorts = (c) =>
+  new Set((Array.isArray(c.watched_ports) ? c.watched_ports : String(c.watched_ports ?? '').split(/[\s,;]+/)).map((n) => parseInt(n, 10)).filter(Number.isFinite));
+
+// The name given to a port: `port_names` as a list in port order (YAML or the editor) or a map { 3: NAS }.
+const portName = (c, n) => {
+  const names = c.port_names;
+  const v = Array.isArray(names) ? names[n - 1] : names && typeof names === 'object' ? names[n] : undefined;
+  return v == null ? '' : String(v).trim();
+};
+// Under a drawn port, its name fits in about 7 characters: shortened with an ellipsis beyond (the tooltip has it whole).
+const shortName = (name) => (name.length > 7 ? `${name.slice(0, 6)}…` : name);
+
+// 24 h curve of a series (rates), scaled from 0 to its peak; nothing under two points.
+const HIST_REFRESH = 5 * 60000;
+const spark = (values) => {
+  if (!values || values.length < 2) return '';
+  const peak = Math.max(...values) || 1;
+  const pts = values.map((v, i) => `${((i / (values.length - 1)) * 100).toFixed(2)},${(30 - (Math.max(0, v) / peak) * 28).toFixed(2)}`).join('L');
+  return `<svg class="spark" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path class="spark-a" d="M0,30L${pts}L100,30Z"/><path class="spark-l" d="M${pts}"/></svg>`;
+};
+
 const portSvg = (color, dark) => `
   <svg viewBox="0 0 27 25" xmlns="http://www.w3.org/2000/svg">
     <rect x="1" y="4" width="25" height="20" rx="2" style="fill:${color}"/>
@@ -1169,6 +1405,9 @@ const portSvg = (color, dark) => `
  * two groups of four ports in a silver bezel, each port with its link LED at the top-left corner.
  * The ports and LEDs are laid out on one grid, so they always line up whatever the card width.
  */
+// A port's tooltip: "Port 3", or "Port 3 · NAS" when it has a name.
+const portTitle = (portLabel, p) => `${portLabel} ${p.n}${p.name ? ` · ${p.name}` : ''}`;
+
 const GS308T = { H: 150, CELL: 62, GAP: 8, GROUP_GAP: 16, X0: 150, BEZEL_Y: 38, PORT_Y: 52, PORT_H: 44 };
 const gs308tSvg = (ports, powerColor, portLabel) => {
   const g = GS308T;
@@ -1193,9 +1432,9 @@ const gs308tSvg = (ports, powerColor, portLabel) => {
           ${contacts}
           <rect x="${x + 3}" y="${g.BEZEL_Y + 4}" width="12" height="6" rx="1" style="fill:${led}"/>
           ${led === COLORS.green ? `<rect x="${x + 1}" y="${g.BEZEL_Y + 2}" width="16" height="10" rx="2" style="fill:${led}" opacity="0.3"/>` : ''}
-          <text x="${cx}" y="${g.PORT_Y + g.PORT_H + 30}" text-anchor="middle" font-size="13" fill="#d6d6d6">${i + 1}</text>`;
+          <text x="${cx}" y="${g.PORT_Y + g.PORT_H + 30}" text-anchor="middle" font-size="13" fill="#d6d6d6">${esc(p?.label ?? i + 1)}</text>`;
     return p
-      ? `<g class="port" data-entity="${esc(p.id)}" role="button" tabindex="0"><title>${esc(portLabel)} ${p.n}</title>${body}</g>`
+      ? `<g class="port" data-entity="${esc(p.id)}" role="button" tabindex="0"><title>${esc(portTitle(portLabel, p))}</title>${body}</g>`
       : `<g>${body}</g>`;
   }).join('');
   return `
@@ -1210,8 +1449,8 @@ const gs308tSvg = (ports, powerColor, portLabel) => {
       </defs>
       <rect x="18" y="136" width="44" height="10" rx="2" fill="#0b0b0c"/>
       <rect x="${W - 62}" y="136" width="44" height="10" rx="2" fill="#0b0b0c"/>
-      <rect x="2" y="4" width="${W - 4}" height="134" rx="6" fill="url(#ng-body)"/>
-      <rect x="2" y="4" width="${W - 4}" height="6" rx="3" fill="#ffffff" opacity="0.07"/>
+      <rect x="2" y="4" width="${W - 4}" height="134" rx="1" fill="url(#ng-body)"/>
+      <rect x="2" y="4" width="${W - 4}" height="6" rx="1" fill="#ffffff" opacity="0.07"/>
       <text x="26" y="34" font-size="17" font-weight="700" letter-spacing="1.5" fill="#f2f2f2" font-family="Arial, Helvetica, sans-serif">NETGEAR</text>
       <text x="44" y="48" font-size="9" fill="#d0d0d0" font-family="Arial, Helvetica, sans-serif">S350 Series</text>
       <text x="${(g.X0 + right) / 2}" y="28" text-anchor="middle" font-size="10" fill="#e6e6e6" font-family="Arial, Helvetica, sans-serif">Green=1000M, Yellow=100M/10M, Blink=ACT</text>
@@ -1252,7 +1491,8 @@ const chassisSvg = (ports, powerColor, portLabel) => {
   ).join('');
 
   const slots = ports
-    .map(({ n, id, colors: [col, dark] }, i) => {
+    .map((p, i) => {
+      const { id, colors: [col, dark] } = p;
       const row = rows === 2 ? i % 2 : 0;
       const colIdx = rows === 2 ? Math.floor(i / 2) : i;
       const x = X0 + colIdx * PW;
@@ -1263,13 +1503,13 @@ const chassisSvg = (ports, powerColor, portLabel) => {
       const labelY = rows === 2 && row === 0 ? y - 6 : y + 52;
       return `
         <g class="port" data-entity="${esc(id)}" role="button" tabindex="0">
-          <title>${esc(portLabel)} ${n}</title>
+          <title>${esc(portTitle(portLabel, p))}</title>
           <rect x="${x - 2}" y="${y - 2}" width="44" height="40" rx="4" class="hs-slot"/>
           <path d="M${x} ${y + 6} h10 v-6 h20 v6 h10 v28 h-40 z" style="fill:${col}"/>
           ${contacts}
           <rect x="${x + 4}" y="${y + 26}" width="8" height="4" rx="1" style="fill:${dark}" opacity="0.8"/>
           <rect x="${x + 28}" y="${y + 26}" width="8" height="4" rx="1" style="fill:${dark}" opacity="0.8"/>
-          <text x="${x + 20}" y="${labelY}" text-anchor="middle" font-size="11" class="hs-label">${n}</text>
+          <text x="${x + 20}" y="${labelY}" text-anchor="middle" font-size="11" class="hs-label">${esc(p.label)}</text>
         </g>`;
     })
     .join('');
@@ -1282,7 +1522,7 @@ const chassisSvg = (ports, powerColor, portLabel) => {
           <stop offset="1" style="stop-color:var(--hs-body-bottom)"/>
         </linearGradient>
       </defs>
-      <rect x="1" y="1" width="${W - 2}" height="${H - 2}" rx="10" fill="url(#hs-body)" class="hs-edge" stroke-width="2"/>
+      <rect x="1" y="1" width="${W - 2}" height="${H - 2}" rx="1" fill="url(#hs-body)" class="hs-edge" stroke-width="2"/>
       <rect x="6" y="5" width="${W - 12}" height="2" rx="1" fill="#ffffff" opacity="0.08"/>
       ${vents}
       <circle cx="132" cy="${H / 2 - 6}" r="5" style="fill:${powerColor}"/>
@@ -1328,6 +1568,9 @@ class HaSwitchCard extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this._key = '';
+    // Live rates of the byte counters: the last sample of each, and the rate between the last two.
+    this._samples = {};
+    this._rates = {};
     this.shadowRoot.addEventListener('click', (ev) => this._onClick(ev));
     // Ports, tiles, chips, the header icon and the admin link are focusable: Enter or Space opens them like a click.
     this.shadowRoot.addEventListener('keydown', (ev) => {
@@ -1437,6 +1680,74 @@ class HaSwitchCard extends HTMLElement {
     this.dispatchEvent(ev);
   }
 
+  // A traffic sensor's unit size when it counts bytes (a running total), else null (already a rate, or unknown).
+  _byteFactor(st) {
+    return BYTE_UNITS[st?.attributes?.unit_of_measurement] ?? null;
+  }
+
+  // The rate of a byte counter, in bytes/s: from its last two states while the card is shown (a counter reset or a
+  // 32-bit wrap, going down, is skipped), else from the last 5 minutes of its statistics.
+  _rate(id) {
+    const st = this._state(id);
+    const f = this._byteFactor(st);
+    if (!f) return null;
+    const v = parseFloat(st.state) * f;
+    if (Number.isFinite(v)) {
+      const t = Date.parse(st.last_updated || st.last_changed || '') || Date.now();
+      const prev = this._samples[id];
+      if (!prev || prev.v !== v) {
+        if (prev && t > prev.t && v >= prev.v) this._rates[id] = (v - prev.v) / ((t - prev.t) / 1000);
+        this._samples[id] = { v, t };
+      }
+    }
+    if (this._rates[id] != null) return this._rates[id];
+    const h = this._hist?.[id];
+    return h?.length ? h[h.length - 1] : null;
+  }
+
+  // 24 h of 5-minute statistics of the traffic sensors, fetched again every 5 minutes: the rate of a byte counter
+  // (its 5-minute change over 300 s), the mean of a rate sensor. What is already there is returned (nothing at
+  // first); the card renders again when the answer comes.
+  _history(ids) {
+    const key = ids.join(',');
+    if (key && this._hass.callWS && (this._histKey !== key || Date.now() - this._histAt > HIST_REFRESH)) {
+      this._histKey = key;
+      this._histAt = Date.now();
+      Promise.resolve(
+        this._hass.callWS({
+          type: 'recorder/statistics_during_period',
+          start_time: new Date(Date.now() - 864e5).toISOString(),
+          statistic_ids: ids,
+          period: '5minute',
+          types: ['mean', 'change'],
+        })
+      )
+        .then((r) => {
+          if (this._histKey !== key) return;
+          this._hist = Object.fromEntries(
+            ids.map((id) => {
+              const f = this._byteFactor(this._state(id));
+              const pts = r?.[id] || [];
+              const vals = f ? pts.map((p) => (Number.isFinite(p.change) ? (p.change * f) / 300 : null)) : pts.map((p) => p.mean);
+              return [id, vals.filter(Number.isFinite)];
+            })
+          );
+          this._key = '';
+          this._render();
+        })
+        // No statistics (sensor without state_class, recorder off): try again in a minute, no curve meanwhile.
+        .catch(() => {
+          this._histAt = Date.now() - HIST_REFRESH + 60000;
+        });
+    }
+    return this._histKey === key ? this._hist : null;
+  }
+
+  // Overridden by the mini card: its detail button.
+  _zoomButton() {
+    return '';
+  }
+
   _onClick(ev) {
     const path = ev.composedPath();
     if (path.some((el) => el.tagName === 'HA-SWITCH')) return;
@@ -1461,7 +1772,10 @@ class HaSwitchCard extends HTMLElement {
       return k;
     };
     const lang = getLang(this._hass, c);
-    const key = lang + this._configKey + this._watchedIds.map(entityKey).join('|');
+    const trafficIds = [c.traffic_in_entity, c.traffic_out_entity].filter(Boolean);
+    const liveRates = trafficIds.map((id) => this._rate(id));
+    const hist = c.show_history === false ? null : this._history(trafficIds);
+    const key = lang + this._configKey + this._watchedIds.map(entityKey).join('|') + JSON.stringify([liveRates, !!hist, this._zoomed]);
     if (key === this._key) return;
     this._key = key;
 
@@ -1472,13 +1786,15 @@ class HaSwitchCard extends HTMLElement {
     /* status pill (header, right of the title) and chips */
     const chips = [];
     let conChip = '';
+    let conArgs = null;
     const con = this._state(c.connectivity_entity);
     if (c.connectivity_entity) {
       const on = con?.state === 'on';
       // Unreachable (unavailable / unknown) is grey with a question mark, not the red "network off" of a real outage.
       const unknown = !con || isUnavailable(con);
       const icon = unknown ? 'mdi:help-network-outline' : on ? 'mdi:network-outline' : 'mdi:network-off-outline';
-      conChip = this._chip(c.connectivity_entity, icon, unknown ? COLORS.grey : on ? COLORS.green : COLORS.red, this._formatState(con));
+      conArgs = [c.connectivity_entity, icon, unknown ? COLORS.grey : on ? COLORS.green : COLORS.red, this._formatState(con)];
+      conChip = this._chip(...conArgs);
     }
     let pill = '';
     const st = this._state(c.status_entity);
@@ -1487,11 +1803,11 @@ class HaSwitchCard extends HTMLElement {
       const online = statusIs(st?.state, c, 'online_state');
       const idle = !online && statusIs(st?.state, c, 'idle_state');
       const icon = online ? 'mdi:check-circle' : idle ? 'mdi:minus-circle' : !st || isUnavailable(st) ? 'mdi:help-circle' : 'mdi:alert-circle';
-      pill = this._chip(c.status_entity, icon, statusColor, online ? t.online : idle ? t.idle : this._formatState(st));
+      pill = this._chip(c.status_entity, icon, statusColor, online ? t.online : idle ? t.idle : this._formatState(st), true);
       if (conChip) chips.push(conChip);
     } else {
       // No status sensor: connectivity is the header status.
-      pill = conChip;
+      pill = conArgs ? this._chip(...conArgs, true) : '';
     }
     if (c.uptime_entity) {
       // Unavailable / unknown read as Home Assistant shows them (translated), not as a dash or a duration.
@@ -1501,21 +1817,26 @@ class HaSwitchCard extends HTMLElement {
 
     /* ports */
     const count = this._portCount();
+    const watched = watchedPorts(c);
     const portInfo = [];
+    let upCount = 0;
     for (let n = 1; n <= count; n++) {
       const id = this._portEntity(n);
       const ps = this._state(id);
       const up = ps?.state === String(c.port_on_state);
-      // Missing, unavailable or unknown: grey, so a dead SNMP poll does not show every port as down.
-      const color = !ps || isUnavailable(ps) ? COLORS.grey : up ? COLORS.green : COLORS.red;
-      portInfo.push({ n, id, colors: [color, shade(color)] });
+      if (up) upCount++;
+      // Missing, unavailable or unknown: grey, so a dead SNMP poll does not show every port as down. A port without
+      // link is grey too (nothing plugged in), red only when it is one of the `watched_ports`.
+      const color = !ps || isUnavailable(ps) ? COLORS.grey : up ? COLORS.green : watched.has(n) ? COLORS.red : COLORS.grey;
+      const name = portName(c, n);
+      portInfo.push({ n, id, name, label: name ? shortName(name) : String(n), colors: [color, shade(color)] });
     }
     const urlAttr = c.url ? `data-url="${esc(c.url)}" role="link" tabindex="0" aria-label="${esc(t.open_admin)}"` : '';
     let device;
     if (c.image) {
       const ports = portInfo.map(
-        ({ n, id, colors }) =>
-          `<div class="port" style="left:${num(c.port_start, DEFAULTS.port_start) + (n - 1) * num(c.port_step, DEFAULTS.port_step)}%" data-entity="${esc(id)}" role="button" tabindex="0" title="${t.port} ${n}">${portSvg(...colors)}</div>`
+        ({ n, id, name, colors }) =>
+          `<div class="port" style="left:${num(c.port_start, DEFAULTS.port_start) + (n - 1) * num(c.port_step, DEFAULTS.port_step)}%" data-entity="${esc(id)}" role="button" tabindex="0" title="${esc(portTitle(t.port, { n, name }))}">${portSvg(...colors)}</div>`
       );
       device = `<div class="device img" ${urlAttr}>
            <img src="${esc(c.image)}" alt="">
@@ -1528,20 +1849,43 @@ class HaSwitchCard extends HTMLElement {
       device = `<div class="device" ${urlAttr}>${chassisSvg(portInfo, statusColor, t.port)}</div>`;
     }
 
-    /* traffic */
+    /* traffic: a byte counter shows its rate, with its total under it; another sensor shows its value as is */
+    const value = (id) => {
+      const st = this._state(id);
+      return this._byteFactor(st) && Number.isFinite(parseFloat(st.state)) ? formatRate(this._rate(id)) : this._formatTraffic(st);
+    };
+    const total = (id) => {
+      const st = this._state(id);
+      const f = this._byteFactor(st);
+      return f && Number.isFinite(parseFloat(st.state)) ? `${t.total} ${formatBytes(parseFloat(st.state) * f)}` : '';
+    };
     const tile = (id, icon, color, label) =>
       id
-        ? `<div class="tile" data-entity="${esc(id)}" role="button" tabindex="0">
-             <div class="ic" style="--c:${color}"><ha-icon icon="${icon}"></ha-icon></div>
-             <div class="txt"><div class="k">${label}</div><div class="v">${esc(this._formatTraffic(this._state(id)))}</div></div>
+        ? `<div class="tile" style="--c:${color}" data-entity="${esc(id)}" role="button" tabindex="0">${spark(hist?.[id])}
+             <div class="ic"><ha-icon icon="${icon}"></ha-icon></div>
+             <div class="txt"><div class="k">${label}</div><div class="v">${esc(value(id))}</div>${total(id) ? `<div class="t">${esc(total(id))}</div>` : ''}</div>
            </div>`
         : '';
     const traffic = tile(c.traffic_in_entity, 'mdi:arrow-down-bold', COLORS.green, t.in) + tile(c.traffic_out_entity, 'mdi:arrow-up-bold', COLORS.blue, t.out);
+    // Mini card: the rates only, beside the front panel (under it on a narrow card), each with its curve.
+    const rate = (id, icon, color, label) =>
+      id
+        ? `<div class="rt" style="--c:${color}" data-entity="${esc(id)}" role="button" tabindex="0" title="${esc(label)}">${spark(hist?.[id])}<div><ha-icon icon="${icon}"></ha-icon><span>${esc(value(id))}</span></div></div>`
+        : '';
+    const compact = this._compact();
+    const rates = rate(c.traffic_in_entity, 'mdi:arrow-down-bold', COLORS.green, t.in) + rate(c.traffic_out_entity, 'mdi:arrow-up-bold', COLORS.blue, t.out);
+    const body = compact
+      ? `<div class="mb${rates ? '' : ' solo'}">${device}${rates ? `<div class="rates">${rates}</div>` : ''}</div>`
+      : `${chips.length ? `<div class="chips">${chips.join('')}</div>` : ''}
+        ${device}
+        ${traffic ? `<div class="traffic">${traffic}</div>` : ''}`;
+    const count2 = `${upCount}/${count}`;
+    pill = pill.split('\u0000COUNT\u0000').join(esc(count2));
 
     const focused = focusKey(this.shadowRoot.activeElement);
     this.shadowRoot.innerHTML = `
       <style>${HaSwitchCard.styles}</style>
-      <ha-card>
+      <ha-card class="${compact ? 'mini' : ''}">
         <div class="header">
           <div class="ic big" style="--c:${statusColor}" ${headerEntity ? `data-entity="${esc(headerEntity)}" role="button" tabindex="0" aria-label="${esc(this._state(headerEntity)?.attributes?.friendly_name || headerEntity)}"` : ''}>
             <ha-icon icon="${esc(c.icon)}"></ha-icon>
@@ -1550,11 +1894,9 @@ class HaSwitchCard extends HTMLElement {
             <div class="title-row"><div class="name">${esc(c.name)}</div>${pill}</div>
             ${c.subtitle ? `<div class="sub">${esc(c.subtitle)}</div>` : ''}
           </div>
-          ${sw ? `<ha-switch></ha-switch>` : ''}
+          ${sw && !compact ? `<ha-switch></ha-switch>` : ''}${this._zoomButton()}
         </div>
-        ${chips.length ? `<div class="chips">${chips.join('')}</div>` : ''}
-        ${device}
-        ${traffic ? `<div class="traffic">${traffic}</div>` : ''}
+        ${body}
       </ha-card>`;
 
     // innerHTML replaced the focused element: focus its counterpart so keyboard navigation keeps its place.
@@ -1593,11 +1935,18 @@ class HaSwitchCard extends HTMLElement {
     }
   }
 
-  _chip(entity, icon, color, content) {
+  // `count`: the status pill, followed by the ports up out of all ("· 6/8"); on the narrowest mini card the pill keeps
+  // only that count, its colour and icon telling the status.
+  _chip(entity, icon, color, content, count = false) {
     // The full text also in title / aria-label: the pill may be truncated, or reduced to its icon on a narrow card.
-    return `<div class="chip" style="--c:${color}" data-entity="${esc(entity)}" role="button" tabindex="0" title="${esc(content)}" aria-label="${esc(content)}">
-      <ha-icon icon="${icon}"></ha-icon><span>${esc(content)}</span>
+    const full = count ? `${esc(content)} · \u0000COUNT\u0000` : esc(content);
+    return `<div class="chip" style="--c:${color}" data-entity="${esc(entity)}" role="button" tabindex="0" title="${full}" aria-label="${full}">
+      <ha-icon icon="${icon}"></ha-icon><span>${esc(content)}</span>${count ? '<span class="cnt" data-n="\u0000COUNT\u0000">· \u0000COUNT\u0000</span>' : ''}
     </div>`;
+  }
+
+  _compact() {
+    return false;
   }
 
   static get styles() {
@@ -1653,7 +2002,9 @@ class HaSwitchCard extends HTMLElement {
       .chip ha-icon { --mdc-icon-size: 13px; }
       .chip { max-width: 100%; box-sizing: border-box; }
       .chip span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .device { position: relative; width: 100%; border-radius: 10px; overflow: hidden; }
+      /* A drawn front panel keeps its own (almost square) corners; a custom photo is framed with rounded ones. */
+      .device { position: relative; width: 100%; }
+      .device.img { border-radius: 10px; overflow: hidden; }
       .device img { width: 100%; display: block; }
       .device svg { width: 100%; height: auto; display: block; }
       .device svg .port:hover { filter: brightness(1.15); }
@@ -1666,13 +2017,134 @@ class HaSwitchCard extends HTMLElement {
       .port svg { width: 100%; height: auto; }
       .traffic { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px; }
       .tile { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; min-width: 0;
-              background: var(--secondary-background-color, rgba(127,127,127,.08)); }
+              background: var(--secondary-background-color, rgba(127,127,127,.08)); position: relative; overflow: hidden; }
+      .tile > :not(.spark) { position: relative; }
       .tile .ic { --mdc-icon-size: 20px; }
+      .tile .t { font-size: 11px; color: var(--secondary-text-color); }
+      /* 24 h curve behind a rate, in the lower half, in the tile's colour. */
+      .spark { position: absolute; left: 0; bottom: 0; width: 100%; height: 55%; pointer-events: none; }
+      .spark-a { fill: color-mix(in srgb, var(--c) 12%, transparent); }
+      .spark-l { fill: none; stroke: color-mix(in srgb, var(--c) 50%, transparent); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+      /* "Online · 6/8": the count follows the status as one text (the chip's gap is for its icon). */
+      .chip .cnt { flex: none; margin-left: -3px; }
+
+      /* Mini card: smaller header icon, the front panel and the rates side by side. */
+      /* Only the mini card is a size container (its layout follows its own width). A size container takes no width from
+         its content: in a parent sized by its content (inline-block, an \`auto\` grid column) it would shrink to its
+         padding. An empty, zero-height grid before it gives the host up to 240px there, and no minimum. */
+      :host([mini]) { display: block; min-width: 0; }
+      :host([mini])::before { content: ""; display: grid; grid-template-columns: minmax(0, 240px); height: 0; }
+      ha-card.mini { gap: 8px; container-type: inline-size; }
+      ha-card.mini .ic.big { --size: 32px; --mdc-icon-size: 20px; }
+      .zoom { all: unset; flex: none; cursor: pointer; width: 24px; height: 24px; margin: -4px -4px -4px 0; border-radius: 50%; align-self: flex-start;
+              display: grid; place-items: center; color: var(--secondary-text-color); --mdc-icon-size: 16px; }
+      .zoom:hover { background: color-mix(in srgb, var(--secondary-text-color) 14%, transparent); color: var(--primary-text-color); }
+      .zoom:focus-visible { outline: 2px solid var(--primary-color, #03a9f4); outline-offset: 1px; }
+      .mb { display: grid; grid-template-columns: minmax(0, 62%) minmax(0, 1fr); gap: 8px; align-items: center; }
+      .mb.solo { grid-template-columns: minmax(0, 1fr); }
+      .rates { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+      .rt { position: relative; overflow: hidden; min-width: 0; padding: 4px 8px; border-radius: 8px;
+            background: var(--secondary-background-color, rgba(127,127,127,.08)); }
+      .rt > div { position: relative; display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 500;
+                  color: var(--primary-text-color); white-space: nowrap; --mdc-icon-size: 14px; }
+      .rt ha-icon { flex: none; color: var(--c); }
+      .rt span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+      .rt .spark { height: 60%; }
+      /* A narrow mini card (a phone, 6 columns of a section): the panel takes the whole width, the rates go under it
+         side by side, then one per line; the pill keeps only the port count. */
+      @container (max-width: 330px) {
+        .mb { grid-template-columns: minmax(0, 1fr); }
+        .rates { flex-direction: row; }
+        .rt { flex: 1 1 0; }
+      }
+      @container (max-width: 200px) {
+        .rates { flex-direction: column; }
+        .rt { flex: none; padding: 3px 6px; }
+        .rt > div { font-size: 12px; }
+        ha-card.mini .title-row > .chip > span:not(.cnt) { display: none; }
+        ha-card.mini .title-row > .chip .cnt { font-size: 0; }
+        ha-card.mini .title-row > .chip .cnt::after { content: attr(data-n); font-size: 11px; }
+      }
       .tile .txt { min-width: 0; }
       /* The label wraps rather than being cut: "Ruch przychodzący" or "Eingehender Datenverkehr" in a 140px tile. */
       .tile .k { font-size: 11px; color: var(--secondary-text-color); overflow-wrap: anywhere; }
       .tile .v { font-size: 14px; font-weight: 500; color: var(--primary-text-color); }
     `;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Mini card                                                           */
+/* ------------------------------------------------------------------ */
+// A click in a dialog opened from the card (its more-info) does not fold it back.
+const inDialog = (ev) => ev.composedPath().some((n) => ['ha-more-info-dialog', 'ha-dialog', 'dialog'].includes(n.localName));
+
+/**
+ * Compact card: header with the status and ports up, the front panel and the rates with their 24 h curves.
+ * Its detail button (top right, `zoom: false` removes it) switches it to the full card and back; a click outside the
+ * card brings the compact view back.
+ */
+class HaSwitchMiniCard extends HaSwitchCard {
+  constructor() {
+    super();
+    this._zoomed = false;
+    this._onOutside = (ev) => {
+      if (this._zoomed && !ev.composedPath().includes(this) && !inDialog(ev)) this._setZoom(false);
+    };
+  }
+
+  static getConfigElement() {
+    return document.createElement('ha-switch-mini-card-editor');
+  }
+
+  connectedCallback() {
+    document.addEventListener('click', this._onOutside, true);
+  }
+
+  disconnectedCallback() {
+    document.removeEventListener('click', this._onOutside, true);
+  }
+
+  getCardSize() {
+    return this._zoomed ? super.getCardSize() : 3;
+  }
+
+  getGridOptions() {
+    return this._zoomed ? super.getGridOptions() : { columns: 6, min_columns: 6 };
+  }
+
+  _compact() {
+    return !this._zoomed;
+  }
+
+  setConfig(config) {
+    // The host attribute behind the mini card's styles (its size container); never set in the constructor.
+    this.setAttribute?.('mini', '');
+    super.setConfig(config);
+  }
+
+  _setZoom(zoomed) {
+    this._zoomed = zoomed;
+    this._key = '';
+    this._render();
+  }
+
+  _zoomButton() {
+    if (this._config.zoom === false) return '';
+    const t = I18N[getLang(this._hass, this._config)];
+    const z = this._zoomed;
+    return `<button class="zoom" title="${esc(z ? t.zoom_out : t.zoom_in)}" aria-label="${esc(z ? t.zoom_out : t.zoom_in)}"><ha-icon icon="mdi:${z ? 'arrow-collapse' : 'arrow-expand'}"></ha-icon></button>`;
+  }
+
+  _onClick(ev) {
+    if (ev.composedPath().some((el) => el.classList?.contains?.('zoom'))) {
+      ev.stopPropagation();
+      this._setZoom(!this._zoomed);
+      // Keyboard use (Enter / Space: no click count) keeps the focus on the button, without scrolling the page.
+      if (!ev.detail) this.shadowRoot.querySelector('.zoom')?.focus?.({ preventScroll: true });
+      return;
+    }
+    super._onClick(ev);
   }
 }
 
@@ -1718,6 +2190,17 @@ class HaSwitchCardEditor extends HTMLElement {
           { name: 'ports', selector: { number: { min: 1, max: 52, mode: 'box' } } },
           { name: 'port_pattern', selector: { text: {} } },
           { name: 'port_on_state', selector: { text: {} } },
+          { name: 'port_names', selector: { text: { multiple: true } } },
+          {
+            name: 'watched_ports',
+            selector: {
+              select: {
+                multiple: true,
+                mode: 'dropdown',
+                options: Array.from({ length: Math.min(52, portCount(this._config || {})) }, (_, i) => ({ value: String(i + 1), label: `${t.port} ${i + 1}` })),
+              },
+            },
+          },
         ],
       },
       {
@@ -1758,6 +2241,8 @@ class HaSwitchCardEditor extends HTMLElement {
               },
             },
           },
+          { name: 'show_history', selector: { boolean: {} } },
+          ...(this.constructor.mini ? [{ name: 'zoom', selector: { boolean: {} } }] : []),
           { name: 'image', selector: { text: {} } },
           {
             type: 'grid', name: '', schema: [
@@ -1835,8 +2320,16 @@ class HaSwitchCardEditor extends HTMLElement {
 /* ------------------------------------------------------------------ */
 /* Registration                                                        */
 /* ------------------------------------------------------------------ */
+class HaSwitchMiniCardEditor extends HaSwitchCardEditor {
+  static get mini() {
+    return true;
+  }
+}
+
 if (!customElements.get('ha-switch-card')) customElements.define('ha-switch-card', HaSwitchCard);
 if (!customElements.get('ha-switch-card-editor')) customElements.define('ha-switch-card-editor', HaSwitchCardEditor);
+if (!customElements.get('ha-switch-mini-card')) customElements.define('ha-switch-mini-card', HaSwitchMiniCard);
+if (!customElements.get('ha-switch-mini-card-editor')) customElements.define('ha-switch-mini-card-editor', HaSwitchMiniCardEditor);
 
 const _t = I18N[getLang()];
 window.customCards = window.customCards || [];
@@ -1845,6 +2338,15 @@ if (!window.customCards.some((c) => c.type === 'ha-switch-card')) {
     type: 'ha-switch-card',
     name: _t.card_name,
     description: _t.card_desc,
+    preview: true,
+    documentationURL: 'https://github.com/juju35/ha-switch-card',
+  });
+}
+if (!window.customCards.some((c) => c.type === 'ha-switch-mini-card')) {
+  window.customCards.push({
+    type: 'ha-switch-mini-card',
+    name: _t.mini_name,
+    description: _t.mini_desc,
     preview: true,
     documentationURL: 'https://github.com/juju35/ha-switch-card',
   });
