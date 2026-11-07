@@ -22,7 +22,7 @@ Custom Lovelace card for Home Assistant displaying a managed network switch (SNM
 
 ## Features
 
-- Header with a status-colored icon, name, subtitle and power toggle
+- Header with a status-colored icon, name, subtitle and power toggle; turning the switch off asks for a confirmation first (it can cut the network Home Assistant runs on)
 - Chips for connectivity, global status and uptime (SNMP timeticks or seconds)
 - Two cards: `ha-switch-card` and its mini version `ha-switch-mini-card` (front panel and rates side by side; a detail button shows the full card)
 - Live state of every port on the device; tap a port to open its entity
@@ -114,6 +114,7 @@ url: http://switch.local
 | `subtitle` | – | Subtitle |
 | `icon` | `mdi:switch` | Header icon, colored by status |
 | `switch_entity` | – | Power toggle (`switch` / `input_boolean`) |
+| `confirm_off` | `true` | Ask for a confirmation (at the top of the card) before turning the switch off: cutting its power can cut the network Home Assistant runs on. Turning it on is immediate. `false` turns it off at once |
 | `status_entity` | – | Global status sensor |
 | `connectivity_entity` | – | Connectivity `binary_sensor` |
 | `uptime_entity` | – | Uptime sensor |
@@ -141,6 +142,7 @@ Tapping any chip, tile or port opens its more-info dialog.
 |---|---|---|
 | Generic front panel | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card.png" alt="card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-dark.png" alt="card dark" width="400"> |
 | Netgear GS308T | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-gs308t.png" alt="GS308T" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-gs308t-dark.png" alt="GS308T dark" width="400"> |
+| Power-off confirmation | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-confirm-off.png" alt="power-off confirmation" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-confirm-off-dark.png" alt="power-off confirmation dark" width="400"> |
 | Mini card | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/mini-card.png" alt="mini card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/mini-card-dark.png" alt="mini card dark" width="400"> |
 | Mini card on a phone | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/mini-card-narrow.png" alt="mini card narrow" width="272"> | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/mini-card-narrow-dark.png" alt="mini card narrow dark" width="272"> |
 

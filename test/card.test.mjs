@@ -193,17 +193,22 @@ test("unavailable / unknown ports, status and connectivity are grey, not red", (
 });
 
 // A card with a fake power toggle and manual timers. click(checked) flips the toggle as ha-switch does and fires `change`.
-function toggleCard({ callService, state = "off" } = {}) {
+// Window and document listeners are recorded (`on`), so that Escape and outside clicks can be fired.
+function toggleCard({ callService, state = "off", config = {} } = {}) {
   const timers = [];
   const setTimeout = (fn, ms) => timers.push({ fn, ms }) && timers.length;
   const clearTimeout = (id) => {
     if (timers[id - 1]) timers[id - 1].fn = null;
   };
-  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"], { setTimeout, clearTimeout });
+  const on = { keydown: new Set(), click: new Set() };
+  const addEventListener = (type, fn) => on[type]?.add(fn);
+  const removeEventListener = (type, fn) => on[type]?.delete(fn);
+  const document = { documentElement: { lang: "en" }, createElement: () => ({}), addEventListener, removeEventListener };
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"], { setTimeout, clearTimeout, addEventListener, removeEventListener, document });
   const card = new HaSwitchCard();
   const toggle = { checked: false, disabled: false, listeners: [], addEventListener(_, fn) { this.listeners.push(fn); } };
   card.shadowRoot.querySelector = (sel) => (sel === "ha-switch" ? toggle : null);
-  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", switch_entity: "switch.sw" });
+  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", switch_entity: "switch.sw", ...config });
   const hass = (s) => ({ language: "en", states: { "switch.sw": { state: s, attributes: {} } }, callService: callService ?? (() => Promise.resolve()) });
   card.hass = hass(state);
   const click = async (checked) => {
@@ -214,8 +219,121 @@ function toggleCard({ callService, state = "off" } = {}) {
   const runTimers = () => {
     for (const t of timers.splice(0)) t.fn?.();
   };
-  return { card, toggle, click, runTimers, timers, setState: (s) => (card.hass = hass(s)) };
+  return { card, toggle, click, runTimers, timers, on, setState: (s) => (card.hass = hass(s)) };
 }
+
+// A click on the element carrying data-action `action` (the confirmation's buttons and backdrop).
+const press = (card, action) => {
+  const el = { dataset: { action } };
+  card._onClick({ composedPath: () => [el], stopPropagation() {} });
+};
+
+// Turning the switch off can cut the network Home Assistant runs on: it asks first, turning it on does not.
+function powerCard(opts = {}) {
+  const calls = [];
+  const callService = (domain, service, data) => calls.push([domain, service, data.entity_id]) && Promise.resolve();
+  return { calls, ...toggleCard({ callService, state: "on", ...opts }) };
+}
+
+test("power toggle: turning off asks for a confirmation at the top of the card, without calling the service", async () => {
+  const { card, toggle, click, calls } = powerCard();
+  await click(false);
+  assert.deepEqual(calls, []);
+  assert.equal(toggle.checked, true, "the toggle shows the real state until confirmed");
+  const html = card.shadowRoot.innerHTML;
+  assert.match(html, /<ha-card class="dialog-open">/);
+  assert.match(html, /class="backdrop" data-action="confirm_backdrop">\s*<div class="modal" role="dialog"/);
+  assert.match(html, /Turn off Switch\?/);
+  assert.match(html, /data-action="confirm_cancel">Cancel<\/button>/);
+  assert.match(html, /data-action="confirm_ok">Turn off<\/button>/);
+  // At the top of the card, not centred; buttons not filled.
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  assert.match(cssRule(HaSwitchCard.styles, ".backdrop"), /align-items: flex-start/);
+  assert.match(cssRule(HaSwitchCard.styles, ".modal-actions .btn.primary"), /color-mix\(in srgb, var\(--primary-color, #03a9f4\) 15%, transparent\)/);
+});
+
+test("power toggle: turning on calls the service at once, without a confirmation", async () => {
+  const { card, click, calls, setState } = powerCard();
+  setState("off");
+  await click(true);
+  assert.deepEqual(calls, [["switch", "turn_on", "switch.sw"]]);
+  assert.doesNotMatch(card.shadowRoot.innerHTML, /class="dialog-open"|confirm_ok/);
+});
+
+test("power toggle: Turn off in the confirmation calls the service and closes it", async () => {
+  const { card, click, calls, on } = powerCard();
+  await click(false);
+  press(card, "confirm_ok");
+  assert.deepEqual(calls, [["switch", "turn_off", "switch.sw"]]);
+  assert.doesNotMatch(card.shadowRoot.innerHTML, /confirm_ok/);
+  assert.equal(on.keydown.size + on.click.size, 0, "no listener left behind");
+});
+
+test("power toggle: Cancel, the backdrop, Escape and a click outside the card close it without calling", async () => {
+  const { card, click, calls, on } = powerCard();
+  const cancels = [
+    () => press(card, "confirm_cancel"),
+    () => press(card, "confirm_backdrop"),
+    () => [...on.keydown][0]({ key: "Escape", stopPropagation() {} }),
+    () => [...on.click][0]({ composedPath: () => [{}] }),
+  ];
+  for (const cancel of cancels) {
+    await click(false);
+    assert.match(card.shadowRoot.innerHTML, /confirm_ok/);
+    // A click inside the popup (its text) keeps it open.
+    card._onClick({ composedPath: () => [{ dataset: {} }, { dataset: { action: "confirm_backdrop" } }], stopPropagation() {} });
+    assert.match(card.shadowRoot.innerHTML, /confirm_ok/);
+    cancel();
+    assert.doesNotMatch(card.shadowRoot.innerHTML, /confirm_ok/);
+    assert.equal(on.keydown.size + on.click.size, 0);
+  }
+  assert.deepEqual(calls, []);
+});
+
+test("power toggle: confirm_off: false turns the switch off at once", async () => {
+  const { card, click, calls } = powerCard({ config: { confirm_off: false } });
+  await click(false);
+  assert.deepEqual(calls, [["switch", "turn_off", "switch.sw"]]);
+  assert.doesNotMatch(card.shadowRoot.innerHTML, /confirm_ok/);
+});
+
+test("power toggle: the confirmation closes when the switch is turned off elsewhere", async () => {
+  const { card, click, calls, on, setState } = powerCard();
+  await click(false);
+  setState("off");
+  assert.doesNotMatch(card.shadowRoot.innerHTML, /confirm_ok/);
+  assert.equal(on.keydown.size + on.click.size, 0);
+  assert.deepEqual(calls, []);
+});
+
+test("editor: confirm_off is a toggle shown on by default, kept out of the YAML while on", () => {
+  const listeners = {};
+  const document = { documentElement: { lang: "en" }, createElement: () => ({ addEventListener: (type, fn) => (listeners[type] = fn) }) };
+  const { I18N, HaSwitchCardEditor } = loadCard("ha-switch-card.js", ["I18N", "HaSwitchCardEditor"], {
+    document,
+    CustomEvent: class {
+      constructor(_type, init) {
+        this.detail = init.detail;
+      }
+    },
+  });
+  const editor = new HaSwitchCardEditor();
+  let sent;
+  editor.dispatchEvent = (ev) => (sent = ev.detail.config);
+  editor.setConfig({ type: "custom:ha-switch-card" });
+  editor.hass = { language: "en", states: {} };
+  const entities = editor._form.schema.find((s) => s.name === "entities").schema;
+  assert.equal(JSON.stringify(entities.find((s) => s.name === "confirm_off").selector), JSON.stringify({ boolean: {} }));
+  assert.equal(editor._form.data.confirm_off, true);
+  assert.equal(editor._form.computeLabel({ name: "confirm_off" }), I18N.en.fields.confirm_off);
+  const change = (value) => listeners["value-changed"]({ stopPropagation() {}, detail: { value } });
+  change({ type: "custom:ha-switch-card", confirm_off: true });
+  assert.deepEqual({ ...sent }, { type: "custom:ha-switch-card" });
+  change({ type: "custom:ha-switch-card", confirm_off: false });
+  assert.deepEqual({ ...sent }, { type: "custom:ha-switch-card", confirm_off: false });
+  editor.setConfig(sent);
+  assert.equal(editor._form.data.confirm_off, false);
+});
 
 test("a failed power toggle call redraws the toggle from the real state at once", async () => {
   const { toggle, click } = toggleCard({ callService: () => Promise.reject(new Error("x")) });
@@ -246,7 +364,7 @@ test("a successful power toggle call on a switch that keeps its state is redrawn
 });
 
 test("a second toggle click replaces the pending delayed check", async () => {
-  const { toggle, click, runTimers, timers } = toggleCard();
+  const { toggle, click, runTimers, timers } = toggleCard({ config: { confirm_off: false } });
   await click(true);
   await click(false);
   assert.equal(timers.filter((t) => t.fn).length, 1);
