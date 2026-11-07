@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.9.0 - 2026-11-07
+
+### What's new
+- **Mini card** `ha-switch-mini-card`: header with the status and the ports up, the front panel and the two traffic rates beside it, each with its 24 h curve; a detail button (`zoom`) switches to the full card and back. On a narrow card the rates go under the panel.
+- **Port names** (`port_names`, a list in port order or a map): under the drawn port and in its tooltip.
+- **Watched ports** (`watched_ports`): red when they lose their link.
+- **Ports up out of all** next to the status: *Online · 6/8*.
+- **Traffic rates**: a byte counter now shows its rate (from its last two states, or its last 5-minute statistics until then) with its total under it, and its last 24 hours drawn behind (`show_history`).
+- New editor fields for all of these, translated in every language.
+
+### Changes
+- A port without link is grey (nothing plugged in), no longer red; set `watched_ports` for the ports whose loss is an alarm.
+- Drawn front panels have square corners (1 px) and are no longer clipped by a rounded frame (the feet of the GS308T show whole); a custom `image` keeps its rounded frame.
+
 ## 1.8.8 - 2026-11-04
 
 ### Documentation

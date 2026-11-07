@@ -16,12 +16,19 @@ Custom Lovelace card for Home Assistant displaying a managed network switch (SNM
 |---|---|
 | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card.png" alt="card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-gs308t.png" alt="GS308T" width="400"> |
 
+| Mini card | Mini card on a phone |
+|---|---|
+| <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/mini-card.png" alt="mini card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/mini-card-narrow.png" alt="mini card on a phone" width="272"> |
+
 ## Features
 
 - Header with a status-colored icon, name, subtitle and power toggle
 - Chips for connectivity, global status and uptime (SNMP timeticks or seconds)
+- Two cards: `ha-switch-card` and its mini version `ha-switch-mini-card` (front panel and rates side by side; a detail button shows the full card)
 - Live state of every port on the device; tap a port to open its entity
-- Incoming / outgoing traffic, auto-scaled (B → TB)
+- Port names under the drawn ports and in their tooltips; a port without link is grey (nothing plugged in), red only when it is one of the watched ports
+- Ports up out of all next to the status (*Online · 6/8*)
+- Incoming / outgoing rate computed from the byte counters, with the total under it, and the last 24 hours drawn behind (recorder statistics)
 - Built-in devices: a drawn generic front panel (1–52 ports) that follows the light or dark theme, or a drawn Netgear GS308T (S350) front panel with its ports and link LEDs
 - Custom image support with an adjustable port overlay
 - Status colors from the Home Assistant theme
@@ -111,8 +118,11 @@ url: http://switch.local
 | `connectivity_entity` | – | Connectivity `binary_sensor` |
 | `uptime_entity` | – | Uptime sensor |
 | `uptime_unit` | `timeticks` | `timeticks` (SNMP, 1/100 s) or `seconds` |
-| `traffic_in_entity` / `traffic_out_entity` | – | Traffic sensors: bytes are auto-scaled, other units (`kB/s`, `Mbit/s`…) are shown as Home Assistant formats them |
+| `traffic_in_entity` / `traffic_out_entity` | – | Traffic sensors. A byte counter (`B`, `kB`, `MB`, `GB`…, e.g. SNMP `ifHCInOctets`) shows its rate, computed from its last two states (or its last 5-minute statistics until then), with its total under it; a sensor already in a rate unit (`kB/s`, `Mbit/s`…) is shown as Home Assistant formats it |
+| `show_history` | `true` | 24 h curve behind each traffic rate, from the recorder's 5-minute statistics (the sensor needs a `state_class`: `total_increasing` for a counter) |
 | `ports` | `8` | Number of ports |
+| `port_names` | – | Names of the ports, in port order (`[NAS, Box, '', AP]`, an empty name keeps the number) or as a map (`{1: NAS, 5: AP}`): shown under the drawn port (7 characters, the rest in its tooltip) |
+| `watched_ports` | – | Ports whose loss of link is an alarm: red when down. Any other port without link is grey (nothing plugged in) |
 | `port_pattern` | `sensor.switch_port_{n}_status` | Port entity pattern, `{n}` = port number |
 | `port_on_state` | `1` | State meaning "port up" |
 | `online_state` / `idle_state` | `Online` or `En ligne` / `Idle` or `Inactif` | Values of `status_entity` shown green / orange (`unavailable`, `unknown` or a missing sensor → grey, anything else → red), compared case-insensitively. Unset, both the English and French values match; set them to the state your status sensor reports otherwise, e.g. `up` / `standby`. The status pill then reads Online / Idle in the card language (English, French, German, Spanish, Serbian, Italian, Dutch, Portuguese, Polish, Romanian, Danish, Swedish, Bulgarian, Russian, Ukrainian, Hungarian, Slovak, Czech, Slovenian, Latvian or Greek: the `language` option, or the Home Assistant language when unset) |
@@ -120,6 +130,7 @@ url: http://switch.local
 | `image` | – | Custom device image URL, overrides `model` |
 | `port_start` / `port_step` / `port_bottom` | `21` / `10` / `39` | Port overlay position on a custom `image` (%) |
 | `url` | – | Opened when tapping the device |
+| `zoom` | `true` | Mini card only: detail button at the top right that switches to the full card and back (a click outside the card brings the compact view back) |
 | `language` | Auto | Force language: `en`, `fr`, `de`, `es`, `sr`, `sr-Latn`, `it`, `nl`, `pt`, `pl`, `ro`, `da`, `sv`, `bg`, `ru`, `uk`, `hu`, `sk`, `cs`, `sl`, `lv` or `el` (auto-detects from HA settings; `pt-BR` uses `pt`) |
 
 Tapping any chip, tile or port opens its more-info dialog.
@@ -130,10 +141,14 @@ Tapping any chip, tile or port opens its more-info dialog.
 |---|---|---|
 | Generic front panel | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card.png" alt="card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-dark.png" alt="card dark" width="400"> |
 | Netgear GS308T | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-gs308t.png" alt="GS308T" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/card-gs308t-dark.png" alt="GS308T dark" width="400"> |
+| Mini card | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/mini-card.png" alt="mini card" width="400"> | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/mini-card-dark.png" alt="mini card dark" width="400"> |
+| Mini card on a phone | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/mini-card-narrow.png" alt="mini card narrow" width="272"> | <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/screenshots/mini-card-narrow-dark.png" alt="mini card narrow dark" width="272"> |
 
 ## How it works
 
-Ports are read from `port_pattern` with `{n}` replaced by the port number, and drawn green when their state equals `port_on_state`, red otherwise, grey when the entity is missing, `unavailable` or `unknown` (so a failed SNMP poll does not show every port as down). The header icon and the power LED follow `status_entity` (`online_state` green, `idle_state` orange, `unavailable` / `unknown` or missing grey, anything else red), or `connectivity_entity` when no status is set (`on` green, `unavailable` / `unknown` grey, otherwise red).
+Ports are read from `port_pattern` with `{n}` replaced by the port number, and drawn green when their state equals `port_on_state`. A port without link is grey (nothing plugged in), or red when it is one of the `watched_ports`; a missing, `unavailable` or `unknown` entity is grey too (so a failed SNMP poll does not show every port as down).
+
+The mini card shows the header (status and ports up, no power toggle), the front panel and the two rates beside it. On a card 330 px wide or less (a phone, 6 columns of a section) the panel takes the whole width and the rates go under it side by side, one per line under 200 px, where the status pill keeps only the port count (its colour and icon still tell the status, its tooltip has the whole text). Drawn front panels have square corners (1 px); a custom `image` keeps its rounded frame. The header icon and the power LED follow `status_entity` (`online_state` green, `idle_state` orange, `unavailable` / `unknown` or missing grey, anything else red), or `connectivity_entity` when no status is set (`on` green, `unavailable` / `unknown` grey, otherwise red).
 
 As in the other juju35 cards, the status pill sits on the right of the header, on the title's line (left of the power toggle): it shows `status_entity`, or `connectivity_entity` when no status is set. The other chips (connectivity when a status is set, uptime) are shown under the header. On a narrow card the name gives way to the pill down to a few characters; past that the pill moves under the name with its whole text, and is only shortened with an ellipsis when even that line is too short (the full text stays in the tooltip). In the Sections view the card is at least 8 columns wide.
 

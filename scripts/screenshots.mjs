@@ -82,7 +82,7 @@ export async function render(shots, { icons = {}, hass = {}, extra = "" } = {}) 
         const el = document.createElement(type);
         el.setConfig({ type: `custom:${type}`, ...config });
         el.hass = { states: {}, entities: {}, devices: {}, language: "en", locale: { language: "en" },
-                    themes: { darkMode: dark }, callService: async () => {}, callWS: async () => ({}),
+                    themes: { darkMode: dark }, callService: async () => {}, callWS: window.__ws || (async () => ({})),
                     ...(window.formatEntityState ? { formatEntityState: window.formatEntityState } : {}), ...hass };
         document.getElementById("root").appendChild(el);
       },
@@ -119,7 +119,9 @@ const icons = {
   "alert-circle": "M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z",
   "clock-outline": "M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z",
   "arrow-down-bold": "M9,4H15V12H19.84L12,19.84L4.16,12H9V4Z",
-  "arrow-up-bold": "M15,20H9V12H4.16L12,4.16L19.84,12H15V20Z"
+  "arrow-up-bold": "M15,20H9V12H4.16L12,4.16L19.84,12H15V20Z",
+  "arrow-expand": "M10,21V19H6.41L10.91,14.5L9.5,13.09L5,17.59V14H3V21H10M14.5,10.91L19,6.41V10H21V3H14V5H17.59L13.09,9.5L14.5,10.91Z",
+  "arrow-collapse": "M19.5,3.09L15,7.59V4H13V11H20V9H16.41L20.91,4.5L19.5,3.09M4,13V15H7.59L3.09,19.5L4.5,20.91L9,16.41V20H11V13H4Z"
 };
 
 // Home Assistant (2024.8+, the card's minimum) translates states through hass.formatEntityState:
@@ -170,7 +172,13 @@ const config = {
   uptime_entity: "sensor.office_switch_uptime",
   traffic_in_entity: "sensor.office_switch_in",
   traffic_out_entity: "sensor.office_switch_out",
+  port_names: ["NAS", "Box", "", "", "AP", "", "TV", ""],
+  watched_ports: [7],
 };
+// Recorder statistics of the byte counters: 5-minute changes over a day (quiet night, busy evening), so the rates
+// and their 24 h curves show.
+const ws = `window.__ws = async (msg) => Object.fromEntries((msg.statistic_ids || []).map((id, k) => [id,
+  Array.from({ length: 288 }, (_, i) => ({ change: 300 * (k ? 0.15 : 1) * 1048576 * (2 + 14 * Math.exp(-((i - 240) ** 2) / 900) + 6 * Math.exp(-((i - 110) ** 2) / 400) + Math.sin(i * 0.12 + k) ** 2) }))]));`;
 const hass = { states };
 
 await render(
@@ -179,6 +187,11 @@ await render(
     { file: "card-dark", type: "ha-switch-card", theme: "dark", width: 460, config: { ...config, subtitle: "Generic" } },
     { file: "card-gs308t", type: "ha-switch-card", theme: "light", width: 460, config: { ...config, model: "gs308t" } },
     { file: "card-gs308t-dark", type: "ha-switch-card", theme: "dark", width: 460, config: { ...config, model: "gs308t" } },
+    { file: "mini-card", type: "ha-switch-mini-card", theme: "light", width: 380, config: { ...config, model: "gs308t" } },
+    { file: "mini-card-dark", type: "ha-switch-mini-card", theme: "dark", width: 380, config: { ...config, model: "gs308t" } },
+    // A phone: 6 columns of a section, then the narrowest mini card.
+    { file: "mini-card-narrow", type: "ha-switch-mini-card", theme: "light", width: 240, config: { ...config, model: "gs308t" } },
+    { file: "mini-card-narrow-dark", type: "ha-switch-mini-card", theme: "dark", width: 240, config: { ...config, model: "gs308t" } },
   ],
-  { icons, hass, extra }
+  { icons, hass, extra: extra + ws }
 );

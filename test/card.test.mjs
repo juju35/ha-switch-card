@@ -79,7 +79,7 @@ test("ports, tiles and chips are keyboard buttons", () => {
   card.hass = { language: "en", states: { "sensor.p1": { state: "up", attributes: {} }, "sensor.s": { state: "x", attributes: {} }, "sensor.in": { state: "1", attributes: {} } } };
   const html = card.shadowRoot.innerHTML;
   assert.match(html, /<g class="port" data-entity="sensor\.p1" role="button" tabindex="0">/);
-  assert.match(html, /class="tile" data-entity="sensor\.in" role="button" tabindex="0"/);
+  assert.match(html, /class="tile" style="[^"]*" data-entity="sensor\.in" role="button" tabindex="0"/);
   assert.match(html, /class="chip"[^>]*data-entity="sensor\.s" role="button" tabindex="0"/);
 });
 
@@ -179,7 +179,11 @@ test("unavailable / unknown ports, status and connectivity are grey, not red", (
     assert.match(html, /mdi:help-network-outline/);
     assert.doesNotMatch(html, /mdi:network-off-outline/);
     const ports = [...html.matchAll(/data-entity="sensor\.p\d"[\s\S]*?style="fill:([^"]+)"/g)].map((m) => m[1]);
-    assert.deepEqual(ports, [COLORS.grey, COLORS.red], state);
+    // Port 2 has no link: grey (nothing plugged in) unless it is watched, then red.
+    assert.deepEqual(ports, [COLORS.grey, COLORS.grey], state);
+    card.setConfig({ ports: 2, port_pattern: "sensor.p{n}", connectivity_entity: "binary_sensor.c", watched_ports: [2] });
+    const watched = [...card.shadowRoot.innerHTML.matchAll(/data-entity="sensor\.p\d"[\s\S]*?style="fill:([^"]+)"/g)].map((m) => m[1]);
+    assert.deepEqual(watched, [COLORS.grey, COLORS.red], state);
 
     const card2 = new HaSwitchCard();
     card2.setConfig({ ports: 1, port_pattern: "sensor.p{n}", status_entity: "sensor.s", connectivity_entity: "binary_sensor.c" });
@@ -454,7 +458,10 @@ test("narrow header: the name gives way to the pill down to a few characters, th
   assert.match(rule(".ic"), /flex: none/);
   // No size container: inline-size containment drops the element's intrinsic width, which collapses a card
   // placed in a shrink-to-fit parent (inline-block, a grid "auto" column, layout-card, button-card).
-  assert.doesNotMatch(css, /container-type|container:|@container/);
+  // Only the mini card is one (ha-card.mini), with a minimum width from its host for such parents.
+  assert.doesNotMatch(css.replace(/ha-card\.mini \{[^}]*\}/, ""), /container-type|container:/);
+  assert.doesNotMatch(cssRule(css, "ha-card"), /container/);
+  assert.match(cssRule(css, ":host([mini])::before"), /grid-template-columns: minmax\(0, 240px\)/);
 });
 
 // pl / sr-Latn traffic labels ("Ruch przychodzący", "Dolazni saobraćaj") were cut to "Ruch przychod…" in the two
@@ -490,11 +497,12 @@ test("the status pill carries its full text in title and aria-label, so a trunca
   card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", status_entity: "sensor.s", language: "pl" });
   card.hass = { language: "en", states: { "sensor.s": { state: "unavailable", attributes: {} } }, formatEntityState: () => "Niedostępny" };
   const pill = card.shadowRoot.innerHTML.match(/<div class="title-row">.*?<div class="chip"([^>]*)>/s)[1];
-  assert.match(pill, /title="Niedostępny"/);
-  assert.match(pill, /aria-label="Niedostępny"/);
+  // The ports up out of all follow the status.
+  assert.match(pill, /title="Niedostępny · 0\/1"/);
+  assert.match(pill, /aria-label="Niedostępny · 0\/1"/);
   // Escaped like the visible text.
   card.hass = { language: "en", states: { "sensor.s": { state: "x", attributes: {} } }, formatEntityState: () => `a"<b` };
-  assert.match(card.shadowRoot.innerHTML, /title="a&quot;&lt;b"/);
+  assert.match(card.shadowRoot.innerHTML, /title="a&quot;&lt;b · 0\/1"/);
 });
 
 // sr (Cyrillic) showed "12d 16h 15min" in the middle of a Cyrillic card.
@@ -528,4 +536,123 @@ test("getGridOptions: the card cannot be made narrower than 8 columns", () => {
   const o = new HaSwitchCard().getGridOptions();
   assert.equal(o.columns, 12);
   assert.equal(o.min_columns, 8);
+});
+
+const portsHass = (extra = {}) => ({
+  language: "en",
+  states: {
+    "sensor.p1": { state: "1", attributes: {} },
+    "sensor.p2": { state: "2", attributes: {} },
+    "sensor.p3": { state: "1", attributes: {} },
+    "sensor.s": { state: "Online", attributes: {} },
+    ...extra,
+  },
+});
+
+test("port names: shortened under the drawn port, whole in its tooltip; a list or a map", () => {
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  for (const port_names of [["NAS", "", "Living room AP"], { 1: "NAS", 3: "Living room AP" }]) {
+    const card = new HaSwitchCard();
+    card.setConfig({ ports: 3, port_pattern: "sensor.p{n}", port_names });
+    card.hass = portsHass();
+    const html = card.shadowRoot.innerHTML;
+    assert.match(html, /<title>Port 1 · NAS<\/title>/);
+    assert.match(html, /<title>Port 2<\/title>/);
+    assert.match(html, /<title>Port 3 · Living room AP<\/title>/);
+    assert.match(html, /class="hs-label">NAS<\/text>/);
+    assert.match(html, /class="hs-label">2<\/text>/);
+    assert.match(html, /class="hs-label">Living…<\/text>/);
+  }
+});
+
+test("status pill: followed by the ports up out of all", () => {
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const card = new HaSwitchCard();
+  card.setConfig({ ports: 3, port_pattern: "sensor.p{n}", status_entity: "sensor.s" });
+  card.hass = portsHass();
+  const html = card.shadowRoot.innerHTML;
+  assert.match(html, /title="Online · 2\/3"/);
+  assert.match(html, /<span>Online<\/span><span class="cnt" data-n="2\/3">· 2\/3<\/span>/);
+});
+
+test("watched_ports: a list, or a text such as \"1, 3\"", () => {
+  const { watchedPorts } = loadCard("ha-switch-card.js", ["watchedPorts"]);
+  assert.deepEqual([...watchedPorts({ watched_ports: [1, "3"] })], [1, 3]);
+  assert.deepEqual([...watchedPorts({ watched_ports: "1, 3;8" })], [1, 3, 8]);
+  assert.deepEqual([...watchedPorts({})], []);
+});
+
+test("drawn front panels have 1px corners and are not clipped; a custom image keeps its rounded frame", () => {
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const css = HaSwitchCard.styles.replace(/\s+/g, " ");
+  assert.doesNotMatch(cssRule(css, ".device"), /border-radius|overflow/);
+  assert.match(cssRule(css, ".device.img"), /border-radius: 10px; overflow: hidden/);
+  for (const model of ["generic", "gs308t"]) {
+    const card = new HaSwitchCard();
+    card.setConfig({ ports: 3, port_pattern: "sensor.p{n}", model });
+    card.hass = portsHass();
+    assert.match(card.shadowRoot.innerHTML, /<rect x="\d+" y="\d+" width="\d+" height="\d+" rx="1" fill="url\(#(hs|ng)-body\)"/, model);
+  }
+});
+
+test("traffic: a byte counter shows its rate from two states, with its total; a counter going down is skipped", () => {
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const card = new HaSwitchCard();
+  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", traffic_in_entity: "sensor.in", show_history: false });
+  const at = (v, s) => ({ ...portsHass(), states: { "sensor.in": { state: String(v), attributes: { unit_of_measurement: "B" }, last_updated: `2026-11-07T10:00:${s}Z` } } });
+  card.hass = at(1000, "00");
+  assert.match(card.shadowRoot.innerHTML, /class="v">—<\/div><div class="t">Total 1000 B<\/div>/);
+  card.hass = at(1000 + 30 * 2048, "30");
+  assert.match(card.shadowRoot.innerHTML, /class="v">2.0 KB\/s<\/div>/);
+  // A reset: no negative rate, the last one stays.
+  card.hass = at(10, "40");
+  assert.match(card.shadowRoot.innerHTML, /class="v">2.0 KB\/s<\/div>/);
+  // A sensor already in a rate unit is shown as Home Assistant formats it.
+  card.hass = { ...portsHass(), states: { "sensor.in": { state: "12", attributes: { unit_of_measurement: "Mbit/s" } } }, formatEntityState: () => "12 Mbit/s" };
+  assert.match(card.shadowRoot.innerHTML, /class="v">12 Mbit\/s<\/div>/);
+});
+
+test("traffic history: 24 h of 5-minute statistics, a counter's change as a rate; the latest bucket until two states", async () => {
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const calls = [];
+  const card = new HaSwitchCard();
+  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", traffic_in_entity: "sensor.in" });
+  card.hass = {
+    ...portsHass(),
+    states: { "sensor.in": { state: "5000", attributes: { unit_of_measurement: "B" } } },
+    callWS: async (msg) => {
+      calls.push(msg);
+      return { "sensor.in": [{ change: 3000 }, { change: 6000 }] };
+    },
+  };
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].type, "recorder/statistics_during_period");
+  assert.equal(calls[0].period, "5minute");
+  await new Promise((r) => setImmediate(r));
+  const html = card.shadowRoot.innerHTML;
+  assert.match(html, /<svg class="spark"/);
+  // 6000 B in 5 minutes: 20 B/s until the sensor changes twice.
+  assert.match(html, /class="v">20 B\/s<\/div>/);
+});
+
+test("mini card: compact front panel and rates, no power toggle; the detail button switches to the full card", () => {
+  const { HaSwitchMiniCard } = loadCard("ha-switch-card.js", ["HaSwitchMiniCard"]);
+  const card = new HaSwitchMiniCard();
+  card.setConfig({ ports: 3, port_pattern: "sensor.p{n}", status_entity: "sensor.s", switch_entity: "switch.sw", traffic_in_entity: "sensor.in", uptime_entity: "sensor.up" });
+  card.hass = portsHass({ "switch.sw": { state: "on", attributes: {} }, "sensor.in": { state: "5", attributes: { unit_of_measurement: "Mbit/s" } }, "sensor.up": { state: "100", attributes: {} } });
+  let html = card.shadowRoot.innerHTML;
+  assert.match(html, /<ha-card class="mini">/);
+  assert.match(html, /<div class="mb"><div class="device"/);
+  assert.match(html, /class="rt" style="[^"]*" data-entity="sensor\.in"/);
+  assert.match(html, /<button class="zoom" title="Show the full card"/);
+  assert.doesNotMatch(html, /<ha-switch>|class="chips"|class="traffic"/);
+  assert.deepEqual({ ...card.getGridOptions() }, { columns: 6, min_columns: 6 });
+  card._onClick({ composedPath: () => [{ classList: { contains: (c) => c === "zoom" } }], stopPropagation() {}, detail: 1 });
+  html = card.shadowRoot.innerHTML;
+  assert.match(html, /<ha-card class="">/);
+  assert.match(html, /<ha-switch><\/ha-switch><button class="zoom" title="Back to the compact view"/);
+  assert.match(html, /class="chips"/);
+  assert.equal(card.getGridOptions().min_columns, 8);
+  card.setConfig({ ports: 3, port_pattern: "sensor.p{n}", zoom: false });
+  assert.doesNotMatch(card.shadowRoot.innerHTML, /class="zoom"/);
 });
