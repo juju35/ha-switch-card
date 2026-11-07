@@ -23,7 +23,7 @@ Custom Lovelace card for Home Assistant displaying a managed network switch (SNM
 ## Features
 
 - Header with a status-colored icon, name, subtitle and power toggle; turning the switch off asks for a confirmation first (it can cut the network Home Assistant runs on)
-- Chips for connectivity, global status and uptime (SNMP timeticks or seconds)
+- Chips for connectivity, global status and uptime (SNMP timeticks, seconds, or a boot-time timestamp sensor)
 - Two cards: `ha-switch-card` and its mini version `ha-switch-mini-card` (front panel and rates side by side; a detail button shows the full card)
 - Live state of every port on the device; tap a port to open its entity
 - Port names under the drawn ports and in their tooltips; a port without link is grey (nothing plugged in), red only when it is one of the watched ports
@@ -118,7 +118,7 @@ url: http://switch.local
 | `status_entity` | – | Global status sensor |
 | `connectivity_entity` | – | Connectivity `binary_sensor` |
 | `uptime_entity` | – | Uptime sensor |
-| `uptime_unit` | `timeticks` | `timeticks` (SNMP, 1/100 s) or `seconds` |
+| `uptime_unit` | `timeticks` | `timeticks` (SNMP, 1/100 s) or `seconds`; ignored for a timestamp sensor (boot time), shown as the time since then |
 | `traffic_in_entity` / `traffic_out_entity` | – | Traffic sensors. A byte counter (`B`, `kB`, `MB`, `GB`…, e.g. SNMP `ifHCInOctets`) shows its rate, computed from its last two states (or its last 5-minute statistics until then), with its total under it; a sensor already in a rate unit (`kB/s`, `Mbit/s`…) is shown as Home Assistant formats it |
 | `show_history` | `true` | 24 h curve behind each traffic rate, from the recorder's 5-minute statistics (the sensor needs a `state_class`: `total_increasing` for a counter) |
 | `ports` | `8` | Number of ports |

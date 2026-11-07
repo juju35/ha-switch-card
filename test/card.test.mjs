@@ -713,7 +713,8 @@ test("drawn front panels have 1px corners and are not clipped; a custom image ke
   }
 });
 
-test("traffic: a byte counter shows its rate from two states, with its total; a counter going down is skipped", () => {
+test("traffic: a byte counter shows its rate from two states, with its total; a counter going down is skipped", (t) => {
+  t.mock.timers.enable({ apis: ["Date"], now: Date.parse("2026-11-07T10:00:45Z") });
   const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
   const card = new HaSwitchCard();
   card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", traffic_in_entity: "sensor.in", show_history: false });
@@ -728,6 +729,74 @@ test("traffic: a byte counter shows its rate from two states, with its total; a 
   // A sensor already in a rate unit is shown as Home Assistant formats it.
   card.hass = { ...portsHass(), states: { "sensor.in": { state: "12", attributes: { unit_of_measurement: "Mbit/s" } } }, formatEntityState: () => "12 Mbit/s" };
   assert.match(card.shadowRoot.innerHTML, /class="v">12 Mbit\/s<\/div>/);
+});
+
+// The rate stayed at its last non-zero value when the counter stopped moving (no traffic, or a dead poll).
+test("traffic: a counter that stops changing reads 0, on a same-value report or after two polling periods", (t) => {
+  t.mock.timers.enable({ apis: ["Date"], now: Date.parse("2026-11-07T10:00:30Z") });
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const at = (v, s, r) => ({
+    ...portsHass(),
+    states: { "sensor.in": { state: String(v), attributes: { unit_of_measurement: "B" }, last_updated: `2026-11-07T10:00:${s}Z`, ...(r ? { last_reported: `2026-11-07T10:00:${r}Z` } : {}) } },
+  });
+  const rate = (card) => card.shadowRoot.innerHTML.match(/class="v">([^<]*)<\/div>/)[1];
+  const cfg = { ports: 1, port_pattern: "sensor.p{n}", traffic_in_entity: "sensor.in", show_history: false };
+  // last_reported moves on with the same value: 0 at once.
+  let card = new HaSwitchCard();
+  card.setConfig(cfg);
+  card.hass = at(1000, "00");
+  card.hass = at(1000 + 30 * 2048, "30");
+  assert.equal(rate(card), "2.0 KB/s");
+  t.mock.timers.setTime(Date.parse("2026-11-07T10:00:45Z"));
+  card.hass = at(1000 + 30 * 2048, "30", "45");
+  assert.equal(rate(card), "0 B/s");
+  // A change after the still period: the change happened since the last report (10 s), not over 40 s.
+  t.mock.timers.setTime(Date.parse("2026-11-07T10:00:55Z"));
+  card.hass = at(1000 + 30 * 2048 + 10 * 1024, "55", "55");
+  assert.equal(rate(card), "1.0 KB/s");
+  // No last_reported (the frontend usually does not get it): still the rate within two periods (60 s)…
+  card = new HaSwitchCard();
+  card.setConfig(cfg);
+  t.mock.timers.setTime(Date.parse("2026-11-07T10:00:30Z"));
+  card.hass = at(1000, "00");
+  card.hass = at(1000 + 30 * 2048, "30");
+  t.mock.timers.setTime(Date.parse("2026-11-07T10:01:29Z"));
+  card.hass = at(1000 + 30 * 2048, "30");
+  assert.equal(rate(card), "2.0 KB/s");
+  // …then 0 once two periods have passed without a change (a timer redraws the card at that moment).
+  t.mock.timers.setTime(Date.parse("2026-11-07T10:01:31Z"));
+  card.hass = at(1000 + 30 * 2048, "30");
+  assert.equal(rate(card), "0 B/s");
+});
+
+test("traffic: rates and totals use the decimal separator of the card's language", () => {
+  const { HaSwitchCard, formatRate, formatBytes } = loadCard("ha-switch-card.js", ["HaSwitchCard", "formatRate", "formatBytes"]);
+  assert.equal(formatRate(3.2 * 1024 * 1024, "fr"), "3,2 MB/s");
+  assert.equal(formatRate(3.2 * 1024 * 1024, "en"), "3.2 MB/s");
+  assert.equal(formatBytes(1536, "de"), "1,50 KB");
+  assert.equal(formatBytes(123456789012, "en"), "114.98 GB");
+  const card = new HaSwitchCard();
+  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", traffic_in_entity: "sensor.in", show_history: false, language: "fr" });
+  card.hass = { ...portsHass(), states: { "sensor.in": { state: "1536", attributes: { unit_of_measurement: "B" } } } };
+  assert.match(card.shadowRoot.innerHTML, /Total 1,50 KB/);
+});
+
+// A timestamp uptime sensor (boot time) showed "0h 0min": its date was read as timeticks.
+test("uptime: a timestamp sensor (the boot time) shows the time since then, redrawn each minute", (t) => {
+  t.mock.timers.enable({ apis: ["Date"], now: Date.parse("2026-11-07T12:00:00Z") });
+  const { HaSwitchCard, formatUptime } = loadCard("ha-switch-card.js", ["HaSwitchCard", "formatUptime"]);
+  assert.equal(formatUptime("2026-11-05T09:30:00+00:00"), "2d 2h 30min");
+  assert.equal(formatUptime("not a date"), "—");
+  const card = new HaSwitchCard();
+  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", uptime_entity: "sensor.up" });
+  const hass = { language: "en", states: { "sensor.up": { state: "2026-11-07T10:00:00+00:00", attributes: { device_class: "timestamp" } } } };
+  const shown = () => card.shadowRoot.innerHTML.match(/data-entity="sensor\.up"[^>]*>\s*<ha-icon[^>]*><\/ha-icon><span>([^<]*)<\/span>/)[1];
+  card.hass = hass;
+  assert.equal(shown(), "2h 0min");
+  // Same state a minute later: the duration moves on.
+  t.mock.timers.setTime(Date.parse("2026-11-07T12:01:00Z"));
+  card.hass = { ...hass };
+  assert.equal(shown(), "2h 1min");
 });
 
 test("traffic history: 24 h of 5-minute statistics, a counter's change as a rate; the latest bucket until two states", async () => {

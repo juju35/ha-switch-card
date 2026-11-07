@@ -1425,7 +1425,26 @@ const isUnavailable = (st) => st?.state === 'unavailable' || st?.state === 'unkn
 // A config number (port overlay position), or its default when the YAML value is not a number.
 const num = (v, def) => (Number.isFinite(Number(v)) && v !== '' && v !== null ? Number(v) : def);
 
-const formatBytes = (v) => {
+// Locale for Intl: Home Assistant's full locale when its base matches the card's language (keeps the region, e.g.
+// de-CH), otherwise the card's language. Home Assistant's "pt" is European Portuguese, which Intl would format as
+// Brazilian, so bare "pt" becomes "pt-PT".
+const fmtLang = (hass, config) => {
+  const l = getLang(hass, config);
+  const ha = hass?.locale?.language || hass?.language;
+  const loc = ha && ha.split('-')[0] === l.split('-')[0] && l !== 'sr-Latn' ? ha : l;
+  return loc === 'pt' ? 'pt-PT' : loc;
+};
+
+// A number with exactly `d` decimals, with the decimal separator of `loc` (no grouping, as before).
+const fmtNum = (v, d, loc) => {
+  try {
+    return new Intl.NumberFormat(loc, { minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: false }).format(v);
+  } catch {
+    return v.toFixed(d);
+  }
+};
+
+const formatBytes = (v, loc = 'en') => {
   if (!Number.isFinite(v)) return '—';
   const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
   let i = 0;
@@ -1433,14 +1452,22 @@ const formatBytes = (v) => {
     v /= 1024;
     i++;
   }
-  return `${v.toFixed(i === 0 ? 0 : 2)} ${units[i]}`;
+  return `${fmtNum(v, i === 0 ? 0 : 2, loc)} ${units[i]}`;
 };
 
 // Uptime as "12d 16h 15min", with the unit letters of the card language (day / hour / minute of its I18N entry).
+// A number is SNMP timeticks or seconds (`unit`); a date (a timestamp sensor: the boot time) gives now − boot.
 const formatUptime = (raw, unit, u = { day: 'd', hour: 'h', minute: 'min' }) => {
-  const n = parseInt(raw, 10);
-  if (!Number.isFinite(n)) return '—';
-  const t = unit === 'seconds' ? n : Math.floor(n / 100);
+  const s = String(raw ?? '').trim();
+  let t;
+  if (/^\d+(\.\d+)?$/.test(s)) {
+    const n = parseInt(s, 10);
+    t = unit === 'seconds' ? n : Math.floor(n / 100);
+  } else {
+    const boot = Date.parse(s);
+    if (!Number.isFinite(boot)) return '—';
+    t = Math.max(0, Math.floor((Date.now() - boot) / 1000));
+  }
   const d = Math.floor(t / 86400);
   const h = Math.floor((t % 86400) / 3600);
   const m = Math.floor((t % 3600) / 60);
@@ -1451,7 +1478,7 @@ const formatUptime = (raw, unit, u = { day: 'd', hour: 'h', minute: 'min' }) => 
 // running total, from which the card computes a rate; any other unit (kB/s, Mbit/s…) is already a rate.
 const BYTE_UNITS = { B: 1, bytes: 1, octets: 1, o: 1, kB: 1e3, KB: 1024, KiB: 1024, MB: 1e6, MiB: 1048576, GB: 1e9, GiB: 1073741824 };
 // A rate with three significant digits at most ("3.2 MB/s", "584 KB/s"), so it fits beside the mini card's panel.
-const formatRate = (bps) => {
+const formatRate = (bps, loc = 'en') => {
   if (!Number.isFinite(bps)) return '—';
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
   let v = bps;
@@ -1460,7 +1487,7 @@ const formatRate = (bps) => {
     v /= 1024;
     i++;
   }
-  return `${v.toFixed(i === 0 || v >= 10 ? 0 : 1)} ${units[i]}/s`;
+  return `${fmtNum(v, i === 0 || v >= 10 ? 0 : 1, loc)} ${units[i]}/s`;
 };
 
 // Ports whose loss of link is an alarm (red): `watched_ports` as a list (YAML or the editor) or "1, 3, 8".
@@ -1680,6 +1707,9 @@ class HaSwitchCard extends HTMLElement {
     // Live rates of the byte counters: the last sample of each, and the rate between the last two.
     this._samples = {};
     this._rates = {};
+    // The time between the last two changes of each byte counter: its polling period, after which twice without a
+    // change makes its rate 0.
+    this._periods = {};
     this.shadowRoot.addEventListener('click', (ev) => this._onClick(ev));
     // Ports, tiles, chips, the header icon and the admin link are focusable: Enter or Space opens them like a click.
     this.shadowRoot.addEventListener('keydown', (ev) => {
@@ -1712,12 +1742,16 @@ class HaSwitchCard extends HTMLElement {
 
   // Reattached with the confirmation still open (view switch, editor): Escape and outside clicks keep closing it.
   connectedCallback() {
+    // Back on screen: the render schedules the next timed redraw again (rate expiry, uptime minute).
+    this._render();
     if (!this._confirm) return;
     window.addEventListener('keydown', this._onConfirmKey);
     document.addEventListener('click', this._onConfirmOutside, true);
   }
 
   disconnectedCallback() {
+    clearTimeout(this._tick);
+    this._tick = null;
     window.removeEventListener('keydown', this._onConfirmKey);
     document.removeEventListener('click', this._onConfirmOutside, true);
   }
@@ -1812,7 +1846,7 @@ class HaSwitchCard extends HTMLElement {
     const unit = st.attributes?.unit_of_measurement;
     // Other units (kB/s, Mbit/s…): rounded and localized by Home Assistant, as in its own UI.
     if (unit && !['B', 'bytes', 'octets', 'o'].includes(unit)) return this._hass.formatEntityState ? this._hass.formatEntityState(st) : `${st.state} ${unit}`;
-    return formatBytes(v);
+    return formatBytes(v, fmtLang(this._hass, this._config));
   }
 
   _moreInfo(entityId) {
@@ -1827,7 +1861,9 @@ class HaSwitchCard extends HTMLElement {
   }
 
   // The rate of a byte counter, in bytes/s: from its last two states while the card is shown (a counter reset or a
-  // 32-bit wrap, going down, is skipped), else from the last 5 minutes of its statistics.
+  // 32-bit wrap, going down, is skipped), else from the last 5 minutes of its statistics. A counter that stops
+  // changing reads 0: as soon as Home Assistant reports the same value again (`last_reported`), or once more than
+  // two polling periods (the time between its last two changes) have passed without a change.
   _rate(id) {
     const st = this._state(id);
     const f = this._byteFactor(st);
@@ -1835,15 +1871,47 @@ class HaSwitchCard extends HTMLElement {
     const v = parseFloat(st.state) * f;
     if (Number.isFinite(v)) {
       const t = Date.parse(st.last_updated || st.last_changed || '') || Date.now();
+      const seen = Math.max(t, Date.parse(st.last_reported || '') || 0);
       const prev = this._samples[id];
       if (!prev || prev.v !== v) {
-        if (prev && t > prev.t && v >= prev.v) this._rates[id] = (v - prev.v) / ((t - prev.t) / 1000);
-        this._samples[id] = { v, t };
+        // Unchanged until prev.seen: the whole change happened since then.
+        const since = prev ? Math.min(prev.seen, t) : 0;
+        if (prev && t > since && v >= prev.v) {
+          this._rates[id] = (v - prev.v) / ((t - since) / 1000);
+          this._periods[id] = t - since;
+        }
+        this._samples[id] = { v, t, seen };
+      } else if (seen > prev.seen) {
+        prev.seen = seen;
+        // Reported again without a change: the counter stands still.
+        if (this._rates[id] != null) this._rates[id] = 0;
       }
     }
-    if (this._rates[id] != null) return this._rates[id];
+    const rate = this._rates[id];
+    if (rate != null) {
+      const sample = this._samples[id];
+      const expiry = sample && this._periods[id] ? sample.seen + 2 * this._periods[id] : 0;
+      if (rate && expiry && Date.now() > expiry) this._rates[id] = 0;
+      else if (rate && expiry) this._nextTick = Math.min(this._nextTick ?? Number.POSITIVE_INFINITY, expiry + 1000);
+      return this._rates[id];
+    }
     const h = this._hist?.[id];
     return h?.length ? h[h.length - 1].v : null;
+  }
+
+  // One timer for the next timed redraw (`_nextTick`, set during the render: a rate that expires, the uptime minute),
+  // only while the card is on the page.
+  _schedule() {
+    clearTimeout(this._tick);
+    this._tick = null;
+    if (this._nextTick == null || this.isConnected === false) return;
+    this._tick = setTimeout(
+      () => {
+        this._tick = null;
+        this._render();
+      },
+      Math.min(2 ** 31 - 1, Math.max(1000, this._nextTick - Date.now()))
+    );
   }
 
   // 24 h of 5-minute statistics of the traffic sensors, fetched again every 5 minutes: the rate of a byte counter
@@ -1935,10 +2003,16 @@ class HaSwitchCard extends HTMLElement {
       return k;
     };
     const lang = getLang(this._hass, c);
+    const loc = fmtLang(this._hass, c);
     const trafficIds = [c.traffic_in_entity, c.traffic_out_entity].filter(Boolean);
+    this._nextTick = null;
     const liveRates = trafficIds.map((id) => this._rate(id));
     const hist = c.show_history === false ? null : this._history(trafficIds);
-    const key = lang + this._configKey + this._watchedIds.map(entityKey).join('|') + JSON.stringify([liveRates, !!hist, this._zoomed]);
+    // A timestamp uptime sensor (the boot time) changes its shown duration every minute, not with its state.
+    const upMinute = c.uptime_entity && !/^\d+(\.\d+)?$/.test(String(this._state(c.uptime_entity)?.state ?? '').trim()) ? Math.floor(Date.now() / 60000) : null;
+    if (upMinute != null) this._nextTick = Math.min(this._nextTick ?? Number.POSITIVE_INFINITY, (upMinute + 1) * 60000);
+    this._schedule();
+    const key = loc + this._configKey + this._watchedIds.map(entityKey).join('|') + JSON.stringify([liveRates, !!hist, this._zoomed, upMinute]);
     if (key === this._key) return;
     this._key = key;
 
@@ -2018,12 +2092,12 @@ class HaSwitchCard extends HTMLElement {
     /* traffic: a byte counter shows its rate, with its total under it; another sensor shows its value as is */
     const value = (id) => {
       const st = this._state(id);
-      return this._byteFactor(st) && Number.isFinite(parseFloat(st.state)) ? formatRate(this._rate(id)) : this._formatTraffic(st);
+      return this._byteFactor(st) && Number.isFinite(parseFloat(st.state)) ? formatRate(this._rate(id), loc) : this._formatTraffic(st);
     };
     const total = (id) => {
       const st = this._state(id);
       const f = this._byteFactor(st);
-      return f && Number.isFinite(parseFloat(st.state)) ? `${t.total} ${formatBytes(parseFloat(st.state) * f)}` : '';
+      return f && Number.isFinite(parseFloat(st.state)) ? `${t.total} ${formatBytes(parseFloat(st.state) * f, loc)}` : '';
     };
     const tile = (id, icon, color, label) =>
       id

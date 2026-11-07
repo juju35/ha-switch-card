@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.11.1 - 2026-11-07
+
+### Fixes
+- A traffic rate computed from a byte counter now drops to 0 when the counter stops changing (no traffic, or a stalled poll), instead of staying at its last non-zero value.
+- An uptime sensor that reports the boot time (a timestamp) now shows the time since then, updated every minute, instead of "0h 0min"; rates and totals use the decimal separator of the card's language.
+
 ## 1.11.0 - 2026-11-07
 
 ### What's new
