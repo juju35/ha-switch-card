@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.11.0 - 2026-11-07
+
+### What's new
+- The 24 h traffic curves (full and mini card) now sit on a real time axis over the last 24 hours and break where the recorder has no statistics, instead of joining the points across the hole.
+
 ## 1.10.0 - 2026-11-07
 
 ### What's new
