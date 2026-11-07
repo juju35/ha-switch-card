@@ -2028,14 +2028,13 @@ class HaSwitchCard extends HTMLElement {
       /* "Online · 6/8": the count follows the status as one text (the chip's gap is for its icon). */
       .chip .cnt { flex: none; margin-left: -3px; }
 
-      /* Mini card: smaller header icon, the front panel and the rates side by side. */
+      /* Mini card: the front panel and the rates side by side; the header icon keeps the full card's size (40px). */
       /* Only the mini card is a size container (its layout follows its own width). A size container takes no width from
          its content: in a parent sized by its content (inline-block, an \`auto\` grid column) it would shrink to its
          padding. An empty, zero-height grid before it gives the host up to 240px there, and no minimum. */
       :host([mini]) { display: block; min-width: 0; }
       :host([mini])::before { content: ""; display: grid; grid-template-columns: minmax(0, 240px); height: 0; }
       ha-card.mini { gap: 8px; container-type: inline-size; }
-      ha-card.mini .ic.big { --size: 32px; --mdc-icon-size: 20px; }
       .zoom { all: unset; flex: none; cursor: pointer; width: 24px; height: 24px; margin: -4px -4px -4px 0; border-radius: 50%; align-self: flex-start;
               display: grid; place-items: center; color: var(--secondary-text-color); --mdc-icon-size: 16px; }
       .zoom:hover { background: color-mix(in srgb, var(--secondary-text-color) 14%, transparent); color: var(--primary-text-color); }
