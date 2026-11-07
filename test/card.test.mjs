@@ -656,3 +656,8 @@ test("mini card: compact front panel and rates, no power toggle; the detail butt
   card.setConfig({ ports: 3, port_pattern: "sensor.p{n}", zoom: false });
   assert.doesNotMatch(card.shadowRoot.innerHTML, /class="zoom"/);
 });
+
+test("mini card: the header icon keeps the full card's size", () => {
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  assert.doesNotMatch(HaSwitchCard.styles, /ha-card\.mini \.ic/);
+});
