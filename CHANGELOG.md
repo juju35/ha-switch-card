@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.11.2 - 2026-11-08
+
+### Fixes
+- The header power toggle now has an accessible name ("Power: <card name>", in the card's language), and it keeps the keyboard focus when the card is redrawn.
+- A new traffic rate or state now updates the card in place instead of rebuilding it, so focus, hover and the power toggle are kept and only the changed text is rewritten.
+
 ## 1.11.1 - 2026-11-07
 
 ### Fixes

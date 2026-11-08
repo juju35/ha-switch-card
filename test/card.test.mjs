@@ -883,12 +883,12 @@ test("mini card: compact front panel and rates, no power toggle; the detail butt
   assert.match(html, /<div class="mb"><div class="device"/);
   assert.match(html, /class="rt" style="[^"]*" data-entity="sensor\.in"/);
   assert.match(html, /<button class="zoom" title="Show the full card"/);
-  assert.doesNotMatch(html, /<ha-switch>|class="chips"|class="traffic"/);
+  assert.doesNotMatch(html, /<ha-switch|class="chips"|class="traffic"/);
   assert.deepEqual({ ...card.getGridOptions() }, { columns: 6, min_columns: 6 });
   card._onClick({ composedPath: () => [{ classList: { contains: (c) => c === "zoom" } }], stopPropagation() {}, detail: 1 });
   html = card.shadowRoot.innerHTML;
   assert.match(html, /<ha-card class="">/);
-  assert.match(html, /<ha-switch><\/ha-switch><button class="zoom" title="Back to the compact view"/);
+  assert.match(html, /<ha-switch [^>]*><\/ha-switch><button class="zoom" title="Back to the compact view"/);
   assert.match(html, /class="chips"/);
   assert.equal(card.getGridOptions().min_columns, 8);
   card.setConfig({ ports: 3, port_pattern: "sensor.p{n}", zoom: false });
@@ -898,4 +898,24 @@ test("mini card: compact front panel and rates, no power toggle; the detail butt
 test("mini card: the header icon keeps the full card's size", () => {
   const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
   assert.doesNotMatch(HaSwitchCard.styles, /ha-card\.mini \.ic/);
+});
+
+test("power toggle: named for assistive technologies in the card's language", () => {
+  const { card } = toggleCard({ state: "on", config: { name: "Rack" } });
+  assert.match(card.shadowRoot.innerHTML, /<ha-switch aria-label="Power: Rack" title="Power"><\/ha-switch>/);
+  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", switch_entity: "switch.sw", name: "Rack", language: "fr" });
+  assert.match(card.shadowRoot.innerHTML, /<ha-switch aria-label="Alimentation : Rack" title="Alimentation"><\/ha-switch>/);
+});
+
+test("power toggle: listened once, however many times the card is drawn again", () => {
+  const { toggle, setState } = toggleCard({ state: "on" });
+  for (const s of ["off", "on", "off"]) setState(s);
+  assert.equal(toggle.listeners.length, 1);
+  assert.equal(toggle.checked, false, "still drawn from the real state");
+});
+
+test("focus restore: the power toggle is found again after its node was replaced", () => {
+  const { focusKey } = loadCard("ha-switch-card.js", ["focusKey"]);
+  assert.equal(focusKey({ tagName: "HA-SWITCH", getAttribute: () => null }), "ha-switch");
+  assert.equal(focusKey({ tagName: "DIV", getAttribute: () => null }), "");
 });
