@@ -56,10 +56,23 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Install dependencies
+        if: steps.version.outputs.exists == 'false'
+        run: npm ci
+
+      # The browser test (npm test) needs Chromium: without it it fails hard in CI, and the release with it.
+      - name: Install Chromium for the browser tests
+        if: steps.version.outputs.exists == 'false'
+        run: npx playwright install chromium
+
+      - name: Install Chromium system deps
+        if: steps.version.outputs.exists == 'false'
+        timeout-minutes: 12
+        run: .github/scripts/install-browser-deps.sh
+
       - name: Check build and notes
         if: steps.version.outputs.exists == 'false'
         run: |
-          npm ci
           npm test
           npm run check
           .github/scripts/release-notes.sh "${{ steps.version.outputs.version }}" > notes.md

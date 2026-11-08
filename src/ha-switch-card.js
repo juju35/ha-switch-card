@@ -64,6 +64,7 @@ const I18N = {
     confirm_text: 'Éteindre {name} ?',
     cancel: 'Annuler',
     turn_off: 'Éteindre',
+    power: 'Alimentation',
     mini_name: 'Mini-carte switch réseau',
     mini_desc: 'Switch réseau compact : façade, ports et trafic, avec un bouton pour afficher la carte complète.',
   },
@@ -125,6 +126,7 @@ const I18N = {
     confirm_text: 'Turn off {name}?',
     cancel: 'Cancel',
     turn_off: 'Turn off',
+    power: 'Power',
     mini_name: 'Network switch mini card',
     mini_desc: 'Compact network switch: front panel, ports and traffic, with a button to show the full card.',
   },
@@ -186,6 +188,7 @@ const I18N = {
     confirm_text: '{name} ausschalten?',
     cancel: 'Abbrechen',
     turn_off: 'Ausschalten',
+    power: 'Stromversorgung',
     mini_name: 'Netzwerk-Switch-Minikarte',
     mini_desc: 'Kompakter Netzwerk-Switch: Frontansicht, Ports und Datenverkehr, mit einer Schaltfläche für die vollständige Karte.',
   },
@@ -247,6 +250,7 @@ const I18N = {
     confirm_text: '¿Apagar {name}?',
     cancel: 'Cancelar',
     turn_off: 'Apagar',
+    power: 'Alimentación',
     mini_name: 'Minitarjeta de switch de red',
     mini_desc: 'Switch de red compacto: frontal, puertos y tráfico, con un botón para mostrar la tarjeta completa.',
   },
@@ -308,6 +312,7 @@ const I18N = {
     confirm_text: 'Искључити {name}?',
     cancel: 'Откажи',
     turn_off: 'Искључи',
+    power: 'Напајање',
     mini_name: 'Мини картица мрежног свича',
     mini_desc: 'Компактни мрежни свич: предња плоча, портови и саобраћај, са дугметом за целу картицу.',
   },
@@ -369,6 +374,7 @@ const I18N = {
     confirm_text: 'Isključiti {name}?',
     cancel: 'Otkaži',
     turn_off: 'Isključi',
+    power: 'Napajanje',
     mini_name: 'Mini kartica mrežnog sviča',
     mini_desc: 'Kompaktni mrežni svič: prednja ploča, portovi i saobraćaj, sa dugmetom za celu karticu.',
   },
@@ -430,6 +436,7 @@ const I18N = {
     confirm_text: 'Spegnere {name}?',
     cancel: 'Annulla',
     turn_off: 'Spegni',
+    power: 'Alimentazione',
     mini_name: 'Mini scheda switch di rete',
     mini_desc: 'Switch di rete compatto: frontale, porte e traffico, con un pulsante per la scheda completa.',
   },
@@ -491,6 +498,7 @@ const I18N = {
     confirm_text: '{name} uitschakelen?',
     cancel: 'Annuleren',
     turn_off: 'Uitschakelen',
+    power: 'Voeding',
     mini_name: 'Netwerkswitch-minikaart',
     mini_desc: 'Compacte netwerkswitch: frontpaneel, poorten en verkeer, met een knop voor de volledige kaart.',
   },
@@ -552,6 +560,7 @@ const I18N = {
     confirm_text: 'Desligar {name}?',
     cancel: 'Cancelar',
     turn_off: 'Desligar',
+    power: 'Alimentação',
     mini_name: 'Mini cartão de switch de rede',
     mini_desc: 'Switch de rede compacto: painel frontal, portas e tráfego, com um botão para o cartão completo.',
   },
@@ -613,6 +622,7 @@ const I18N = {
     confirm_text: 'Wyłączyć {name}?',
     cancel: 'Anuluj',
     turn_off: 'Wyłącz',
+    power: 'Zasilanie',
     mini_name: 'Mini karta przełącznika sieciowego',
     mini_desc: 'Kompaktowy przełącznik sieciowy: panel przedni, porty i ruch, z przyciskiem pełnej karty.',
   },
@@ -674,6 +684,7 @@ const I18N = {
     confirm_text: 'Opriți {name}?',
     cancel: 'Anulare',
     turn_off: 'Oprire',
+    power: 'Alimentare',
     mini_name: 'Mini card switch de rețea',
     mini_desc: 'Switch de rețea compact: panou frontal, porturi și trafic, cu un buton pentru cardul complet.',
   },
@@ -735,6 +746,7 @@ const I18N = {
     confirm_text: 'Sluk {name}?',
     cancel: 'Annuller',
     turn_off: 'Sluk',
+    power: 'Strøm',
     mini_name: 'Netværksswitch-minikort',
     mini_desc: 'Kompakt netværksswitch: frontpanel, porte og trafik, med en knap til hele kortet.',
   },
@@ -796,6 +808,7 @@ const I18N = {
     confirm_text: 'Stäng av {name}?',
     cancel: 'Avbryt',
     turn_off: 'Stäng av',
+    power: 'Ström',
     mini_name: 'Minikort för nätverksswitch',
     mini_desc: 'Kompakt nätverksswitch: frontpanel, portar och trafik, med en knapp för hela kortet.',
   },
@@ -857,6 +870,7 @@ const I18N = {
     confirm_text: 'Изключване на {name}?',
     cancel: 'Отказ',
     turn_off: 'Изключи',
+    power: 'Захранване',
     mini_name: 'Мини карта на мрежов суич',
     mini_desc: 'Компактен мрежов суич: преден панел, портове и трафик, с бутон за цялата карта.',
   },
@@ -918,6 +932,7 @@ const I18N = {
     confirm_text: 'Выключить {name}?',
     cancel: 'Отмена',
     turn_off: 'Выключить',
+    power: 'Питание',
     mini_name: 'Мини-карточка сетевого коммутатора',
     mini_desc: 'Компактный сетевой коммутатор: передняя панель, порты и трафик, с кнопкой полной карточки.',
   },
@@ -979,6 +994,7 @@ const I18N = {
     confirm_text: 'Вимкнути {name}?',
     cancel: 'Скасувати',
     turn_off: 'Вимкнути',
+    power: 'Живлення',
     mini_name: 'Міні-картка мережевого комутатора',
     mini_desc: 'Компактний мережевий комутатор: передня панель, порти й трафік, з кнопкою повної картки.',
   },
@@ -1040,6 +1056,7 @@ const I18N = {
     confirm_text: '{name} kikapcsolása?',
     cancel: 'Mégse',
     turn_off: 'Kikapcsolás',
+    power: 'Tápellátás',
     mini_name: 'Hálózati switch mini kártya',
     mini_desc: 'Kompakt hálózati switch: előlap, portok és forgalom, a teljes kártya gombjával.',
   },
@@ -1101,6 +1118,7 @@ const I18N = {
     confirm_text: 'Vypnúť {name}?',
     cancel: 'Zrušiť',
     turn_off: 'Vypnúť',
+    power: 'Napájanie',
     mini_name: 'Mini karta sieťového prepínača',
     mini_desc: 'Kompaktný sieťový prepínač: predný panel, porty a prevádzka, s tlačidlom celej karty.',
   },
@@ -1162,6 +1180,7 @@ const I18N = {
     confirm_text: 'Vypnout {name}?',
     cancel: 'Zrušit',
     turn_off: 'Vypnout',
+    power: 'Napájení',
     mini_name: 'Mini karta síťového přepínače',
     mini_desc: 'Kompaktní síťový přepínač: přední panel, porty a provoz, s tlačítkem celé karty.',
   },
@@ -1223,6 +1242,7 @@ const I18N = {
     confirm_text: 'Želite izklopiti {name}?',
     cancel: 'Prekliči',
     turn_off: 'Izklopi',
+    power: 'Napajanje',
     mini_name: 'Mini kartica omrežnega stikala',
     mini_desc: 'Kompaktno omrežno stikalo: sprednja plošča, vrata in promet, z gumbom za celotno kartico.',
   },
@@ -1284,6 +1304,7 @@ const I18N = {
     confirm_text: 'Izslēgt {name}?',
     cancel: 'Atcelt',
     turn_off: 'Izslēgt',
+    power: 'Barošana',
     mini_name: 'Tīkla komutatora mini karte',
     mini_desc: 'Kompakts tīkla komutators: priekšējais panelis, porti un datplūsma, ar pogu pilnajai kartei.',
   },
@@ -1345,6 +1366,7 @@ const I18N = {
     confirm_text: 'Απενεργοποίηση του {name};',
     cancel: 'Ακύρωση',
     turn_off: 'Απενεργοποίηση',
+    power: 'Τροφοδοσία',
     mini_name: 'Μίνι κάρτα μεταγωγέα δικτύου',
     mini_desc: 'Συμπαγής μεταγωγέας δικτύου: πρόσοψη, θύρες και κίνηση, με κουμπί για την πλήρη κάρτα.',
   },
@@ -1690,11 +1712,69 @@ function configWarnings(c) {
   return out;
 }
 
-// Identifies a focusable element across renders (the header icon and a chip can share an entity).
+// Identifies a focusable element across renders (the header icon and a chip can share an entity; the power toggle
+// is focusable without a tabindex).
 const focusKey = (el) =>
-  el?.getAttribute?.('tabindex') != null
-    ? [el.getAttribute('class'), el.getAttribute('data-entity'), el.getAttribute('data-url')].join('|')
-    : '';
+  el?.tagName === 'HA-SWITCH'
+    ? 'ha-switch'
+    : el?.getAttribute?.('tabindex') != null
+      ? [el.getAttribute('class'), el.getAttribute('data-entity'), el.getAttribute('data-url')].join('|')
+      : '';
+
+// Patch the shadow DOM in place from the new HTML: nodes whose tag is unchanged are kept, so keyboard
+// focus, hover, the power toggle and its listener survive an update (a new rate every few seconds), and only
+// the changed text and attributes are written. Nodes carrying a data-key are matched by it, the others by
+// position. A custom element keeps the attributes the new HTML does not name (it may reflect its own state there)
+// and, when the new HTML leaves it empty, its own children.
+const patchAttrs = (cur, next) => {
+  if (!cur.nodeName.includes('-')) for (const { name } of [...cur.attributes]) if (!next.hasAttribute(name)) cur.removeAttribute(name);
+  for (const { name, value } of next.attributes) if (cur.getAttribute(name) !== value) cur.setAttribute(name, value);
+};
+const keyOf = (n) => (n.nodeType === 1 ? n.getAttribute('data-key') : null);
+const sameNode = (a, b) => !!a && a.nodeType === b.nodeType && a.nodeName === b.nodeName;
+// Moves a kept node. moveBefore (where supported) keeps its focus; insertBefore drops it.
+const place = (parent, node, ref) => {
+  if (node === ref) return;
+  try {
+    if (parent.moveBefore && node.parentNode === parent) return parent.moveBefore(node, ref);
+  } catch (_e) {
+    /* fall back to insertBefore */
+  }
+  parent.insertBefore(node, ref);
+};
+const patchChildren = (cur, next) => {
+  const old = [...cur.childNodes];
+  const fresh = [...next.childNodes];
+  const byKey = new Map();
+  for (const o of old) {
+    const k = keyOf(o);
+    if (k !== null && !byKey.has(k)) byKey.set(k, o);
+  }
+  const used = new Set();
+  fresh.forEach((n, i) => {
+    const k = keyOf(n);
+    let o = k !== null ? byKey.get(k) : old[i];
+    if (!sameNode(o, n) || used.has(o) || (k === null && keyOf(o) !== null)) o = null;
+    const ref = cur.childNodes[i] ?? null;
+    if (!o) {
+      cur.insertBefore(n, ref);
+      return;
+    }
+    used.add(o);
+    place(cur, o, ref);
+    if (n.nodeType === 1) {
+      patchAttrs(o, n);
+      // An empty custom element (ha-icon, ha-switch) keeps whatever it put in itself.
+      if (!o.nodeName.includes('-') || n.firstChild) patchChildren(o, n);
+    } else if (o.nodeValue !== n.nodeValue) o.nodeValue = n.nodeValue;
+  });
+  while (cur.childNodes.length > fresh.length) cur.removeChild(cur.lastChild);
+};
+const morph = (root, html) => {
+  const tpl = document.createElement('template');
+  tpl.innerHTML = html;
+  patchChildren(root, tpl.content);
+};
 
 /* ------------------------------------------------------------------ */
 /* Card                                                                */
@@ -2122,8 +2202,9 @@ class HaSwitchCard extends HTMLElement {
     const count2 = `${upCount}/${count}`;
     pill = pill.split('\u0000COUNT\u0000').join(esc(count2));
 
-    const focused = focusKey(this.shadowRoot.activeElement);
-    this.shadowRoot.innerHTML = `
+    const active = this.shadowRoot.activeElement;
+    const focused = focusKey(active);
+    const html = `
       <style>${HaSwitchCard.styles}</style>
       <ha-card class="${compact ? 'mini' : ''}${confirm ? 'dialog-open' : ''}">
         <div class="header">
@@ -2134,14 +2215,20 @@ class HaSwitchCard extends HTMLElement {
             <div class="title-row"><div class="name">${esc(c.name)}</div>${pill}</div>
             ${c.subtitle ? `<div class="sub">${esc(c.subtitle)}</div>` : ''}
           </div>
-          ${sw && !compact ? `<ha-switch></ha-switch>` : ''}${this._zoomButton()}
+          ${sw && !compact ? `<ha-switch aria-label="${esc(`${t.power}${t.colon}${c.name}`)}" title="${esc(t.power)}"></ha-switch>` : ''}${this._zoomButton()}
         </div>
         ${body}${confirm ? this._confirmHtml(t) : ''}
       </ha-card>`;
+    // The first render writes the HTML; the next ones patch it in place (morph), keeping the nodes, the focus and
+    // the power toggle's listener, so a new rate only rewrites its text.
+    const patched = !!this.shadowRoot.firstChild;
+    if (patched) morph(this.shadowRoot, html);
+    else this.shadowRoot.innerHTML = html;
 
-    // innerHTML replaced the focused element: focus its counterpart so keyboard navigation keeps its place.
-    if (focused) {
-      const again = [...this.shadowRoot.querySelectorAll('[tabindex]')].find((el) => focusKey(el) === focused);
+    // The focused element was replaced (first render, or its place changed): focus its counterpart, the power toggle
+    // included, so keyboard navigation keeps its place.
+    if (focused && (!patched || this.shadowRoot.activeElement !== active)) {
+      const again = [...this.shadowRoot.querySelectorAll('[tabindex], ha-switch')].find((el) => focusKey(el) === focused);
       again?.focus({ preventScroll: true });
     }
 
@@ -2149,10 +2236,13 @@ class HaSwitchCard extends HTMLElement {
     if (toggle && sw) {
       toggle.checked = sw.state === 'on';
       toggle.disabled = sw.state === 'unavailable' || sw.state === 'unknown';
+      // Kept across renders by the patch: listened once.
+      if (toggle._hscListening) return;
+      toggle._hscListening = true;
       toggle.addEventListener('change', (ev) => {
         // Turning the switch off can cut the network Home Assistant itself runs on: ask first (`confirm_off: false`
         // turns it off at once). Until confirmed, the toggle shows the real state again.
-        if (!ev.target.checked && c.confirm_off !== false) {
+        if (!ev.target.checked && this._config.confirm_off !== false) {
           ev.target.checked = true;
           this._openConfirm();
           return;
