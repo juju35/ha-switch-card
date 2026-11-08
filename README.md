@@ -28,7 +28,7 @@ Custom Lovelace card for Home Assistant displaying a managed network switch (SNM
 - Live state of every port on the device; tap a port to open its entity
 - Port names under the drawn ports and in their tooltips; a port without link is grey (nothing plugged in), red only when it is one of the watched ports
 - Ports up out of all next to the status (*Online · 6/8*)
-- Incoming / outgoing rate computed from the byte counters, with the total under it, and the last 24 hours drawn behind (recorder statistics, on a real time axis, broken where data is missing)
+- Download / upload rate computed from the byte counters (`kB/s`, `MB/s`), with the total under it (`GiB`), and the last 24 hours drawn behind (recorder statistics, on a real time axis, broken where data is missing)
 - Built-in devices: a drawn generic front panel (1–52 ports) that follows the light or dark theme, or a drawn Netgear GS308T (S350) front panel with its ports and link LEDs
 - Custom image support with an adjustable port overlay
 - Status colors from the Home Assistant theme

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.12.0 - 2026-11-08
+
+### Fixes
+- Rates computed from the byte counters divided by 1024 while switching units at 1000: 3.4 MB/s read "3.2 MB/s". They are now in powers of 1000 (`kB/s`, `MB/s`), one decimal under 100, as on the system-monitor and internet-box cards.
+
+### Changes
+- Totals in binary units (`KiB`, `MiB`, `GiB`) with 2 / 1 / 0 decimals (trailing zeros dropped), as on the other cards.
+- Traffic tiles labelled **Download** / **Upload** in every language (the system-monitor card's words) instead of "Incoming / Outgoing traffic"; the editor keeps the sensor labels.
+
 ## 1.11.2 - 2026-11-08
 
 ### Fixes
