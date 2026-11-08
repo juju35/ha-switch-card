@@ -9,8 +9,8 @@ const I18N = {
   fr: {
     card_name: 'Carte switch réseau',
     card_desc: 'Affiche l’état d’un switch réseau : statut, uptime, ports et trafic.',
-    in: 'Trafic entrant',
-    out: 'Trafic sortant',
+    in: 'Réception',
+    out: 'Envoi',
     port: 'Port',
     default: 'Défaut',
     colon: ' : ',
@@ -71,8 +71,8 @@ const I18N = {
   en: {
     card_name: 'Network switch card',
     card_desc: 'Shows a network switch: status, uptime, ports and traffic.',
-    in: 'Incoming traffic',
-    out: 'Outgoing traffic',
+    in: 'Download',
+    out: 'Upload',
     port: 'Port',
     default: 'Default',
     colon: ': ',
@@ -133,8 +133,8 @@ const I18N = {
   de: {
     card_name: 'Netzwerk-Switch-Karte',
     card_desc: 'Zeigt einen Netzwerk-Switch: Status, Betriebszeit, Ports und Datenverkehr.',
-    in: 'Eingehender Datenverkehr',
-    out: 'Ausgehender Datenverkehr',
+    in: 'Download',
+    out: 'Upload',
     port: 'Port',
     default: 'Standard',
     colon: ': ',
@@ -195,8 +195,8 @@ const I18N = {
   es: {
     card_name: 'Tarjeta de switch de red',
     card_desc: 'Muestra un switch de red: estado, tiempo de actividad, puertos y tráfico.',
-    in: 'Tráfico entrante',
-    out: 'Tráfico saliente',
+    in: 'Descarga',
+    out: 'Subida',
     port: 'Puerto',
     default: 'Predeterminado',
     colon: ': ',
@@ -257,8 +257,8 @@ const I18N = {
   sr: {
     card_name: 'Картица мрежног свича',
     card_desc: 'Приказује мрежни свич: статус, време рада, портове и саобраћај.',
-    in: 'Долазни саобраћај',
-    out: 'Одлазни саобраћај',
+    in: 'Преузимање',
+    out: 'Слање',
     port: 'Порт',
     default: 'Подразумевано',
     colon: ': ',
@@ -319,8 +319,8 @@ const I18N = {
   'sr-Latn': {
     card_name: 'Kartica mrežnog sviča',
     card_desc: 'Prikazuje mrežni svič: status, vreme rada, portove i saobraćaj.',
-    in: 'Dolazni saobraćaj',
-    out: 'Odlazni saobraćaj',
+    in: 'Preuzimanje',
+    out: 'Slanje',
     port: 'Port',
     default: 'Podrazumevano',
     colon: ': ',
@@ -381,8 +381,8 @@ const I18N = {
   it: {
     card_name: 'Scheda switch di rete',
     card_desc: 'Mostra uno switch di rete: stato, tempo di attività, porte e traffico.',
-    in: 'Traffico in entrata',
-    out: 'Traffico in uscita',
+    in: 'Download',
+    out: 'Upload',
     port: 'Porta',
     default: 'Predefinito',
     colon: ': ',
@@ -443,8 +443,8 @@ const I18N = {
   nl: {
     card_name: 'Netwerkswitchkaart',
     card_desc: 'Toont een netwerkswitch: status, uptime, poorten en verkeer.',
-    in: 'Inkomend verkeer',
-    out: 'Uitgaand verkeer',
+    in: 'Download',
+    out: 'Upload',
     port: 'Poort',
     default: 'Standaard',
     colon: ': ',
@@ -505,8 +505,8 @@ const I18N = {
   pt: {
     card_name: 'Cartão de switch de rede',
     card_desc: 'Mostra um switch de rede: estado, tempo de atividade, portas e tráfego.',
-    in: 'Tráfego de entrada',
-    out: 'Tráfego de saída',
+    in: 'Transferência',
+    out: 'Envio',
     port: 'Porta',
     default: 'Predefinição',
     colon: ': ',
@@ -567,8 +567,8 @@ const I18N = {
   pl: {
     card_name: 'Karta przełącznika sieciowego',
     card_desc: 'Pokazuje przełącznik sieciowy: status, czas działania, porty i ruch.',
-    in: 'Ruch przychodzący',
-    out: 'Ruch wychodzący',
+    in: 'Pobieranie',
+    out: 'Wysyłanie',
     port: 'Port',
     default: 'Domyślnie',
     colon: ': ',
@@ -629,8 +629,8 @@ const I18N = {
   ro: {
     card_name: 'Card switch de rețea',
     card_desc: 'Afișează un switch de rețea: stare, timp de funcționare, porturi și trafic.',
-    in: 'Trafic de intrare',
-    out: 'Trafic de ieșire',
+    in: 'Descărcare',
+    out: 'Încărcare',
     port: 'Port',
     default: 'Implicit',
     colon: ': ',
@@ -691,8 +691,8 @@ const I18N = {
   da: {
     card_name: 'Netværksswitch-kort',
     card_desc: 'Viser en netværksswitch: status, oppetid, porte og trafik.',
-    in: 'Indgående trafik',
-    out: 'Udgående trafik',
+    in: 'Download',
+    out: 'Upload',
     port: 'Port',
     default: 'Standard',
     colon: ': ',
@@ -753,8 +753,8 @@ const I18N = {
   sv: {
     card_name: 'Nätverksswitchkort',
     card_desc: 'Visar en nätverksswitch: status, drifttid, portar och trafik.',
-    in: 'Inkommande trafik',
-    out: 'Utgående trafik',
+    in: 'Mottagning',
+    out: 'Sändning',
     port: 'Port',
     default: 'Standard',
     colon: ': ',
@@ -815,8 +815,8 @@ const I18N = {
   bg: {
     card_name: 'Карта за мрежов суич',
     card_desc: 'Показва мрежов суич: състояние, време на работа, портове и трафик.',
-    in: 'Входящ трафик',
-    out: 'Изходящ трафик',
+    in: 'Изтегляне',
+    out: 'Качване',
     port: 'Порт',
     default: 'По подразбиране',
     colon: ': ',
@@ -877,8 +877,8 @@ const I18N = {
   ru: {
     card_name: 'Карточка сетевого коммутатора',
     card_desc: 'Показывает сетевой коммутатор: состояние, время работы, порты и трафик.',
-    in: 'Входящий трафик',
-    out: 'Исходящий трафик',
+    in: 'Получение',
+    out: 'Отправка',
     port: 'Порт',
     default: 'По умолчанию',
     colon: ': ',
@@ -939,8 +939,8 @@ const I18N = {
   uk: {
     card_name: 'Картка мережевого комутатора',
     card_desc: 'Показує мережевий комутатор: стан, час роботи, порти й трафік.',
-    in: 'Вхідний трафік',
-    out: 'Вихідний трафік',
+    in: 'Отримання',
+    out: 'Відправка',
     port: 'Порт',
     default: 'Типово',
     colon: ': ',
@@ -1001,8 +1001,8 @@ const I18N = {
   hu: {
     card_name: 'Hálózati switch kártya',
     card_desc: 'Hálózati switch megjelenítése: állapot, üzemidő, portok és forgalom.',
-    in: 'Bejövő forgalom',
-    out: 'Kimenő forgalom',
+    in: 'Letöltés',
+    out: 'Feltöltés',
     port: 'Port',
     default: 'Alapértelmezett',
     colon: ': ',
@@ -1063,8 +1063,8 @@ const I18N = {
   sk: {
     card_name: 'Karta sieťového prepínača',
     card_desc: 'Zobrazuje sieťový prepínač: stav, čas prevádzky, porty a dátovú prevádzku.',
-    in: 'Prijatá prevádzka',
-    out: 'Odoslaná prevádzka',
+    in: 'Sťahovanie',
+    out: 'Odosielanie',
     port: 'Port',
     default: 'Predvolené',
     colon: ': ',
@@ -1125,8 +1125,8 @@ const I18N = {
   cs: {
     card_name: 'Karta síťového přepínače',
     card_desc: 'Zobrazuje síťový přepínač: stav, dobu provozu, porty a datový provoz.',
-    in: 'Příchozí provoz',
-    out: 'Odchozí provoz',
+    in: 'Stahování',
+    out: 'Odesílání',
     port: 'Port',
     default: 'Výchozí',
     colon: ': ',
@@ -1187,8 +1187,8 @@ const I18N = {
   sl: {
     card_name: 'Kartica omrežnega stikala',
     card_desc: 'Prikazuje omrežno stikalo: stanje, čas delovanja, vrata in promet.',
-    in: 'Dohodni promet',
-    out: 'Odhodni promet',
+    in: 'Prejemanje',
+    out: 'Pošiljanje',
     port: 'Vrata',
     default: 'Privzeto',
     colon: ': ',
@@ -1249,8 +1249,8 @@ const I18N = {
   lv: {
     card_name: 'Tīkla komutatora kartīte',
     card_desc: 'Rāda tīkla komutatoru: statusu, darbības laiku, portus un datplūsmu.',
-    in: 'Ienākošā datplūsma',
-    out: 'Izejošā datplūsma',
+    in: 'Saņemšana',
+    out: 'Sūtīšana',
     port: 'Ports',
     default: 'Noklusējums',
     colon: ': ',
@@ -1311,8 +1311,8 @@ const I18N = {
   el: {
     card_name: 'Κάρτα μεταγωγέα δικτύου',
     card_desc: 'Εμφανίζει έναν μεταγωγέα δικτύου: κατάσταση, χρόνο λειτουργίας, θύρες και κίνηση.',
-    in: 'Εισερχόμενη κίνηση',
-    out: 'Εξερχόμενη κίνηση',
+    in: 'Λήψη',
+    out: 'Αποστολή',
     port: 'Θύρα',
     default: 'Προεπιλογή',
     colon: ': ',
@@ -1466,15 +1466,24 @@ const fmtNum = (v, d, loc) => {
   }
 };
 
+// Sizes in powers of 1024 with binary prefixes; up to 2 decimals under 10, 1 under 100, none above (trailing zeros
+// dropped: "1.5 KiB", "20 GiB"), as in the system-monitor and docker cards.
+const fmtNumMax = (v, d, loc) => {
+  try {
+    return new Intl.NumberFormat(loc, { minimumFractionDigits: 0, maximumFractionDigits: d, useGrouping: false }).format(v);
+  } catch {
+    return String(Number(v.toFixed(d)));
+  }
+};
 const formatBytes = (v, loc = 'en') => {
   if (!Number.isFinite(v)) return '—';
-  const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+  const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
   let i = 0;
   while (v >= 1024 && i < units.length - 1) {
     v /= 1024;
     i++;
   }
-  return `${fmtNum(v, i === 0 ? 0 : 2, loc)} ${units[i]}`;
+  return `${fmtNumMax(v, i === 0 ? 0 : v >= 100 ? 0 : v >= 10 ? 1 : 2, loc)} ${units[i]}`;
 };
 
 // Uptime as "12d 16h 15min", with the unit letters of the card language (day / hour / minute of its I18N entry).
@@ -1500,16 +1509,17 @@ const formatUptime = (raw, unit, u = { day: 'd', hour: 'h', minute: 'min' }) => 
 // running total, from which the card computes a rate; any other unit (kB/s, Mbit/s…) is already a rate.
 const BYTE_UNITS = { B: 1, bytes: 1, octets: 1, o: 1, kB: 1e3, KB: 1024, KiB: 1024, MB: 1e6, MiB: 1048576, GB: 1e9, GiB: 1073741824 };
 // A rate with three significant digits at most ("3.2 MB/s", "584 KB/s"), so it fits beside the mini card's panel.
+// Rates in powers of 1000 ("3.2 MB/s", "584 kB/s"): 1 decimal under 100, none above, as in the other cards.
 const formatRate = (bps, loc = 'en') => {
   if (!Number.isFinite(bps)) return '—';
-  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const units = ['B/s', 'kB/s', 'MB/s', 'GB/s', 'TB/s'];
   let v = bps;
   let i = 0;
   while (v >= 1000 && i < units.length - 1) {
-    v /= 1024;
+    v /= 1000;
     i++;
   }
-  return `${fmtNum(v, i === 0 || v >= 10 ? 0 : 1, loc)} ${units[i]}/s`;
+  return `${fmtNumMax(v, i === 0 || v >= 100 ? 0 : 1, loc)} ${units[i]}`;
 };
 
 // Ports whose loss of link is an alarm (red): `watched_ports` as a list (YAML or the editor) or "1, 3, 8".

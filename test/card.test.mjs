@@ -164,8 +164,8 @@ test("traffic tiles: unavailable reads as Home Assistant shows it, other units a
   const fmt = (state, unit) => card._formatTraffic({ state, attributes: unit ? { unit_of_measurement: unit } : {} });
   assert.equal(fmt("unavailable", "MB"), "Unavailable");
   assert.equal(fmt("1234.56789", "kB/s"), "fmt:1234.56789");
-  assert.equal(fmt("2048", "B"), "2.00 KB");
-  assert.equal(fmt("2048"), "2.00 KB");
+  assert.equal(fmt("2048", "B"), "2 KiB");
+  assert.equal(fmt("2048"), "2 KiB");
 });
 
 test("unavailable / unknown ports, status and connectivity are grey, not red", () => {
@@ -722,10 +722,10 @@ test("traffic: a byte counter shows its rate from two states, with its total; a 
   card.hass = at(1000, "00");
   assert.match(card.shadowRoot.innerHTML, /class="v">—<\/div><div class="t">Total 1000 B<\/div>/);
   card.hass = at(1000 + 30 * 2048, "30");
-  assert.match(card.shadowRoot.innerHTML, /class="v">2.0 KB\/s<\/div>/);
+  assert.match(card.shadowRoot.innerHTML, /class="v">2 kB\/s<\/div>/);
   // A reset: no negative rate, the last one stays.
   card.hass = at(10, "40");
-  assert.match(card.shadowRoot.innerHTML, /class="v">2.0 KB\/s<\/div>/);
+  assert.match(card.shadowRoot.innerHTML, /class="v">2 kB\/s<\/div>/);
   // A sensor already in a rate unit is shown as Home Assistant formats it.
   card.hass = { ...portsHass(), states: { "sensor.in": { state: "12", attributes: { unit_of_measurement: "Mbit/s" } } }, formatEntityState: () => "12 Mbit/s" };
   assert.match(card.shadowRoot.innerHTML, /class="v">12 Mbit\/s<\/div>/);
@@ -746,14 +746,14 @@ test("traffic: a counter that stops changing reads 0, on a same-value report or 
   card.setConfig(cfg);
   card.hass = at(1000, "00");
   card.hass = at(1000 + 30 * 2048, "30");
-  assert.equal(rate(card), "2.0 KB/s");
+  assert.equal(rate(card), "2 kB/s");
   t.mock.timers.setTime(Date.parse("2026-11-07T10:00:45Z"));
   card.hass = at(1000 + 30 * 2048, "30", "45");
   assert.equal(rate(card), "0 B/s");
   // A change after the still period: the change happened since the last report (10 s), not over 40 s.
   t.mock.timers.setTime(Date.parse("2026-11-07T10:00:55Z"));
   card.hass = at(1000 + 30 * 2048 + 10 * 1024, "55", "55");
-  assert.equal(rate(card), "1.0 KB/s");
+  assert.equal(rate(card), "1 kB/s");
   // No last_reported (the frontend usually does not get it): still the rate within two periods (60 s)…
   card = new HaSwitchCard();
   card.setConfig(cfg);
@@ -762,7 +762,7 @@ test("traffic: a counter that stops changing reads 0, on a same-value report or 
   card.hass = at(1000 + 30 * 2048, "30");
   t.mock.timers.setTime(Date.parse("2026-11-07T10:01:29Z"));
   card.hass = at(1000 + 30 * 2048, "30");
-  assert.equal(rate(card), "2.0 KB/s");
+  assert.equal(rate(card), "2 kB/s");
   // …then 0 once two periods have passed without a change (a timer redraws the card at that moment).
   t.mock.timers.setTime(Date.parse("2026-11-07T10:01:31Z"));
   card.hass = at(1000 + 30 * 2048, "30");
@@ -771,14 +771,17 @@ test("traffic: a counter that stops changing reads 0, on a same-value report or 
 
 test("traffic: rates and totals use the decimal separator of the card's language", () => {
   const { HaSwitchCard, formatRate, formatBytes } = loadCard("ha-switch-card.js", ["HaSwitchCard", "formatRate", "formatBytes"]);
-  assert.equal(formatRate(3.2 * 1024 * 1024, "fr"), "3,2 MB/s");
-  assert.equal(formatRate(3.2 * 1024 * 1024, "en"), "3.2 MB/s");
-  assert.equal(formatBytes(1536, "de"), "1,50 KB");
-  assert.equal(formatBytes(123456789012, "en"), "114.98 GB");
+  // Rates in powers of 1000 (1 decimal under 100), sizes in powers of 1024 with binary prefixes (2 / 1 / 0 decimals).
+  assert.equal(formatRate(3.4e6, "fr"), "3,4 MB/s");
+  assert.equal(formatRate(3.4e6, "en"), "3.4 MB/s");
+  assert.equal(formatRate(584e3, "en"), "584 kB/s");
+  assert.equal(formatBytes(1536, "de"), "1,5 KiB");
+  assert.equal(formatBytes(123456789012, "en"), "115 GiB");
+  assert.equal(formatBytes(12.3 * 1024 ** 3, "en"), "12.3 GiB");
   const card = new HaSwitchCard();
   card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", traffic_in_entity: "sensor.in", show_history: false, language: "fr" });
   card.hass = { ...portsHass(), states: { "sensor.in": { state: "1536", attributes: { unit_of_measurement: "B" } } } };
-  assert.match(card.shadowRoot.innerHTML, /Total 1,50 KB/);
+  assert.match(card.shadowRoot.innerHTML, /Total 1,5 KiB/);
 });
 
 // A timestamp uptime sensor (boot time) showed "0h 0min": its date was read as timeticks.
