@@ -68,8 +68,8 @@ Or manually:
 
 ### Manual
 
-1. Download `ha-switch-card.js` from the [latest release](https://github.com/juju35/ha-switch-card/releases/latest).
-2. Copy it to `/config/www/ha-switch-card.js`.
+1. Download `ha-switch-card.js` and the `ha-switch-card.i18n.*.js` translation files from the [latest release](https://github.com/juju35/ha-switch-card/releases/latest).
+2. Copy them all to `/config/www/` (without the translation files, the cards show in English).
 3. Go to **Settings → Dashboards → ⋮ → Resources** and add `/local/ha-switch-card.js` as a **JavaScript module**, or in YAML mode:
 
    ```yaml
