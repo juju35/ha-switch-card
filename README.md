@@ -111,6 +111,7 @@ url: http://switch.local
 | Option | Default | Description |
 |---|---|---|
 | `name` | `Switch` | Title |
+| `show_title` | `true` | Show the title in the header (e.g. `false` under a section heading of your own) |
 | `subtitle` | – | Subtitle |
 | `icon` | `mdi:switch` | Header icon, colored by status |
 | `switch_entity` | – | Power toggle (`switch` / `input_boolean`) |

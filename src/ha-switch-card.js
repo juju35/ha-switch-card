@@ -47,6 +47,7 @@ const I18N = {
       port_names: 'Noms des ports (dans l’ordre)',
       watched_ports: 'Ports surveillés (rouges si coupés)',
       show_history: 'Historique 24 h du trafic',
+      show_title: 'Afficher le titre',
       zoom: 'Bouton détail',
       confirm_off: 'Confirmer avant d’éteindre',
     },
@@ -109,6 +110,7 @@ const I18N = {
       port_names: 'Port names (in order)',
       watched_ports: 'Watched ports (red when down)',
       show_history: '24 h traffic history',
+      show_title: 'Show title',
       zoom: 'Detail button',
       confirm_off: 'Confirm before turning off',
     },
@@ -171,6 +173,7 @@ const I18N = {
       port_names: 'Portnamen (in Reihenfolge)',
       watched_ports: 'Überwachte Ports (rot bei Ausfall)',
       show_history: '24-h-Verlauf des Datenverkehrs',
+      show_title: 'Titel anzeigen',
       zoom: 'Detail-Schaltfläche',
       confirm_off: 'Vor dem Ausschalten bestätigen',
     },
@@ -233,6 +236,7 @@ const I18N = {
       port_names: 'Nombres de los puertos (en orden)',
       watched_ports: 'Puertos vigilados (rojos si caen)',
       show_history: 'Historial de 24 h del tráfico',
+      show_title: 'Mostrar el título',
       zoom: 'Botón de detalle',
       confirm_off: 'Confirmar antes de apagar',
     },
@@ -295,6 +299,7 @@ const I18N = {
       port_names: 'Називи портова (редом)',
       watched_ports: 'Праћени портови (црвени када падну)',
       show_history: 'Историја саобраћаја за 24 ч',
+      show_title: 'Прикажи наслов',
       zoom: 'Дугме за детаље',
       confirm_off: 'Потврди пре искључивања',
     },
@@ -357,6 +362,7 @@ const I18N = {
       port_names: 'Nazivi portova (redom)',
       watched_ports: 'Praćeni portovi (crveni kada padnu)',
       show_history: 'Istorija saobraćaja za 24 č',
+      show_title: 'Prikaži naslov',
       zoom: 'Dugme za detalje',
       confirm_off: 'Potvrdi pre isključivanja',
     },
@@ -419,6 +425,7 @@ const I18N = {
       port_names: 'Nomi delle porte (in ordine)',
       watched_ports: 'Porte sorvegliate (rosse se giù)',
       show_history: 'Storico 24 h del traffico',
+      show_title: 'Mostra il titolo',
       zoom: 'Pulsante dettagli',
       confirm_off: 'Conferma prima di spegnere',
     },
@@ -481,6 +488,7 @@ const I18N = {
       port_names: 'Poortnamen (op volgorde)',
       watched_ports: 'Bewaakte poorten (rood bij uitval)',
       show_history: '24-uursgeschiedenis van het verkeer',
+      show_title: 'Titel tonen',
       zoom: 'Detailknop',
       confirm_off: 'Bevestigen voor uitschakelen',
     },
@@ -543,6 +551,7 @@ const I18N = {
       port_names: 'Nomes das portas (por ordem)',
       watched_ports: 'Portas vigiadas (vermelhas se caírem)',
       show_history: 'Histórico de 24 h do tráfego',
+      show_title: 'Mostrar o título',
       zoom: 'Botão de detalhe',
       confirm_off: 'Confirmar antes de desligar',
     },
@@ -605,6 +614,7 @@ const I18N = {
       port_names: 'Nazwy portów (po kolei)',
       watched_ports: 'Monitorowane porty (czerwone po awarii)',
       show_history: 'Historia ruchu z 24 h',
+      show_title: 'Pokaż tytuł',
       zoom: 'Przycisk szczegółów',
       confirm_off: 'Potwierdzaj przed wyłączeniem',
     },
@@ -667,6 +677,7 @@ const I18N = {
       port_names: 'Numele porturilor (în ordine)',
       watched_ports: 'Porturi supravegheate (roșii la cădere)',
       show_history: 'Istoricul traficului pe 24 h',
+      show_title: 'Afișează titlul',
       zoom: 'Buton de detalii',
       confirm_off: 'Confirmare înainte de oprire',
     },
@@ -729,6 +740,7 @@ const I18N = {
       port_names: 'Portnavne (i rækkefølge)',
       watched_ports: 'Overvågede porte (røde ved nedbrud)',
       show_history: '24-timers trafikhistorik',
+      show_title: 'Vis titel',
       zoom: 'Detaljeknap',
       confirm_off: 'Bekræft før slukning',
     },
@@ -791,6 +803,7 @@ const I18N = {
       port_names: 'Portnamn (i ordning)',
       watched_ports: 'Övervakade portar (röda vid avbrott)',
       show_history: '24 h-trafikhistorik',
+      show_title: 'Visa rubrik',
       zoom: 'Detaljknapp',
       confirm_off: 'Bekräfta före avstängning',
     },
@@ -853,6 +866,7 @@ const I18N = {
       port_names: 'Имена на портовете (по ред)',
       watched_ports: 'Наблюдавани портове (червени при отпадане)',
       show_history: 'История на трафика за 24 ч',
+      show_title: 'Показване на заглавието',
       zoom: 'Бутон за подробности',
       confirm_off: 'Потвърждение преди изключване',
     },
@@ -915,6 +929,7 @@ const I18N = {
       port_names: 'Имена портов (по порядку)',
       watched_ports: 'Отслеживаемые порты (красные при падении)',
       show_history: 'История трафика за 24 ч',
+      show_title: 'Показывать заголовок',
       zoom: 'Кнопка подробностей',
       confirm_off: 'Подтверждать выключение',
     },
@@ -977,6 +992,7 @@ const I18N = {
       port_names: 'Назви портів (по порядку)',
       watched_ports: 'Відстежувані порти (червоні при падінні)',
       show_history: 'Історія трафіку за 24 год',
+      show_title: 'Показувати заголовок',
       zoom: 'Кнопка деталей',
       confirm_off: 'Підтверджувати вимкнення',
     },
@@ -1039,6 +1055,7 @@ const I18N = {
       port_names: 'Portnevek (sorrendben)',
       watched_ports: 'Figyelt portok (pirosak kieséskor)',
       show_history: '24 órás forgalmi előzmények',
+      show_title: 'Cím megjelenítése',
       zoom: 'Részletek gomb',
       confirm_off: 'Megerősítés kikapcsolás előtt',
     },
@@ -1101,6 +1118,7 @@ const I18N = {
       port_names: 'Názvy portov (v poradí)',
       watched_ports: 'Sledované porty (červené pri výpadku)',
       show_history: '24 h história prevádzky',
+      show_title: 'Zobraziť názov',
       zoom: 'Tlačidlo podrobností',
       confirm_off: 'Potvrdiť pred vypnutím',
     },
@@ -1163,6 +1181,7 @@ const I18N = {
       port_names: 'Názvy portů (v pořadí)',
       watched_ports: 'Sledované porty (červené při výpadku)',
       show_history: '24h historie provozu',
+      show_title: 'Zobrazit název',
       zoom: 'Tlačítko podrobností',
       confirm_off: 'Potvrdit před vypnutím',
     },
@@ -1225,6 +1244,7 @@ const I18N = {
       port_names: 'Imena vrat (po vrsti)',
       watched_ports: 'Nadzorovana vrata (rdeča ob izpadu)',
       show_history: '24-urna zgodovina prometa',
+      show_title: 'Prikaži naslov',
       zoom: 'Gumb za podrobnosti',
       confirm_off: 'Potrdi pred izklopom',
     },
@@ -1287,6 +1307,7 @@ const I18N = {
       port_names: 'Portu nosaukumi (secībā)',
       watched_ports: 'Uzraudzītie porti (sarkani, ja krīt)',
       show_history: 'Datplūsmas 24 h vēsture',
+      show_title: 'Rādīt virsrakstu',
       zoom: 'Detaļu poga',
       confirm_off: 'Apstiprināt pirms izslēgšanas',
     },
@@ -1349,6 +1370,7 @@ const I18N = {
       port_names: 'Ονόματα θυρών (με σειρά)',
       watched_ports: 'Θύρες υπό παρακολούθηση (κόκκινες σε πτώση)',
       show_history: 'Ιστορικό κίνησης 24 ωρών',
+      show_title: 'Εμφάνιση τίτλου',
       zoom: 'Κουμπί λεπτομερειών',
       confirm_off: 'Επιβεβαίωση πριν από την απενεργοποίηση',
     },
@@ -1859,6 +1881,8 @@ class HaSwitchCard extends HTMLElement {
     if (!config) throw new Error('Invalid configuration');
     // A YAML key left empty (`port_pattern:`) is null: keep the default instead of overriding it with null.
     this._config = { ...DEFAULTS, ...Object.fromEntries(Object.entries(config).filter(([, v]) => v != null)) };
+    // show_title: the header's name, hidden by the stylesheet (the status pill stays)
+    this.toggleAttribute?.("hide-title", config.show_title === false);
     // Configs the editor would not produce: warn, but still draw the card as before.
     for (const msg of configWarnings(this._config)) {
       if (warned.has(msg)) continue;
@@ -2361,6 +2385,7 @@ class HaSwitchCard extends HTMLElement {
       }
       .ic.big { --size: 40px; --mdc-icon-size: 24px; background: color-mix(in srgb, var(--c) 16%, transparent); }
       .titles { flex: 1 1 0; min-width: 0; }
+      :host([hide-title]) .titles .name { display: none; }
       /* The status pill shares the title's line, right of the name (left of the power toggle), whatever the subtitle.
          The name only takes the room the pill leaves (flex-basis 0), but keeps about four characters: when the pill's
          full text no longer fits beside them, the pill wraps under the name with its whole text, and is only cut
@@ -2559,7 +2584,7 @@ class HaSwitchMiniCard extends HaSwitchCard {
 /* Visual editor                                                       */
 /* ------------------------------------------------------------------ */
 // Editor toggles whose default is on, and that default.
-const EDITOR_TOGGLES = { confirm_off: true };
+const EDITOR_TOGGLES = { show_title: true, confirm_off: true };
 
 class HaSwitchCardEditor extends HTMLElement {
   setConfig(config) {
@@ -2652,6 +2677,7 @@ class HaSwitchCardEditor extends HTMLElement {
               },
             },
           },
+          { name: 'show_title', selector: { boolean: {} } },
           { name: 'show_history', selector: { boolean: {} } },
           ...(this.constructor.mini ? [{ name: 'zoom', selector: { boolean: {} } }] : []),
           { name: 'image', selector: { text: {} } },
