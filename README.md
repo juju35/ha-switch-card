@@ -8,6 +8,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/juju35/ha-switch-card/blob/main/LICENSE)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/julienstep9)
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/images/snmp.png" alt="SNMP" width="64">
+</p>
+
 Custom Lovelace card for Home Assistant displaying a managed network switch (SNMP): power toggle, global status, connectivity, uptime, per-port state and traffic. Pure JavaScript, no dependencies (no mushroom, card-mod or button-card required). Fully configurable from the visual editor. English, French, German, Spanish, Serbian (Cyrillic and Latin), Italian, Dutch, European Portuguese, Polish, Romanian, Danish, Swedish, Bulgarian, Russian, Ukrainian, Hungarian, Slovak, Czech, Slovenian, Latvian and Greek, auto-detected from Home Assistant or set with `language`.
 
 [![Open your Home Assistant instance and open a repository inside the Marketplace.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=juju35&repository=ha-switch-card&category=plugin)
@@ -39,7 +43,7 @@ Custom Lovelace card for Home Assistant displaying a managed network switch (SNM
 
 | Integration | What the card reads |
 |---|---|
-| [SNMP](https://www.home-assistant.io/integrations/snmp/) (built in, YAML) | One sensor per port with its operational status, plus optional status, connectivity, uptime (timeticks) and traffic sensors |
+| <img src="https://raw.githubusercontent.com/juju35/ha-switch-card/main/images/snmp.png" alt="" width="16"> [SNMP](https://www.home-assistant.io/integrations/snmp/) (built in, YAML) | One sensor per port with its operational status, plus optional status, connectivity, uptime (timeticks) and traffic sensors |
 
 Any other integration works as long as its port entities follow a pattern (`port_pattern`, with `{n}` for the port number); status, connectivity, uptime (seconds), traffic and power switch entities are optional.
 
