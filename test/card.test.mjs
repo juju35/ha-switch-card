@@ -335,6 +335,39 @@ test("editor: confirm_off is a toggle shown on by default, kept out of the YAML 
   assert.equal(editor._form.data.confirm_off, false);
 });
 
+test("editor: show_history and zoom shown on by default; port_names map and numeric watched_ports normalized", () => {
+  const listeners = {};
+  const document = { documentElement: { lang: "en" }, createElement: () => ({ addEventListener: (type, fn) => (listeners[type] = fn) }) };
+  const { HaSwitchCardEditor, HaSwitchMiniCardEditor } = loadCard("ha-switch-card.js", ["HaSwitchCardEditor", "HaSwitchMiniCardEditor"], {
+    document,
+    CustomEvent: class {
+      constructor(_type, init) {
+        this.detail = init.detail;
+      }
+    },
+  });
+  const mini = new HaSwitchMiniCardEditor();
+  let sent;
+  mini.dispatchEvent = (ev) => (sent = ev.detail.config);
+  mini.setConfig({ type: "custom:ha-switch-mini-card", ports: 8, port_names: { 1: "NAS", 3: "AP" }, watched_ports: [1, 3] });
+  mini.hass = { language: "en", states: {} };
+  const data = mini._form.data;
+  assert.equal(data.show_history, true);
+  assert.equal(data.zoom, true);
+  assert.deepEqual([...data.port_names], ["NAS", "", "AP"]);
+  assert.deepEqual([...data.watched_ports], ["1", "3"]);
+  const change = (value) => listeners["value-changed"]({ stopPropagation() {}, detail: { value } });
+  change({ ...data, watched_ports: ["3", "1", "5"], port_names: ["NAS", "", "AP", ""] });
+  assert.deepEqual(JSON.parse(JSON.stringify(sent)), { type: "custom:ha-switch-mini-card", ports: 8, port_names: ["NAS", "", "AP"], watched_ports: [3, 1, 5] });
+  change({ ...data, show_history: false, zoom: false, watched_ports: [], port_names: [""] });
+  assert.deepEqual(JSON.parse(JSON.stringify(sent)), { type: "custom:ha-switch-mini-card", ports: 8, show_history: false, zoom: false });
+  // The "1, 3, 8" string form shows as the selected ports too.
+  const full = new HaSwitchCardEditor();
+  full.setConfig({ type: "custom:ha-switch-card", watched_ports: "1, 3, 8" });
+  full.hass = { language: "en", states: {} };
+  assert.deepEqual([...full._form.data.watched_ports], ["1", "3", "8"]);
+});
+
 test("a failed power toggle call redraws the toggle from the real state at once", async () => {
   const { toggle, click } = toggleCard({ callService: () => Promise.reject(new Error("x")) });
   await click(true);

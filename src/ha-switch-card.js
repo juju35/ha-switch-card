@@ -2584,7 +2584,37 @@ class HaSwitchMiniCard extends HaSwitchCard {
 /* Visual editor                                                       */
 /* ------------------------------------------------------------------ */
 // Editor toggles whose default is on, and that default.
-const EDITOR_TOGGLES = { show_title: true, confirm_off: true };
+const EDITOR_TOGGLES = { show_title: true, show_history: true, zoom: true, confirm_off: true };
+
+// Config → form data: `port_names` as a map ({ 3: NAS }) becomes the list in port order the text fields edit
+// (an empty name keeps the number), and `watched_ports` (numbers, or "1, 3, 8") the strings of the port select.
+const toForm = (config) => {
+  const data = { ...EDITOR_TOGGLES, ...config };
+  const names = config.port_names;
+  if (names && typeof names === 'object') {
+    const n = Array.isArray(names) ? names.length : Math.max(0, ...Object.keys(names).map((k) => parseInt(k, 10)).filter(Number.isFinite));
+    data.port_names = Array.from({ length: n }, (_, i) => portName(config, i + 1));
+  }
+  if (config.watched_ports !== undefined) data.watched_ports = [...watchedPorts(config)].map(String);
+  return data;
+};
+
+// Form data → config: port numbers back as numbers, trailing empty port names dropped, toggles left at their
+// default and empty values kept out of the YAML.
+const fromForm = (value) => {
+  const config = { ...value };
+  if (Array.isArray(config.port_names)) {
+    const names = config.port_names.map((v) => (v == null ? '' : String(v)));
+    while (names.length && !names[names.length - 1].trim()) names.pop();
+    config.port_names = names;
+  }
+  if (Array.isArray(config.watched_ports)) config.watched_ports = [...watchedPorts(config)];
+  Object.keys(config).forEach((k) => {
+    const v = config[k];
+    if (v === '' || v === undefined || (Array.isArray(v) && !v.length) || EDITOR_TOGGLES[k] === v) delete config[k];
+  });
+  return config;
+};
 
 class HaSwitchCardEditor extends HTMLElement {
   setConfig(config) {
@@ -2734,11 +2764,7 @@ class HaSwitchCardEditor extends HTMLElement {
       this._form = document.createElement('ha-form');
       this._form.addEventListener('value-changed', (ev) => {
         ev.stopPropagation();
-        const config = { ...ev.detail.value };
-        Object.keys(config).forEach((k) => {
-          // Toggles left at their default stay out of the YAML too.
-          if (config[k] === '' || config[k] === undefined || EDITOR_TOGGLES[k] === config[k]) delete config[k];
-        });
+        const config = fromForm(ev.detail.value);
         this._config = config;
         this.dispatchEvent(new CustomEvent('config-changed', { detail: { config }, bubbles: true, composed: true }));
       });
@@ -2746,7 +2772,7 @@ class HaSwitchCardEditor extends HTMLElement {
     }
     this._form.hass = this._hass;
     // A toggle on by default shows checked while the YAML does not set it.
-    this._form.data = { ...EDITOR_TOGGLES, ...this._config };
+    this._form.data = toForm(this._config);
     this._form.schema = this._schema(t);
     this._form.computeLabel = (s) => t.fields[s.name] ?? s.name;
     this._form.computeHelper = (s) => {

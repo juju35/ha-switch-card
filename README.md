@@ -129,7 +129,7 @@ url: http://switch.local
 | `traffic_in_entity` / `traffic_out_entity` | – | Traffic sensors. A byte counter (`B`, `kB`, `MB`, `GB`…, e.g. SNMP `ifHCInOctets`) shows its rate, computed from its last two states (or its last 5-minute statistics until then), with its total under it; a sensor already in a rate unit (`kB/s`, `Mbit/s`…) is shown as Home Assistant formats it |
 | `show_history` | `true` | 24 h curve behind each traffic rate, from the recorder's 5-minute statistics (the sensor needs a `state_class`: `total_increasing` for a counter) |
 | `ports` | `8` | Number of ports |
-| `port_names` | – | Names of the ports, in port order (`[NAS, Box, '', AP]`, an empty name keeps the number) or as a map (`{1: NAS, 5: AP}`): shown under the drawn port (7 characters, the rest in its tooltip) |
+| `port_names` | – | Names of the ports, in port order (`[NAS, Box, '', AP]`, an empty name keeps the number) or as a map (`{1: NAS, 5: AP}`): shown under the drawn port (7 characters, the rest in its tooltip). The visual editor edits them as the list, and saves a map as that list |
 | `watched_ports` | – | Ports whose loss of link is an alarm: red when down. Any other port without link is grey (nothing plugged in) |
 | `port_pattern` | `sensor.switch_port_{n}_status` | Port entity pattern, `{n}` = port number |
 | `port_on_state` | `1` | State meaning "port up" |

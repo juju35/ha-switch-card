@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.14.1 - 2026-11-14
+
+### Fixes
+- **Visual editor**: `show_history` (and `zoom` on the mini card), on by default, now show checked while the YAML does not set them, and stay out of the YAML while on.
+- **Visual editor**: `port_names` written as a map (`{1: NAS, 5: AP}`) shows as the names in port order instead of an empty field, and `watched_ports` written as numbers (`[1, 3]`) or as `"1, 3, 8"` shows the selected ports; the editor saves the ports as numbers and drops trailing empty names.
+
 ## 1.14.0 - 2026-11-12
 
 ### Features
