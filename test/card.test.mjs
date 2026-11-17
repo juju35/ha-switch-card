@@ -587,25 +587,17 @@ const cssRule = (css, selector) => {
 // ("Niedostępny", "Unavailable") and squeeze the name down to a lone "…". Then (1.8.6 draft) the name took its
 // whole text width first (flex-basis auto) and a 50% cap plus a 280px container query cut the pill, or reduced
 // it to its icon, on cards up to 304 px wide, where its whole text fits.
-test("narrow header: the name gives way to the pill down to a few characters, then the pill wraps under it", () => {
+test("narrow header: the pill beside a whole name, else under the subtitle (measured, never a fixed width)", () => {
   const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
   const css = HaSwitchCard.styles.replace(/\s+/g, " ");
   const rule = (selector) => cssRule(css, selector);
-  const name = rule(".title-row > .name");
-  assert.match(name, /flex: 1 1 0[;\s]/);
-  assert.match(name, /min-width: (?:[4-9]|\d{2,})(?:\.\d+)?ch/);
-  const pill = rule(".title-row > .chip");
-  assert.match(pill, /flex: 0 1 auto/);
-  assert.match(pill, /min-width: 0/);
-  assert.match(pill, /overflow: hidden/);
-  // No cap: the pill is only cut when it does not fit even on a line of its own.
-  assert.doesNotMatch(pill, /max-width/);
-  assert.match(rule(".title-row"), /flex-wrap: wrap/);
+  assert.match(rule(".title-row > .name"), /min-width: 0/);
+  assert.match(rule(".title-row > .chip"), /flex: none/);
+  assert.match(rule(".titles.pill-below .title-row"), /display: contents/);
+  assert.match(rule(".titles.pill-below .title-row > .chip"), /order: 2/);
+  assert.match(rule(".titles.pill-dot .title-row > .chip > span:not(.cnt)"), /display: none/);
+  assert.doesNotMatch(css, /hs-titles/);
   assert.match(rule(".titles"), /flex: 1 1 0[;\s]/);
-  const text = rule(".chip span");
-  assert.match(text, /min-width: 0/);
-  assert.match(text, /text-overflow: ellipsis/);
-  assert.match(text, /white-space: nowrap/);
   assert.match(rule(".title-row > .chip ha-icon"), /flex: none/);
   assert.match(rule("ha-switch"), /flex: none/);
   assert.match(rule(".ic"), /flex: none/);

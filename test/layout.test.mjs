@@ -133,3 +133,71 @@ test("in a container sized by its content, a sections column, a 1fr 1fr grid or 
   assert.deepEqual(errors, []);
   assert.deepEqual(failures, []);
 });
+
+// The status pill's place, decided by measurement: full card and mini card (compact and expanded), illustrated and
+// classic, six languages, 190-500 px. Beside the name only when the name stays whole; otherwise under the subtitle;
+// its text whole or its dot and port count alone (always at 200 px or less); nothing under the banner's network
+// strip, out of the banner or past the text column.
+for (const [tag, zoom] of [
+  ["ha-switch-card", false],
+  ["ha-switch-mini-card", false],
+  ["ha-switch-mini-card", true],
+])
+  for (const illustration of [true, false])
+    test(`status pill, ${tag}${zoom ? " expanded" : ""}${illustration ? "" : " classic"}: beside a whole name, else under the subtitle`, { timeout: 60000 }, async (t) => {
+      if (skip) return t.skip(skip);
+      const bad = [];
+      for (const language of ["en", "fr", "de", "hu", "el", "ru"]) {
+        const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
+        await page.setContent(`<!doctype html><body style="margin:0;font-family:'DejaVu Sans',sans-serif"><div id="root" style="width:190px"></div></body>`);
+        await page.addScriptTag({ content: STUBS });
+        await page.addScriptTag({ content: src });
+        await page.evaluate(
+          ({ tag, config, states, language }) => {
+            const el = document.createElement(tag);
+            el.id = "card";
+            el.setConfig({ type: `custom:${tag}`, ...config, language });
+            el.hass = { states, entities: {}, devices: {}, language, locale: { language }, callService: async () => {}, callWS: async () => ({}) };
+            document.getElementById("root").appendChild(el);
+          },
+          { tag, config: { ...config, name: "Office switch on the second floor", illustration }, states, language },
+        );
+        if (zoom) await page.evaluate(() => document.getElementById("card").shadowRoot.querySelector(".zoom").click());
+        for (const width of [190, 245, 300, 400, 460, 500]) {
+          await page.evaluate((w) => {
+            document.getElementById("root").style.width = `${w}px`;
+            return new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+          }, width);
+          bad.push(
+            ...(await page.evaluate(
+              ({ width, language }) => {
+                const out = [];
+                const at = `${language} ${width} px`;
+                const titles = document.getElementById("card").shadowRoot.querySelector(".titles");
+                const chip = titles.querySelector(".title-row > .chip");
+                const name = titles.querySelector(".name");
+                const text = chip.querySelector("span:not(.cnt)");
+                const p = chip.getBoundingClientRect();
+                const n = name.getBoundingClientRect();
+                const dot = text.getBoundingClientRect().width <= 1;
+                const beside = Math.abs((p.top + p.bottom) / 2 - (n.top + n.bottom) / 2) < 6;
+                if (beside && name.scrollWidth > name.clientWidth + 0.5) out.push(`${at}: the name is cut beside the pill`);
+                if (!dot && chip.scrollWidth > chip.clientWidth + 0.5) out.push(`${at}: the pill's text is cut`);
+                if (width <= 200 && !dot) out.push(`${at}: the pill shows its text`);
+                const banner = titles.closest(".banner")?.getBoundingClientRect();
+                const right = titles.getBoundingClientRect().right;
+                if (banner)
+                  for (const part of [name, chip, ...titles.querySelectorAll(".sub")]) {
+                    const r = part.getBoundingClientRect();
+                    if (r.height && (r.top < banner.top - 0.5 || r.bottom > banner.bottom - 10.5 || r.right > right + 0.5)) out.push(`${at}: .${part.className} leaves the text column`);
+                  }
+                return out;
+              },
+              { width, language },
+            )),
+          );
+        }
+        await page.close();
+      }
+      assert.deepEqual(bad, []);
+    });

@@ -2006,6 +2006,7 @@ class HaSwitchCard extends HTMLElement {
 
   // Reattached with the confirmation still open (view switch, editor): Escape and outside clicks keep closing it.
   connectedCallback() {
+    this._watchPill();
     // Back on screen: the render schedules the next timed redraw again (rate expiry, uptime minute).
     this._render();
     if (!this._confirm) return;
@@ -2014,10 +2015,60 @@ class HaSwitchCard extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this._unwatchPill();
     clearTimeout(this._tick);
     this._tick = null;
     window.removeEventListener('keydown', this._onConfirmKey);
     document.removeEventListener('click', this._onConfirmOutside, true);
+  }
+
+  // The status pill goes on the title row, right after the title, only when the whole title and the pill's whole
+  // label fit there; otherwise it takes its own line under the subtitle (the subtitle then on one line). In the
+  // banner, when title, subtitle and pill still do not fit above the ground strip (or the pill's label runs past the
+  // text, over the picture), the pill keeps its dot only.
+  // Measured after each render and on every new width (or once the web font is loaded), never by a fixed width.
+  _fitPill() {
+    for (const t of this.shadowRoot?.querySelectorAll?.(".titles") || []) {
+      const row = t.querySelector?.(".title-row");
+      const name = row?.querySelector(".name");
+      const chips = row ? [...row.children].filter((n) => n.classList.contains("chip")) : [];
+      if (!name?.getBoundingClientRect || !chips.length) continue;
+      t.classList.remove("pill-below", "pill-dot");
+      // 200 px or less: the dot and the port count only, wherever the pill goes.
+      if (this.getBoundingClientRect?.().width <= 200) t.classList.add("pill-dot");
+      // The title's whole width (scrollWidth is rounded: 1 px more, so that a title that fits is never cut).
+      const need = chips.reduce((w, c) => w + PILL_GAP_PX + c.getBoundingClientRect().width, name.scrollWidth + 1);
+      if (need <= row.getBoundingClientRect().width + 0.5) continue;
+      t.classList.add("pill-below");
+      const banner = t.closest(".banner");
+      if (!banner) continue;
+      const box = banner.getBoundingClientRect();
+      const ground = box.bottom - PILL_GROUND_PX;
+      const right = t.getBoundingClientRect().right;
+      const out = [name, ...t.querySelectorAll(".sub"), ...chips].some((n) => {
+        const r = n.getBoundingClientRect();
+        return r.height > 0 && (r.top < box.top - 0.5 || r.bottom > ground + 0.5 || r.right > right + 0.5);
+      });
+      if (out) t.classList.add("pill-dot");
+    }
+  }
+
+  _watchPill() {
+    if (typeof ResizeObserver !== "function") return;
+    this._pillResize ??= new ResizeObserver((entries) => {
+      const w = Math.round(entries.at(-1).contentRect.width);
+      if (w === this._pillWidth) return;
+      this._pillWidth = w;
+      cancelAnimationFrame(this._pillFrame);
+      this._pillFrame = requestAnimationFrame(() => this._fitPill());
+    });
+    this._pillResize.observe(this);
+    document.fonts?.ready?.then(() => this._fitPill());
+  }
+
+  _unwatchPill() {
+    this._pillResize?.disconnect();
+    this._pillWidth = null;
   }
 
   static getConfigElement() {
@@ -2435,7 +2486,7 @@ class HaSwitchCard extends HTMLElement {
           </div>
           <div class="titles">
             <div class="title-row"><div class="name">${esc(c.name)}</div>${pill}</div>
-            ${c.subtitle ? `<div class="sub">${esc(c.subtitle)}</div>` : ''}
+            ${c.subtitle ? `<div class="sub" title="${esc(c.subtitle)}">${esc(c.subtitle)}</div>` : ''}
           </div>
           ${sw && !compact ? this._powerControl(sw, statusColor, t, !!banner) : ''}${this._zoomButton()}${
             banner ? `<div class="ground ${statusColor === COLORS.red || sw?.state === 'off' ? 'g-netdown' : down ? 'g-net still' : 'g-net'}"></div>` : ''
@@ -2448,6 +2499,7 @@ class HaSwitchCard extends HTMLElement {
     const patched = !!this.shadowRoot.firstChild;
     if (patched) morph(this.shadowRoot, html);
     else this.shadowRoot.innerHTML = html;
+    this._fitPill();
 
     // The focused element was replaced (first render, or its place changed): focus its counterpart, the power toggle
     // included, so keyboard navigation keeps its place.
@@ -2568,7 +2620,9 @@ class HaSwitchCard extends HTMLElement {
 
   static get styles() {
     return `
+      /* A block, so that its width is measured (the status pill's place follows it, see _fitPill). */
       :host {
+        display: block;
         --hs-body-top: color-mix(in srgb, var(--primary-text-color, #212121) 24%, var(--card-background-color, #fff));
         --hs-body-bottom: color-mix(in srgb, var(--primary-text-color, #212121) 14%, var(--card-background-color, #fff));
         --hs-dark: color-mix(in srgb, var(--primary-text-color, #212121) 45%, var(--card-background-color, #fff));
@@ -2591,16 +2645,24 @@ class HaSwitchCard extends HTMLElement {
         color: var(--c); background: color-mix(in srgb, var(--c) 15%, transparent);
       }
       .ic.big { --size: 40px; --mdc-icon-size: 24px; background: color-mix(in srgb, var(--c) 16%, transparent); }
-      .titles { flex: 1 1 0; min-width: 0; }
+      .titles { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
       :host([hide-title]) .titles .name { display: none; }
-      /* The status pill shares the title's line, right of the name (left of the power toggle), whatever the subtitle.
-         The name only takes the room the pill leaves (flex-basis 0), but keeps about four characters: when the pill's
-         full text no longer fits beside them, the pill wraps under the name with its whole text, and is only cut
-         with an ellipsis when even a line of its own is too short. */
-      .title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; }
-      .title-row > .name { flex: 1 1 0; min-width: 5ch; }
-      .title-row > .chip { flex: 0 1 auto; min-width: 0; overflow: hidden; }
+      /* The status pill (classic header and banner): on the title row, 8 px after the name, only when the whole name
+         and the pill's whole text fit there; otherwise on its own line under the subtitle, which then keeps one line.
+         Its dot and the port count alone at 200 px or less, or when the banner has no room left for its text
+         (pill-dot): the whole text stays in its title and aria-label. Measured after each render (_fitPill), in every
+         language, never by a fixed width. */
+      .title-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+      .title-row > .name { flex: 0 1 auto; min-width: 0; }
+      .title-row > .chip { flex: none; max-width: none; }
+      .title-row > .chip span { overflow: visible; }
       .title-row > .chip ha-icon { flex: none; }
+      .titles.pill-below .title-row { display: contents; }
+      .titles.pill-below > .sub { order: 1; }
+      .titles.pill-below .title-row > .chip { order: 2; align-self: flex-start; margin-top: 2px; }
+      .titles.pill-dot .title-row > .chip > span:not(.cnt) { display: none; }
+      .titles.pill-dot .title-row > .chip .cnt { font-size: 0; margin-left: 0; }
+      .titles.pill-dot .title-row > .chip .cnt::after { content: attr(data-n); font-size: 11px; }
       .name { font-size: 16px; font-weight: 500; line-height: 1.25; color: var(--primary-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .sub { font-size: 12px; color: var(--secondary-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       ha-switch {
@@ -2689,9 +2751,6 @@ class HaSwitchCard extends HTMLElement {
         .rates { flex-direction: column; }
         .rt { flex: none; padding: 3px 6px; }
         .rt > div { font-size: 12px; }
-        ha-card.mini .title-row > .chip > span:not(.cnt) { display: none; }
-        ha-card.mini .title-row > .chip .cnt { font-size: 0; }
-        ha-card.mini .title-row > .chip .cnt::after { content: attr(data-n); font-size: 11px; }
       }
       .tile .txt { min-width: 0; }
       /* The label wraps rather than being cut: "Ruch przychodzący" or "Eingehender Datenverkehr" in a 140px tile. */
@@ -2736,20 +2795,17 @@ class HaSwitchCard extends HTMLElement {
       .banner .scene .hs-label { fill: #c4cad3; }
       .banner .ic.big { background: rgba(255,255,255,.62); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 22%, transparent); }
       .banner.night .ic.big { background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
-      /* Title row: the name, then the status pill 8 px after it (a dot in the icon's colour and the status), both
-         shrinking (the name keeps a few characters, the pill at most about half the row); the subtitle under them.
-         Short of room the pill takes its own line under the subtitle. */
-      .banner .titles { display: grid; grid-template-columns: minmax(min(4.5ch, 100%), max-content) max-content;
-                        justify-content: start; align-items: center; column-gap: 8px; row-gap: 2px; container: hs-titles / inline-size; }
-      .banner .title-row { display: contents; }
-      .banner .titles > .sub { grid-column: 1 / -1; }
-      .banner .title-row > .name { min-width: 0; }
-      .banner .title-row > .chip { justify-self: start; max-width: 100%; gap: 4px; padding: 1px 8px; line-height: 16px; }
+      /* Title row: the name, then the status pill 8 px after it (a dot in the icon's colour and the status, see
+         .title-row); the subtitle under them. */
+      .banner .titles { justify-content: center; gap: 2px; }
+      .banner .title-row > .chip { gap: 4px; padding: 1px 8px; line-height: 16px; }
       .banner .title-row > .chip ha-icon { display: none !important; }
       .banner .title-row > .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--c); flex: none; }
-      @container hs-titles (max-width: 200px) { .banner .title-row > .chip { grid-column: 1; grid-row: 3; } }
       /* The full card and the mini card's expanded view: no front panel in the header (it is right under it), the title takes the room. */
       .banner.noart > .titles { margin-right: 0; }
+      /* There, the title row keeps clear of the buttons on the banner's top line (power, expand / collapse). */
+      .banner.noart:has(> .pw, > .zoom) > .titles { margin-right: 22px; }
+      .banner.noart:has(> .pw):has(> .zoom) > .titles { margin-right: 50px; }
       .banner .name { color: #0d2a45; }
       .banner .sub { color: #3b5b78; }
       .banner.night .name { color: #fff; }
@@ -2803,18 +2859,17 @@ class HaSwitchCard extends HTMLElement {
       @container hs-banner (max-width: 260px) {
         .banner > .scene { display: none; }
         .banner > .titles { margin-right: 0; }
-        .banner > .titles .name { padding-right: 18px; }
-        .banner:has(> .pw):has(> .zoom) > .titles .name { padding-right: 46px; }
-      }
-      /* 200 px or less: the pill keeps its dot and the port count (its whole text stays in its title and aria-label). */
-      @container hs-banner (max-width: 200px) {
-        .banner .title-row > .chip > span:not(.cnt) { display: none; }
-        .banner .title-row > .chip .cnt { font-size: 0; margin-left: 0; }
-        .banner .title-row > .chip .cnt::after { content: attr(data-n); font-size: 11px; }
+        .banner:not(.noart) > .titles .name { padding-right: 18px; }
+        .banner:not(.noart):has(> .pw):has(> .zoom) > .titles .name { padding-right: 46px; }
       }
     `;
   }
 }
+
+// The banner's ground strip (the network strip), that the title block keeps clear of, and the gap between the name
+// and the status pill on its row (.title-row).
+const PILL_GROUND_PX = 10;
+const PILL_GAP_PX = 8;
 
 /* ------------------------------------------------------------------ */
 /* Mini card                                                           */
