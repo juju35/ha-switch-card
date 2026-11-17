@@ -611,10 +611,10 @@ test("narrow header: the name gives way to the pill down to a few characters, th
   // No size container: inline-size containment drops the element's intrinsic width, which collapses a card
   // placed in a shrink-to-fit parent (inline-block, a grid "auto" column, layout-card, button-card).
   // Only the mini card is one (ha-card.mini), with a minimum width from its host for such parents.
-  // The illustrated header (.banner) and its title block are containers too; the full card then gets a 300px
-  // zero-height line as its intrinsic width.
+  // The illustrated header (.banner) and its title block are containers too; the host's empty zero-height grid gives
+  // the card a 300px natural width without a minimum (test/layout.test.mjs checks it in the browser).
   assert.doesNotMatch(css.replace(/ha-card\.mini \{[^}]*\}/, "").replace(/\.banner \{[^}]*\}/, "").replace(/\.banner \.titles \{[^}]*\}/, ""), /container-type|container:/);
-  assert.match(cssRule(css, "ha-card:not(.mini):has(> .banner)::before"), /width: 300px; max-width: 100%; height: 0/);
+  assert.match(cssRule(css, ":host::before"), /grid-template-columns: minmax\(0, 300px\); height: 0/);
   assert.doesNotMatch(cssRule(css, "ha-card"), /container/);
   assert.match(cssRule(css, ":host([mini])::before"), /grid-template-columns: minmax\(0, 240px\)/);
 });

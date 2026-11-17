@@ -2539,9 +2539,12 @@ class HaSwitchCard extends HTMLElement {
       }
       ha-card { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
       /* The illustrated header and its title block are size containers, which take no width from their content: in a
-         parent sized by its content (inline-block, an \`auto\` grid column, layout-card) a zero-height line gives the
-         full card up to 300px there (its gap taken back), as the header's content used to. */
-      ha-card:not(.mini):has(> .banner)::before { content: ""; width: 300px; max-width: 100%; height: 0; margin-bottom: -10px; }
+         parent sized by its content (inline-block, an \`auto\` grid column, layout-card) the card would fall to its
+         padding. This empty, zero-height grid gives it a natural (max-content) width of 300px without any minimum (its
+         min-content width is 0): in a "1fr 1fr" grid (grid card, horizontal-stack), wrapped in a <div> or not, the card
+         still shrinks to its column. A fixed-width line or a min-width would be a minimum and overflow there. The mini
+         card's own rule (240px) follows. */
+      :host::before { content: ""; display: grid; grid-template-columns: minmax(0, 300px); height: 0; }
       [data-entity], [data-url] { cursor: pointer; }
       /* The body starts 8px under the header (the card gap is 10px between body blocks). */
       .header { display: flex; align-items: center; gap: 10px; margin-bottom: -2px; }
@@ -2601,7 +2604,8 @@ class HaSwitchCard extends HTMLElement {
       .ports.abs .port { position: absolute; top: 50%; transform: translate(-50%, -50%); }
       .port { width: 27px; line-height: 0; }
       .port svg { width: 100%; height: auto; }
-      .traffic { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px; }
+      /* Tiles of at least 140px side by side, one per line below; never wider than the card (a 1fr 1fr grid's column). */
+      .traffic { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr)); gap: 6px; }
       .tile { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; min-width: 0;
               background: var(--secondary-background-color, rgba(127,127,127,.08)); position: relative; overflow: hidden; }
       .tile > :not(.spark) { position: relative; }
