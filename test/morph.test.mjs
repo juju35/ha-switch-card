@@ -46,7 +46,8 @@ test("a new rate patches its text in place: nodes, focus on the power toggle and
   const r = await page.evaluate(async () => {
     const card = document.createElement("ha-switch-card");
     document.body.appendChild(card);
-    card.setConfig({ ports: 2, port_pattern: "sensor.p{n}", switch_entity: "switch.sw", traffic_in_entity: "sensor.in", show_history: false });
+    // The classic header: its power control is the ha-switch toggle (the illustrated one has a plain button).
+    card.setConfig({ ports: 2, port_pattern: "sensor.p{n}", switch_entity: "switch.sw", traffic_in_entity: "sensor.in", show_history: false, illustration: false });
     // Fixed sample times, whatever the time the evaluation takes.
     const now = Date.now();
     const at = (s) => new Date(now - s * 1000).toISOString();

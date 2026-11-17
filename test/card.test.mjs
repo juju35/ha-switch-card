@@ -183,7 +183,8 @@ test("unavailable / unknown ports, status and connectivity are grey, not red", (
     assert.deepEqual(ports, [COLORS.grey, COLORS.grey], state);
     card.setConfig({ ports: 2, port_pattern: "sensor.p{n}", connectivity_entity: "binary_sensor.c", watched_ports: [2] });
     const watched = [...card.shadowRoot.innerHTML.matchAll(/data-entity="sensor\.p\d"[\s\S]*?style="fill:([^"]+)"/g)].map((m) => m[1]);
-    assert.deepEqual(watched, [COLORS.grey, COLORS.red], state);
+    // The switch itself unreachable: every port drawn off (grey), a watched one too, whatever its sensor reports.
+    assert.deepEqual(watched, [COLORS.grey, COLORS.grey], state);
 
     const card2 = new HaSwitchCard();
     card2.setConfig({ ports: 1, port_pattern: "sensor.p{n}", status_entity: "sensor.s", connectivity_entity: "binary_sensor.c" });
@@ -192,7 +193,8 @@ test("unavailable / unknown ports, status and connectivity are grey, not red", (
   }
 });
 
-// A card with a fake power toggle and manual timers. click(checked) flips the toggle as ha-switch does and fires `change`.
+// A card with a fake power toggle (the classic header's ha-switch) and manual timers. click(checked) flips the toggle as
+// ha-switch does and fires `change`.
 // Window and document listeners are recorded (`on`), so that Escape and outside clicks can be fired.
 function toggleCard({ callService, state = "off", config = {} } = {}) {
   const timers = [];
@@ -208,7 +210,7 @@ function toggleCard({ callService, state = "off", config = {} } = {}) {
   const card = new HaSwitchCard();
   const toggle = { checked: false, disabled: false, listeners: [], addEventListener(_, fn) { this.listeners.push(fn); } };
   card.shadowRoot.querySelector = (sel) => (sel === "ha-switch" ? toggle : null);
-  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", switch_entity: "switch.sw", ...config });
+  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", switch_entity: "switch.sw", illustration: false, ...config });
   const hass = (s) => ({ language: "en", states: { "switch.sw": { state: s, attributes: {} } }, callService: callService ?? (() => Promise.resolve()) });
   card.hass = hass(state);
   const click = async (checked) => {
@@ -585,32 +587,27 @@ const cssRule = (css, selector) => {
 // ("Niedostępny", "Unavailable") and squeeze the name down to a lone "…". Then (1.8.6 draft) the name took its
 // whole text width first (flex-basis auto) and a 50% cap plus a 280px container query cut the pill, or reduced
 // it to its icon, on cards up to 304 px wide, where its whole text fits.
-test("narrow header: the name gives way to the pill down to a few characters, then the pill wraps under it", () => {
+test("narrow header: the pill beside a whole name, else under the subtitle (measured, never a fixed width)", () => {
   const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
   const css = HaSwitchCard.styles.replace(/\s+/g, " ");
   const rule = (selector) => cssRule(css, selector);
-  const name = rule(".title-row > .name");
-  assert.match(name, /flex: 1 1 0[;\s]/);
-  assert.match(name, /min-width: (?:[4-9]|\d{2,})(?:\.\d+)?ch/);
-  const pill = rule(".title-row > .chip");
-  assert.match(pill, /flex: 0 1 auto/);
-  assert.match(pill, /min-width: 0/);
-  assert.match(pill, /overflow: hidden/);
-  // No cap: the pill is only cut when it does not fit even on a line of its own.
-  assert.doesNotMatch(pill, /max-width/);
-  assert.match(rule(".title-row"), /flex-wrap: wrap/);
+  assert.match(rule(".title-row > .name"), /min-width: 0/);
+  assert.match(rule(".title-row > .chip"), /flex: none/);
+  assert.match(rule(".titles.pill-below .title-row"), /display: contents/);
+  assert.match(rule(".titles.pill-below .title-row > .chip"), /order: 2/);
+  assert.match(rule(".titles.pill-dot .title-row > .chip > span:not(.cnt)"), /display: none/);
+  assert.doesNotMatch(css, /hs-titles/);
   assert.match(rule(".titles"), /flex: 1 1 0[;\s]/);
-  const text = rule(".chip span");
-  assert.match(text, /min-width: 0/);
-  assert.match(text, /text-overflow: ellipsis/);
-  assert.match(text, /white-space: nowrap/);
   assert.match(rule(".title-row > .chip ha-icon"), /flex: none/);
   assert.match(rule("ha-switch"), /flex: none/);
   assert.match(rule(".ic"), /flex: none/);
   // No size container: inline-size containment drops the element's intrinsic width, which collapses a card
   // placed in a shrink-to-fit parent (inline-block, a grid "auto" column, layout-card, button-card).
   // Only the mini card is one (ha-card.mini), with a minimum width from its host for such parents.
-  assert.doesNotMatch(css.replace(/ha-card\.mini \{[^}]*\}/, ""), /container-type|container:/);
+  // The illustrated header (.banner) and its title block are containers too; the host's empty zero-height grid gives
+  // the card a 300px natural width without a minimum (test/layout.test.mjs checks it in the browser).
+  assert.doesNotMatch(css.replace(/ha-card\.mini \{[^}]*\}/, "").replace(/\.banner \{[^}]*\}/, "").replace(/\.banner \.titles \{[^}]*\}/, ""), /container-type|container:/);
+  assert.match(cssRule(css, ":host::before"), /grid-template-columns: minmax\(0, 300px\); height: 0/);
   assert.doesNotMatch(cssRule(css, "ha-card"), /container/);
   assert.match(cssRule(css, ":host([mini])::before"), /grid-template-columns: minmax\(0, 240px\)/);
 });
@@ -924,9 +921,16 @@ test("mini card: compact front panel and rates, no power toggle; the detail butt
   card._onClick({ composedPath: () => [{ classList: { contains: (c) => c === "zoom" } }], stopPropagation() {}, detail: 1 });
   html = card.shadowRoot.innerHTML;
   assert.match(html, /<ha-card class="">/);
-  assert.match(html, /<ha-switch [^>]*><\/ha-switch><button class="zoom" title="Back to the compact view"/);
+  // Expanded: the power button left of the collapse button; no front panel in the header (it is right under it).
+  assert.match(html, /<button class="pw on" type="button" data-action="power"[^>]*><ha-icon icon="mdi:power"><\/ha-icon><\/button><button class="zoom" title="Back to the compact view"/);
+  assert.match(html, /class="header banner noart"/);
+  assert.doesNotMatch(html.split('class="titles"')[0], /<svg x="48"/);
   assert.match(html, /class="chips"/);
   assert.equal(card.getGridOptions().min_columns, 8);
+  // Compact: the front panel in the header.
+  card._onClick({ composedPath: () => [{ classList: { contains: (c) => c === "zoom" } }], stopPropagation() {}, detail: 1 });
+  assert.match(card.shadowRoot.innerHTML.split('class="titles"')[0], /<svg x="48"/);
+  assert.doesNotMatch(card.shadowRoot.innerHTML, /class="header banner[^"]*noart/);
   card.setConfig({ ports: 3, port_pattern: "sensor.p{n}", zoom: false });
   assert.doesNotMatch(card.shadowRoot.innerHTML, /class="zoom"/);
 });
@@ -939,7 +943,7 @@ test("mini card: the header icon keeps the full card's size", () => {
 test("power toggle: named for assistive technologies in the card's language", () => {
   const { card } = toggleCard({ state: "on", config: { name: "Rack" } });
   assert.match(card.shadowRoot.innerHTML, /<ha-switch aria-label="Power: Rack" title="Power"><\/ha-switch>/);
-  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", switch_entity: "switch.sw", name: "Rack", language: "fr" });
+  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", switch_entity: "switch.sw", name: "Rack", language: "fr", illustration: false });
   assert.match(card.shadowRoot.innerHTML, /<ha-switch aria-label="Alimentation : Rack" title="Alimentation"><\/ha-switch>/);
 });
 
@@ -953,5 +957,96 @@ test("power toggle: listened once, however many times the card is drawn again", 
 test("focus restore: the power toggle is found again after its node was replaced", () => {
   const { focusKey } = loadCard("ha-switch-card.js", ["focusKey"]);
   assert.equal(focusKey({ tagName: "HA-SWITCH", getAttribute: () => null }), "ha-switch");
+  assert.equal(focusKey({ tagName: "BUTTON", getAttribute: (a) => (a === "data-action" ? "power" : null) }), "power");
   assert.equal(focusKey({ tagName: "DIV", getAttribute: () => null }), "");
+});
+
+test("illustrated header: the dark theme shows the night picture even while the sun is up; forced day/night win", () => {
+  const { HaSwitchCard, HaSwitchMiniCard } = loadCard("ha-switch-card.js", ["HaSwitchCard", "HaSwitchMiniCard"]);
+  const states = { "sensor.s": { state: "Offline", attributes: {} }, "sensor.p1": { state: "1", attributes: {} }, "sun.sun": { state: "above_horizon", attributes: {} } };
+  for (const Card of [HaSwitchCard, HaSwitchMiniCard]) {
+    const render = (darkMode, config = {}) => {
+      const card = new Card();
+      card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", status_entity: "sensor.s", model: "gs308t", ...config });
+      card.hass = { language: "en", states, themes: { darkMode } };
+      return card.shadowRoot.innerHTML;
+    };
+    assert.match(render(true), /<div class="header banner night/);
+    assert.match(render(false), /<div class="header banner(?! night)/);
+    assert.match(render(true, { illustration_theme: "day" }), /<div class="header banner(?! night)/);
+    assert.match(render(false, { illustration_theme: "night" }), /<div class="header banner night/);
+  }
+});
+
+test("illustrated header: the card's own front panel on the compact mini card, decorative, with ids unique to the card; night and classic header", () => {
+  const { HaSwitchCard, HaSwitchMiniCard } = loadCard("ha-switch-card.js", ["HaSwitchCard", "HaSwitchMiniCard"]);
+  const states = { "sensor.s": { state: "Offline", attributes: {} }, "sensor.p1": { state: "1", attributes: {} }, "sun.sun": { state: "below_horizon", attributes: {} } };
+  const render = (config, Card = HaSwitchCard) => {
+    const card = new Card();
+    card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", status_entity: "sensor.s", ...config });
+    card.hass = { language: "en", states };
+    return { card, html: card.shadowRoot.innerHTML };
+  };
+  // The full card: no front panel in its header (it is right under it), the background and the strip stay.
+  const full = render({ model: "gs308t" }).html;
+  assert.match(full, /<div class="header banner night noart">/);
+  assert.doesNotMatch(full.slice(full.indexOf('<div class="header banner'), full.indexOf('<div class="ic big')), /NETGEAR|<svg x="48"/);
+  assert.match(full, /class="scene"[^>]*><path class="dots"/);
+  const { card, html } = render({ model: "gs308t" }, HaSwitchMiniCard);
+  const banner = html.slice(html.indexOf('<div class="header banner'), html.indexOf('<div class="ic big'));
+  assert.match(html, /<div class="header banner night">/, "night after sun.sun; the compact mini card draws its panel");
+  assert.match(banner, /aria-label|NETGEAR/);
+  assert.doesNotMatch(banner, /data-entity|tabindex/, "the header's panel is not interactive");
+  assert.ok(banner.includes(`id="ng-body-h${card._uid}"`) && banner.includes(`url(#ng-body-h${card._uid})`), "ids suffixed with the card uid");
+  assert.match(html, /class="ground g-netdown"/, "switch down: red network strip");
+  assert.match(render({ illustration_theme: "day" }).html, /<div class="header banner noart">/);
+  const classic = render({ illustration: false }).html;
+  assert.match(classic, /<div class="header">/);
+  assert.doesNotMatch(classic, /class="scene"|class="ground/);
+});
+
+// The illustrated header: a round power button (mdi:power) on the top line instead of the ha-switch toggle, the
+// status colour while on, grey (no colour of its own) while off, disabled while the switch is unavailable.
+function powerButtonCard(state, config = {}) {
+  const calls = [];
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const card = new HaSwitchCard();
+  card._openConfirm = () => calls.push("confirm");
+  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", switch_entity: "switch.sw", name: "Rack", ...config });
+  card.hass = { language: "en", states: { "switch.sw": { state, attributes: {} } }, callService: (d, s, data) => calls.push([d, s, data.entity_id]) && Promise.resolve() };
+  const press = () => card._onClick({ composedPath: () => [{ dataset: { action: "power" } }], stopPropagation() {} });
+  return { card, calls, press };
+}
+
+test("power button: in the illustrated header, round, labelled, coloured by the power state", () => {
+  let { card } = powerButtonCard("on");
+  let html = card.shadowRoot.innerHTML;
+  assert.doesNotMatch(html, /<ha-switch/);
+  assert.match(html, /<button class="pw on" type="button" data-action="power" style="--c:[^"]+" aria-label="Power: Rack" aria-pressed="true" title="Turn off"><ha-icon icon="mdi:power"><\/ha-icon><\/button>/);
+  ({ card } = powerButtonCard("off"));
+  html = card.shadowRoot.innerHTML;
+  assert.match(html, /<button class="pw" type="button" data-action="power" aria-label="Power: Rack" aria-pressed="false" title="Power">/);
+  ({ card } = powerButtonCard("unavailable"));
+  assert.match(card.shadowRoot.innerHTML, /<button class="pw"[^>]* disabled>/);
+  ({ card } = powerButtonCard("on", { language: "fr" }));
+  assert.match(card.shadowRoot.innerHTML, /aria-label="Alimentation : Rack" aria-pressed="true" title="Éteindre"/);
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const css = HaSwitchCard.styles.replace(/\s+/g, " ");
+  assert.match(cssRule(css, ".banner .pw"), /top: 5px; right: 5px; width: 24px; height: 24px; border-radius: 50%/);
+  assert.match(cssRule(css, ".banner:has(> .zoom) > .pw"), /right: 33px/);
+});
+
+test("power button: on, it asks for the confirmation (or turns off at once with confirm_off: false); off, it turns on", () => {
+  let { calls, press } = powerButtonCard("on");
+  press();
+  assert.deepEqual(calls, ["confirm"]);
+  ({ calls, press } = powerButtonCard("on", { confirm_off: false }));
+  press();
+  assert.deepEqual(calls, [["switch", "turn_off", "switch.sw"]]);
+  ({ calls, press } = powerButtonCard("off"));
+  press();
+  assert.deepEqual(calls, [["switch", "turn_on", "switch.sw"]]);
+  ({ calls, press } = powerButtonCard("unavailable"));
+  press();
+  assert.deepEqual(calls, []);
 });

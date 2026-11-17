@@ -50,6 +50,8 @@ const I18N = {
       show_title: 'Afficher le titre',
       zoom: 'Bouton détail',
       confirm_off: 'Confirmer avant d’éteindre',
+      illustration: 'En-tête illustré',
+      illustration_theme: 'Thème de l’illustration',
     },
     units: { timeticks: 'Centièmes de seconde (SNMP)', seconds: 'Secondes' },
     day: 'j',
@@ -66,6 +68,9 @@ const I18N = {
     cancel: 'Annuler',
     turn_off: 'Éteindre',
     power: 'Alimentation',
+    theme_auto: 'Automatique (soleil ou thème sombre)',
+    theme_day: 'Jour',
+    theme_night: 'Nuit',
     mini_name: 'Mini-carte switch réseau',
     mini_desc: 'Switch réseau compact : façade, ports et trafic, avec un bouton pour afficher la carte complète.',
   },
@@ -113,6 +118,8 @@ const I18N = {
       show_title: 'Show title',
       zoom: 'Detail button',
       confirm_off: 'Confirm before turning off',
+      illustration: 'Illustrated header',
+      illustration_theme: 'Illustration theme',
     },
     units: { timeticks: 'Hundredths of a second (SNMP)', seconds: 'Seconds' },
     day: 'd',
@@ -129,6 +136,9 @@ const I18N = {
     cancel: 'Cancel',
     turn_off: 'Turn off',
     power: 'Power',
+    theme_auto: 'Automatic (sun or dark theme)',
+    theme_day: 'Day',
+    theme_night: 'Night',
     mini_name: 'Network switch mini card',
     mini_desc: 'Compact network switch: front panel, ports and traffic, with a button to show the full card.',
   },
@@ -176,6 +186,8 @@ const I18N = {
       show_title: 'Titel anzeigen',
       zoom: 'Detail-Schaltfläche',
       confirm_off: 'Vor dem Ausschalten bestätigen',
+      illustration: 'Illustrierter Kopfbereich',
+      illustration_theme: 'Thema der Illustration',
     },
     units: { timeticks: 'Hundertstelsekunden (SNMP)', seconds: 'Sekunden' },
     day: 'T',
@@ -192,6 +204,9 @@ const I18N = {
     cancel: 'Abbrechen',
     turn_off: 'Ausschalten',
     power: 'Stromversorgung',
+    theme_auto: 'Automatisch (Sonne oder dunkles Design)',
+    theme_day: 'Tag',
+    theme_night: 'Nacht',
     mini_name: 'Netzwerk-Switch-Minikarte',
     mini_desc: 'Kompakter Netzwerk-Switch: Frontansicht, Ports und Datenverkehr, mit einer Schaltfläche für die vollständige Karte.',
   },
@@ -239,6 +254,8 @@ const I18N = {
       show_title: 'Mostrar el título',
       zoom: 'Botón de detalle',
       confirm_off: 'Confirmar antes de apagar',
+      illustration: 'Encabezado ilustrado',
+      illustration_theme: 'Tema de la ilustración',
     },
     units: { timeticks: 'Centésimas de segundo (SNMP)', seconds: 'Segundos' },
     day: 'd',
@@ -255,6 +272,9 @@ const I18N = {
     cancel: 'Cancelar',
     turn_off: 'Apagar',
     power: 'Alimentación',
+    theme_auto: 'Automático (sol o tema oscuro)',
+    theme_day: 'Día',
+    theme_night: 'Noche',
     mini_name: 'Minitarjeta de switch de red',
     mini_desc: 'Switch de red compacto: frontal, puertos y tráfico, con un botón para mostrar la tarjeta completa.',
   },
@@ -302,6 +322,8 @@ const I18N = {
       show_title: 'Прикажи наслов',
       zoom: 'Дугме за детаље',
       confirm_off: 'Потврди пре искључивања',
+      illustration: 'Илустровано заглавље',
+      illustration_theme: 'Тема илустрације',
     },
     units: { timeticks: 'Стотинке секунде (SNMP)', seconds: 'Секунде' },
     day: 'д',
@@ -318,6 +340,9 @@ const I18N = {
     cancel: 'Откажи',
     turn_off: 'Искључи',
     power: 'Напајање',
+    theme_auto: 'Аутоматски (сунце или тамна тема)',
+    theme_day: 'Дан',
+    theme_night: 'Ноћ',
     mini_name: 'Мини картица мрежног свича',
     mini_desc: 'Компактни мрежни свич: предња плоча, портови и саобраћај, са дугметом за целу картицу.',
   },
@@ -365,6 +390,8 @@ const I18N = {
       show_title: 'Prikaži naslov',
       zoom: 'Dugme za detalje',
       confirm_off: 'Potvrdi pre isključivanja',
+      illustration: 'Ilustrovano zaglavlje',
+      illustration_theme: 'Tema ilustracije',
     },
     units: { timeticks: 'Stotinke sekunde (SNMP)', seconds: 'Sekunde' },
     day: 'd',
@@ -381,6 +408,9 @@ const I18N = {
     cancel: 'Otkaži',
     turn_off: 'Isključi',
     power: 'Napajanje',
+    theme_auto: 'Automatski (sunce ili tamna tema)',
+    theme_day: 'Dan',
+    theme_night: 'Noć',
     mini_name: 'Mini kartica mrežnog sviča',
     mini_desc: 'Kompaktni mrežni svič: prednja ploča, portovi i saobraćaj, sa dugmetom za celu karticu.',
   },
@@ -428,6 +458,8 @@ const I18N = {
       show_title: 'Mostra il titolo',
       zoom: 'Pulsante dettagli',
       confirm_off: 'Conferma prima di spegnere',
+      illustration: 'Intestazione illustrata',
+      illustration_theme: 'Tema dell’illustrazione',
     },
     units: { timeticks: 'Centesimi di secondo (SNMP)', seconds: 'Secondi' },
     day: 'g',
@@ -444,6 +476,9 @@ const I18N = {
     cancel: 'Annulla',
     turn_off: 'Spegni',
     power: 'Alimentazione',
+    theme_auto: 'Automatico (sole o tema scuro)',
+    theme_day: 'Giorno',
+    theme_night: 'Notte',
     mini_name: 'Mini scheda switch di rete',
     mini_desc: 'Switch di rete compatto: frontale, porte e traffico, con un pulsante per la scheda completa.',
   },
@@ -491,6 +526,8 @@ const I18N = {
       show_title: 'Titel tonen',
       zoom: 'Detailknop',
       confirm_off: 'Bevestigen voor uitschakelen',
+      illustration: 'Geïllustreerde koptekst',
+      illustration_theme: 'Thema van de illustratie',
     },
     units: { timeticks: 'Honderdsten van een seconde (SNMP)', seconds: 'Seconden' },
     day: 'd',
@@ -507,6 +544,9 @@ const I18N = {
     cancel: 'Annuleren',
     turn_off: 'Uitschakelen',
     power: 'Voeding',
+    theme_auto: 'Automatisch (zon of donker thema)',
+    theme_day: 'Dag',
+    theme_night: 'Nacht',
     mini_name: 'Netwerkswitch-minikaart',
     mini_desc: 'Compacte netwerkswitch: frontpaneel, poorten en verkeer, met een knop voor de volledige kaart.',
   },
@@ -554,6 +594,8 @@ const I18N = {
       show_title: 'Mostrar o título',
       zoom: 'Botão de detalhe',
       confirm_off: 'Confirmar antes de desligar',
+      illustration: 'Cabeçalho ilustrado',
+      illustration_theme: 'Tema da ilustração',
     },
     units: { timeticks: 'Centésimos de segundo (SNMP)', seconds: 'Segundos' },
     day: 'd',
@@ -570,6 +612,9 @@ const I18N = {
     cancel: 'Cancelar',
     turn_off: 'Desligar',
     power: 'Alimentação',
+    theme_auto: 'Automático (sol ou tema escuro)',
+    theme_day: 'Dia',
+    theme_night: 'Noite',
     mini_name: 'Mini cartão de switch de rede',
     mini_desc: 'Switch de rede compacto: painel frontal, portas e tráfego, com um botão para o cartão completo.',
   },
@@ -617,6 +662,8 @@ const I18N = {
       show_title: 'Pokaż tytuł',
       zoom: 'Przycisk szczegółów',
       confirm_off: 'Potwierdzaj przed wyłączeniem',
+      illustration: 'Ilustrowany nagłówek',
+      illustration_theme: 'Motyw ilustracji',
     },
     units: { timeticks: 'Setne części sekundy (SNMP)', seconds: 'Sekundy' },
     day: 'd',
@@ -633,6 +680,9 @@ const I18N = {
     cancel: 'Anuluj',
     turn_off: 'Wyłącz',
     power: 'Zasilanie',
+    theme_auto: 'Automatycznie (słońce lub ciemny motyw)',
+    theme_day: 'Dzień',
+    theme_night: 'Noc',
     mini_name: 'Mini karta przełącznika sieciowego',
     mini_desc: 'Kompaktowy przełącznik sieciowy: panel przedni, porty i ruch, z przyciskiem pełnej karty.',
   },
@@ -680,6 +730,8 @@ const I18N = {
       show_title: 'Afișează titlul',
       zoom: 'Buton de detalii',
       confirm_off: 'Confirmare înainte de oprire',
+      illustration: 'Antet ilustrat',
+      illustration_theme: 'Tema ilustrației',
     },
     units: { timeticks: 'Sutimi de secundă (SNMP)', seconds: 'Secunde' },
     day: 'z',
@@ -696,6 +748,9 @@ const I18N = {
     cancel: 'Anulare',
     turn_off: 'Oprire',
     power: 'Alimentare',
+    theme_auto: 'Automat (soare sau temă întunecată)',
+    theme_day: 'Zi',
+    theme_night: 'Noapte',
     mini_name: 'Mini card switch de rețea',
     mini_desc: 'Switch de rețea compact: panou frontal, porturi și trafic, cu un buton pentru cardul complet.',
   },
@@ -743,6 +798,8 @@ const I18N = {
       show_title: 'Vis titel',
       zoom: 'Detaljeknap',
       confirm_off: 'Bekræft før slukning',
+      illustration: 'Illustreret overskrift',
+      illustration_theme: 'Illustrationens tema',
     },
     units: { timeticks: 'Hundrededele sekunder (SNMP)', seconds: 'Sekunder' },
     day: 'd',
@@ -759,6 +816,9 @@ const I18N = {
     cancel: 'Annuller',
     turn_off: 'Sluk',
     power: 'Strøm',
+    theme_auto: 'Automatisk (sol eller mørkt tema)',
+    theme_day: 'Dag',
+    theme_night: 'Nat',
     mini_name: 'Netværksswitch-minikort',
     mini_desc: 'Kompakt netværksswitch: frontpanel, porte og trafik, med en knap til hele kortet.',
   },
@@ -806,6 +866,8 @@ const I18N = {
       show_title: 'Visa rubrik',
       zoom: 'Detaljknapp',
       confirm_off: 'Bekräfta före avstängning',
+      illustration: 'Illustrerad rubrik',
+      illustration_theme: 'Illustrationens tema',
     },
     units: { timeticks: 'Hundradels sekunder (SNMP)', seconds: 'Sekunder' },
     day: 'd',
@@ -822,6 +884,9 @@ const I18N = {
     cancel: 'Avbryt',
     turn_off: 'Stäng av',
     power: 'Ström',
+    theme_auto: 'Automatiskt (sol eller mörkt tema)',
+    theme_day: 'Dag',
+    theme_night: 'Natt',
     mini_name: 'Minikort för nätverksswitch',
     mini_desc: 'Kompakt nätverksswitch: frontpanel, portar och trafik, med en knapp för hela kortet.',
   },
@@ -869,6 +934,8 @@ const I18N = {
       show_title: 'Показване на заглавието',
       zoom: 'Бутон за подробности',
       confirm_off: 'Потвърждение преди изключване',
+      illustration: 'Илюстрирана заглавна част',
+      illustration_theme: 'Тема на илюстрацията',
     },
     units: { timeticks: 'Стотни от секундата (SNMP)', seconds: 'Секунди' },
     day: 'д',
@@ -885,6 +952,9 @@ const I18N = {
     cancel: 'Отказ',
     turn_off: 'Изключи',
     power: 'Захранване',
+    theme_auto: 'Автоматично (слънце или тъмна тема)',
+    theme_day: 'Ден',
+    theme_night: 'Нощ',
     mini_name: 'Мини карта на мрежов суич',
     mini_desc: 'Компактен мрежов суич: преден панел, портове и трафик, с бутон за цялата карта.',
   },
@@ -932,6 +1002,8 @@ const I18N = {
       show_title: 'Показывать заголовок',
       zoom: 'Кнопка подробностей',
       confirm_off: 'Подтверждать выключение',
+      illustration: 'Иллюстрированный заголовок',
+      illustration_theme: 'Тема иллюстрации',
     },
     units: { timeticks: 'Сотые доли секунды (SNMP)', seconds: 'Секунды' },
     day: 'д',
@@ -948,6 +1020,9 @@ const I18N = {
     cancel: 'Отмена',
     turn_off: 'Выключить',
     power: 'Питание',
+    theme_auto: 'Автоматически (солнце или тёмная тема)',
+    theme_day: 'День',
+    theme_night: 'Ночь',
     mini_name: 'Мини-карточка сетевого коммутатора',
     mini_desc: 'Компактный сетевой коммутатор: передняя панель, порты и трафик, с кнопкой полной карточки.',
   },
@@ -995,6 +1070,8 @@ const I18N = {
       show_title: 'Показувати заголовок',
       zoom: 'Кнопка деталей',
       confirm_off: 'Підтверджувати вимкнення',
+      illustration: 'Ілюстрований заголовок',
+      illustration_theme: 'Тема ілюстрації',
     },
     units: { timeticks: 'Соті частки секунди (SNMP)', seconds: 'Секунди' },
     day: 'д',
@@ -1011,6 +1088,9 @@ const I18N = {
     cancel: 'Скасувати',
     turn_off: 'Вимкнути',
     power: 'Живлення',
+    theme_auto: 'Автоматично (сонце або темна тема)',
+    theme_day: 'День',
+    theme_night: 'Ніч',
     mini_name: 'Міні-картка мережевого комутатора',
     mini_desc: 'Компактний мережевий комутатор: передня панель, порти й трафік, з кнопкою повної картки.',
   },
@@ -1058,6 +1138,8 @@ const I18N = {
       show_title: 'Cím megjelenítése',
       zoom: 'Részletek gomb',
       confirm_off: 'Megerősítés kikapcsolás előtt',
+      illustration: 'Illusztrált fejléc',
+      illustration_theme: 'Az illusztráció témája',
     },
     units: { timeticks: 'Századmásodperc (SNMP)', seconds: 'Másodperc' },
     day: 'n',
@@ -1074,6 +1156,9 @@ const I18N = {
     cancel: 'Mégse',
     turn_off: 'Kikapcsolás',
     power: 'Tápellátás',
+    theme_auto: 'Automatikus (nap vagy sötét téma)',
+    theme_day: 'Nappal',
+    theme_night: 'Éjszaka',
     mini_name: 'Hálózati switch mini kártya',
     mini_desc: 'Kompakt hálózati switch: előlap, portok és forgalom, a teljes kártya gombjával.',
   },
@@ -1121,6 +1206,8 @@ const I18N = {
       show_title: 'Zobraziť názov',
       zoom: 'Tlačidlo podrobností',
       confirm_off: 'Potvrdiť pred vypnutím',
+      illustration: 'Ilustrovaná hlavička',
+      illustration_theme: 'Téma ilustrácie',
     },
     units: { timeticks: 'Stotiny sekundy (SNMP)', seconds: 'Sekundy' },
     day: 'd',
@@ -1137,6 +1224,9 @@ const I18N = {
     cancel: 'Zrušiť',
     turn_off: 'Vypnúť',
     power: 'Napájanie',
+    theme_auto: 'Automaticky (slnko alebo tmavá téma)',
+    theme_day: 'Deň',
+    theme_night: 'Noc',
     mini_name: 'Mini karta sieťového prepínača',
     mini_desc: 'Kompaktný sieťový prepínač: predný panel, porty a prevádzka, s tlačidlom celej karty.',
   },
@@ -1184,6 +1274,8 @@ const I18N = {
       show_title: 'Zobrazit název',
       zoom: 'Tlačítko podrobností',
       confirm_off: 'Potvrdit před vypnutím',
+      illustration: 'Ilustrované záhlaví',
+      illustration_theme: 'Motiv ilustrace',
     },
     units: { timeticks: 'Setiny sekundy (SNMP)', seconds: 'Sekundy' },
     day: 'd',
@@ -1200,6 +1292,9 @@ const I18N = {
     cancel: 'Zrušit',
     turn_off: 'Vypnout',
     power: 'Napájení',
+    theme_auto: 'Automaticky (slunce nebo tmavý motiv)',
+    theme_day: 'Den',
+    theme_night: 'Noc',
     mini_name: 'Mini karta síťového přepínače',
     mini_desc: 'Kompaktní síťový přepínač: přední panel, porty a provoz, s tlačítkem celé karty.',
   },
@@ -1247,6 +1342,8 @@ const I18N = {
       show_title: 'Prikaži naslov',
       zoom: 'Gumb za podrobnosti',
       confirm_off: 'Potrdi pred izklopom',
+      illustration: 'Ilustrirana glava',
+      illustration_theme: 'Tema ilustracije',
     },
     units: { timeticks: 'Stotinke sekunde (SNMP)', seconds: 'Sekunde' },
     day: 'd',
@@ -1263,6 +1360,9 @@ const I18N = {
     cancel: 'Prekliči',
     turn_off: 'Izklopi',
     power: 'Napajanje',
+    theme_auto: 'Samodejno (sonce ali temna tema)',
+    theme_day: 'Dan',
+    theme_night: 'Noč',
     mini_name: 'Mini kartica omrežnega stikala',
     mini_desc: 'Kompaktno omrežno stikalo: sprednja plošča, vrata in promet, z gumbom za celotno kartico.',
   },
@@ -1310,6 +1410,8 @@ const I18N = {
       show_title: 'Rādīt virsrakstu',
       zoom: 'Detaļu poga',
       confirm_off: 'Apstiprināt pirms izslēgšanas',
+      illustration: 'Ilustrēta galvene',
+      illustration_theme: 'Ilustrācijas motīvs',
     },
     units: { timeticks: 'Sekundes simtdaļas (SNMP)', seconds: 'Sekundes' },
     day: 'd',
@@ -1326,6 +1428,9 @@ const I18N = {
     cancel: 'Atcelt',
     turn_off: 'Izslēgt',
     power: 'Barošana',
+    theme_auto: 'Automātiski (saule vai tumšais motīvs)',
+    theme_day: 'Diena',
+    theme_night: 'Nakts',
     mini_name: 'Tīkla komutatora mini karte',
     mini_desc: 'Kompakts tīkla komutators: priekšējais panelis, porti un datplūsma, ar pogu pilnajai kartei.',
   },
@@ -1373,6 +1478,8 @@ const I18N = {
       show_title: 'Εμφάνιση τίτλου',
       zoom: 'Κουμπί λεπτομερειών',
       confirm_off: 'Επιβεβαίωση πριν από την απενεργοποίηση',
+      illustration: 'Εικονογραφημένη κεφαλίδα',
+      illustration_theme: 'Θέμα εικονογράφησης',
     },
     units: { timeticks: 'Εκατοστά του δευτερολέπτου (SNMP)', seconds: 'Δευτερόλεπτα' },
     day: 'η',
@@ -1389,6 +1496,9 @@ const I18N = {
     cancel: 'Ακύρωση',
     turn_off: 'Απενεργοποίηση',
     power: 'Τροφοδοσία',
+    theme_auto: 'Αυτόματο (ήλιος ή σκούρο θέμα)',
+    theme_day: 'Ημέρα',
+    theme_night: 'Νύχτα',
     mini_name: 'Μίνι κάρτα μεταγωγέα δικτύου',
     mini_desc: 'Συμπαγής μεταγωγέας δικτύου: πρόσοψη, θύρες και κίνηση, με κουμπί για την πλήρη κάρτα.',
   },
@@ -1598,6 +1708,10 @@ const portSvg = (color, dark) => `
 // A port's tooltip: "Port 3", or "Port 3 · NAS" when it has a name.
 const portTitle = (portLabel, p) => `${portLabel} ${p.n}${p.name ? ` · ${p.name}` : ''}`;
 
+// The activity LED of a port with link ("Blink=ACT" on the panel), in the illustrated header only: each port flickers
+// at its own rhythm (0.4 to 1.2 s), offset by its index, so the panel looks busy without being random.
+const actTiming = (i, step = 0.37) => `--d:${[0.6, 0.8, 1.2, 0.4][i % 4]}s;--dl:-${((i * step) % 1.2).toFixed(2)}s`;
+
 const GS308T = { H: 150, CELL: 62, GAP: 8, GROUP_GAP: 16, X0: 150, BEZEL_Y: 38, PORT_Y: 52, PORT_H: 44 };
 const gs308tSvg = (ports, powerColor, portLabel) => {
   const g = GS308T;
@@ -1620,8 +1734,8 @@ const gs308tSvg = (ports, powerColor, portLabel) => {
           <rect x="${x}" y="${y}" width="${g.CELL}" height="${g.PORT_H}" rx="2" fill="#0d0e10"/>
           <path d="M${x + 6} ${y + 6} h${g.CELL - 12} v${g.PORT_H - 16} h-16 v6 h-${g.CELL - 44} v-6 h-16 z" style="fill:${col}"/>
           ${contacts}
-          <rect x="${x + 3}" y="${g.BEZEL_Y + 4}" width="12" height="6" rx="1" style="fill:${led}"/>
-          ${led === COLORS.green ? `<rect x="${x + 1}" y="${g.BEZEL_Y + 2}" width="16" height="10" rx="2" style="fill:${led}" opacity="0.3"/>` : ''}
+          <rect x="${x + 3}" y="${g.BEZEL_Y + 4}" width="12" height="6" rx="1" ${led === COLORS.green ? `class="act" style="fill:${led};${actTiming(i)}"` : `style="fill:${led}"`}/>
+          ${led === COLORS.green ? `<rect class="act halo" x="${x + 1}" y="${g.BEZEL_Y + 2}" width="16" height="10" rx="2" style="fill:${led};${actTiming(i)}" opacity="0.3"/>` : ''}
           <text x="${cx}" y="${g.PORT_Y + g.PORT_H + 30}" text-anchor="middle" font-size="13" fill="#d6d6d6">${esc(p?.label ?? i + 1)}</text>`;
     return p
       ? `<g class="port" data-entity="${esc(p.id)}" role="button" tabindex="0"><title>${esc(portTitle(portLabel, p))}</title>${body}</g>`
@@ -1699,6 +1813,7 @@ const chassisSvg = (ports, powerColor, portLabel) => {
           ${contacts}
           <rect x="${x + 4}" y="${y + 26}" width="8" height="4" rx="1" style="fill:${dark}" opacity="0.8"/>
           <rect x="${x + 28}" y="${y + 26}" width="8" height="4" rx="1" style="fill:${dark}" opacity="0.8"/>
+          ${col === COLORS.green ? `<rect class="act lk" x="${x + 3}" y="${y + 25}" width="10" height="6" rx="1.5" style="${actTiming(i)}"/><rect class="act lk" x="${x + 27}" y="${y + 25}" width="10" height="6" rx="1.5" style="${actTiming(i + 1, 0.53)}"/>` : ''}
           <text x="${x + 20}" y="${labelY}" text-anchor="middle" font-size="11" class="hs-label">${esc(p.label)}</text>
         </g>`;
     })
@@ -1722,6 +1837,40 @@ const chassisSvg = (ports, powerColor, portLabel) => {
       ${slots}
     </svg>`;
 };
+
+/* ------------------------------------------------------------------ */
+/* Illustrated header                                                  */
+/* ------------------------------------------------------------------ */
+// Night picture: forced by `illustration_theme`, else the sun below the horizon or Home Assistant's dark theme (dark mode alone without a usable sun).
+const isNight = (hass, config) => {
+  const theme = config?.illustration_theme;
+  if (theme === 'night') return true;
+  if (theme === 'day') return false;
+  const sun = hass?.states?.['sun.sun'];
+  if (sun && !isUnavailable(sun)) return sun.state === 'below_horizon' || !!hass?.themes?.darkMode;
+  return !!hass?.themes?.darkMode;
+};
+
+// The network background of the header's 200 × 80 scene: a dotted grid on its right side, behind the switch.
+const NET_DOTS = (() => {
+  const d = [];
+  for (let y = 6; y < 78; y += 6) for (let x = 80; x < 200; x += 6) if ((x * 7 + y * 13) % 11 < 5) d.push(`M${x - 0.9} ${y}a.9 .9 0 1 0 1.8 0a.9 .9 0 1 0-1.8 0`);
+  return d.join('');
+})();
+
+// The card's own front panel drawn again, big, in the header: decorative (its ports are not focusable there, the
+// body's panel is), and its SVG ids suffixed with the card's uid so they never resolve to another copy's.
+const headerArt = (svg, uid) => {
+  const ids = [...svg.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
+  let out = svg
+    .replace(/\s(data-entity|role|tabindex|aria-label)="[^"]*"/g, '')
+    .replace(/<title>[^<]*<\/title>/g, '');
+  for (const id of ids) out = out.split(`id="${id}"`).join(`id="${id}-h${uid}"`).split(`url(#${id})`).join(`url(#${id}-h${uid})`);
+  // Fitted in a 150 × 44 box whose bottom right corner is 2 units from the scene's right edge, 14 above the ground.
+  return out.replace(/<svg\b([^>]*?)\sxmlns="[^"]*"([^>]*)>/, '<svg x="48" y="22" width="150" height="44"$1$2 preserveAspectRatio="xMaxYMax meet">');
+};
+
+let uidSeq = 0;
 
 // Port count shared by the drawing and the watched entities: 8 when `ports` is not a number.
 function portCount(c) {
@@ -1749,9 +1898,11 @@ function configWarnings(c) {
 const focusKey = (el) =>
   el?.tagName === 'HA-SWITCH'
     ? 'ha-switch'
-    : el?.getAttribute?.('tabindex') != null
-      ? [el.getAttribute('class'), el.getAttribute('data-entity'), el.getAttribute('data-url')].join('|')
-      : '';
+    : el?.getAttribute?.('data-action') === 'power'
+      ? 'power'
+      : el?.getAttribute?.('tabindex') != null
+        ? [el.getAttribute('class'), el.getAttribute('data-entity'), el.getAttribute('data-url')].join('|')
+        : '';
 
 // Patch the shadow DOM in place from the new HTML: nodes whose tag is unchanged are kept, so keyboard
 // focus, hover, the power toggle and its listener survive an update (a new rate every few seconds), and only
@@ -1815,6 +1966,7 @@ class HaSwitchCard extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
+    this._uid = ++uidSeq;
     this._key = '';
     // Live rates of the byte counters: the last sample of each, and the rate between the last two.
     this._samples = {};
@@ -1854,6 +2006,7 @@ class HaSwitchCard extends HTMLElement {
 
   // Reattached with the confirmation still open (view switch, editor): Escape and outside clicks keep closing it.
   connectedCallback() {
+    this._watchPill();
     // Back on screen: the render schedules the next timed redraw again (rate expiry, uptime minute).
     this._render();
     if (!this._confirm) return;
@@ -1862,10 +2015,60 @@ class HaSwitchCard extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this._unwatchPill();
     clearTimeout(this._tick);
     this._tick = null;
     window.removeEventListener('keydown', this._onConfirmKey);
     document.removeEventListener('click', this._onConfirmOutside, true);
+  }
+
+  // The status pill goes on the title row, right after the title, only when the whole title and the pill's whole
+  // label fit there; otherwise it takes its own line under the subtitle (the subtitle then on one line). In the
+  // banner, when title, subtitle and pill still do not fit above the ground strip (or the pill's label runs past the
+  // text, over the picture), the pill keeps its dot only.
+  // Measured after each render and on every new width (or once the web font is loaded), never by a fixed width.
+  _fitPill() {
+    for (const t of this.shadowRoot?.querySelectorAll?.(".titles") || []) {
+      const row = t.querySelector?.(".title-row");
+      const name = row?.querySelector(".name");
+      const chips = row ? [...row.children].filter((n) => n.classList.contains("chip")) : [];
+      if (!name?.getBoundingClientRect || !chips.length) continue;
+      t.classList.remove("pill-below", "pill-dot");
+      // 200 px or less: the dot and the port count only, wherever the pill goes.
+      if (this.getBoundingClientRect?.().width <= 200) t.classList.add("pill-dot");
+      // The title's whole width (scrollWidth is rounded: 1 px more, so that a title that fits is never cut).
+      const need = chips.reduce((w, c) => w + PILL_GAP_PX + c.getBoundingClientRect().width, name.scrollWidth + 1);
+      if (need <= row.getBoundingClientRect().width + 0.5) continue;
+      t.classList.add("pill-below");
+      const banner = t.closest(".banner");
+      if (!banner) continue;
+      const box = banner.getBoundingClientRect();
+      const ground = box.bottom - PILL_GROUND_PX;
+      const right = t.getBoundingClientRect().right;
+      const out = [name, ...t.querySelectorAll(".sub"), ...chips].some((n) => {
+        const r = n.getBoundingClientRect();
+        return r.height > 0 && (r.top < box.top - 0.5 || r.bottom > ground + 0.5 || r.right > right + 0.5);
+      });
+      if (out) t.classList.add("pill-dot");
+    }
+  }
+
+  _watchPill() {
+    if (typeof ResizeObserver !== "function") return;
+    this._pillResize ??= new ResizeObserver((entries) => {
+      const w = Math.round(entries.at(-1).contentRect.width);
+      if (w === this._pillWidth) return;
+      this._pillWidth = w;
+      cancelAnimationFrame(this._pillFrame);
+      this._pillFrame = requestAnimationFrame(() => this._fitPill());
+    });
+    this._pillResize.observe(this);
+    document.fonts?.ready?.then(() => this._fitPill());
+  }
+
+  _unwatchPill() {
+    this._pillResize?.disconnect();
+    this._pillWidth = null;
   }
 
   static getConfigElement() {
@@ -2076,6 +2279,24 @@ class HaSwitchCard extends HTMLElement {
     return '';
   }
 
+  // The front panel drawn big in the illustrated header: only on the compact mini card. The full card (and the mini
+  // card's expanded view) leaves it out, its panel being right under the header.
+  _headerArt() {
+    return false;
+  }
+
+  // The power button on the illustrated header's top line: on, it turns the switch off (after the confirmation, unless
+  // `confirm_off: false`); off, it turns it on.
+  _powerPress() {
+    const sw = this._state(this._config.switch_entity);
+    if (sw?.state === 'on') {
+      if (this._config.confirm_off !== false) this._openConfirm();
+      else this._power('turn_off');
+    } else if (sw && !isUnavailable(sw)) {
+      this._power('turn_on');
+    }
+  }
+
   _onClick(ev) {
     const path = ev.composedPath();
     // Just closed: the rest of a double click on Turn off does nothing.
@@ -2096,6 +2317,10 @@ class HaSwitchCard extends HTMLElement {
       return;
     }
     if (path.some((el) => el.tagName === 'HA-SWITCH')) return;
+    if (path.some((el) => el.dataset?.action === 'power')) {
+      this._powerPress();
+      return;
+    }
     const target = path.find((el) => el.dataset && (el.dataset.entity || el.dataset.url));
     if (!target) return;
     if (target.dataset.entity) this._moreInfo(target.dataset.entity);
@@ -2126,7 +2351,8 @@ class HaSwitchCard extends HTMLElement {
     const upMinute = c.uptime_entity && !/^\d+(\.\d+)?$/.test(String(this._state(c.uptime_entity)?.state ?? '').trim()) ? Math.floor(Date.now() / 60000) : null;
     if (upMinute != null) this._nextTick = Math.min(this._nextTick ?? Number.POSITIVE_INFINITY, (upMinute + 1) * 60000);
     this._schedule();
-    const key = loc + this._configKey + this._watchedIds.map(entityKey).join('|') + JSON.stringify([liveRates, !!hist, this._zoomed, upMinute]);
+    const night = c.illustration !== false && isNight(this._hass, c);
+    const key = loc + this._configKey + this._watchedIds.map(entityKey).join('|') + JSON.stringify([liveRates, !!hist, this._zoomed, upMinute, night]);
     if (key === this._key) return;
     this._key = key;
 
@@ -2174,14 +2400,17 @@ class HaSwitchCard extends HTMLElement {
     const watched = watchedPorts(c);
     const portInfo = [];
     let upCount = 0;
+    // The switch down (status or connectivity offline or unavailable, or turned off): its ports are drawn off (grey),
+    // whatever their sensors still report, and the header's activity LEDs stop.
+    const down = sw?.state === 'off' || ((c.status_entity || c.connectivity_entity) && (statusColor === COLORS.red || statusColor === COLORS.grey));
     for (let n = 1; n <= count; n++) {
       const id = this._portEntity(n);
       const ps = this._state(id);
-      const up = ps?.state === String(c.port_on_state);
+      const up = !down && ps?.state === String(c.port_on_state);
       if (up) upCount++;
       // Missing, unavailable or unknown: grey, so a dead SNMP poll does not show every port as down. A port without
       // link is grey too (nothing plugged in), red only when it is one of the `watched_ports`.
-      const color = !ps || isUnavailable(ps) ? COLORS.grey : up ? COLORS.green : watched.has(n) ? COLORS.red : COLORS.grey;
+      const color = down || !ps || isUnavailable(ps) ? COLORS.grey : up ? COLORS.green : watched.has(n) ? COLORS.red : COLORS.grey;
       const name = portName(c, n);
       portInfo.push({ n, id, name, label: name ? shortName(name) : String(n), colors: [color, shade(color)] });
     }
@@ -2196,12 +2425,10 @@ class HaSwitchCard extends HTMLElement {
            <img src="${esc(c.image)}" alt="">
            <div class="ports abs" style="bottom:${num(c.port_bottom, DEFAULTS.port_bottom)}%">${ports.join('')}</div>
          </div>`;
-    } else if (MODELS[c.model]) {
-      const m = MODELS[c.model];
-      device = `<div class="device" ${urlAttr}>${m.svg(portInfo, statusColor, t.port)}</div>`;
-    } else {
-      device = `<div class="device" ${urlAttr}>${chassisSvg(portInfo, statusColor, t.port)}</div>`;
     }
+    // The drawn front panel (the model's, else the generic one): in the body, and big in the illustrated header.
+    const panel = c.image ? '' : (MODELS[c.model]?.svg || chassisSvg)(portInfo, statusColor, t.port);
+    if (!c.image) device = `<div class="device" ${urlAttr}>${panel}</div>`;
 
     /* traffic: a byte counter shows its rate, with its total under it; another sensor shows its value as is */
     const value = (id) => {
@@ -2236,20 +2463,34 @@ class HaSwitchCard extends HTMLElement {
     const count2 = `${upCount}/${count}`;
     pill = pill.split('\u0000COUNT\u0000').join(esc(count2));
 
+    // Illustrated header (`illustration: false`: the classic one): the switch's front panel drawn big on a network
+    // background, the title on its left, a network strip along its bottom (red dashes when the switch is down).
+    let banner = '';
+    if (c.illustration !== false) {
+      const art = !this._headerArt()
+        ? ''
+        : c.image
+        ? `<image href="${esc(c.image)}" x="48" y="22" width="150" height="44" preserveAspectRatio="xMaxYMax meet"/>`
+        : headerArt(panel, this._uid);
+      banner = `<svg class="scene" viewBox="0 0 200 80" preserveAspectRatio="xMaxYMax meet" aria-hidden="true"><path class="dots" d="${NET_DOTS}"/>${art}</svg>`;
+    }
+
     const active = this.shadowRoot.activeElement;
     const focused = focusKey(active);
     const html = `
       <style>${HaSwitchCard.styles}</style>
       <ha-card class="${compact ? 'mini' : ''}${confirm ? 'dialog-open' : ''}">
-        <div class="header">
+        <div class="${banner ? `header banner${night ? ' night' : ''}${this._headerArt() ? '' : ' noart'}` : 'header'}">${banner}
           <div class="ic big" style="--c:${statusColor}" ${headerEntity ? `data-entity="${esc(headerEntity)}" role="button" tabindex="0" aria-label="${esc(this._state(headerEntity)?.attributes?.friendly_name || headerEntity)}"` : ''}>
             <ha-icon icon="${esc(c.icon)}"></ha-icon>
           </div>
           <div class="titles">
             <div class="title-row"><div class="name">${esc(c.name)}</div>${pill}</div>
-            ${c.subtitle ? `<div class="sub">${esc(c.subtitle)}</div>` : ''}
+            ${c.subtitle ? `<div class="sub" title="${esc(c.subtitle)}">${esc(c.subtitle)}</div>` : ''}
           </div>
-          ${sw && !compact ? `<ha-switch aria-label="${esc(`${t.power}${t.colon}${c.name}`)}" title="${esc(t.power)}"></ha-switch>` : ''}${this._zoomButton()}
+          ${sw && !compact ? this._powerControl(sw, statusColor, t, !!banner) : ''}${this._zoomButton()}${
+            banner ? `<div class="ground ${statusColor === COLORS.red || sw?.state === 'off' ? 'g-netdown' : down ? 'g-net still' : 'g-net'}"></div>` : ''
+          }
         </div>
         ${body}${confirm ? this._confirmHtml(t) : ''}
       </ha-card>`;
@@ -2258,11 +2499,12 @@ class HaSwitchCard extends HTMLElement {
     const patched = !!this.shadowRoot.firstChild;
     if (patched) morph(this.shadowRoot, html);
     else this.shadowRoot.innerHTML = html;
+    this._fitPill();
 
     // The focused element was replaced (first render, or its place changed): focus its counterpart, the power toggle
     // included, so keyboard navigation keeps its place.
     if (focused && (!patched || this.shadowRoot.activeElement !== active)) {
-      const again = [...this.shadowRoot.querySelectorAll('[tabindex], ha-switch')].find((el) => focusKey(el) === focused);
+      const again = [...this.shadowRoot.querySelectorAll('[tabindex], ha-switch, .pw')].find((el) => focusKey(el) === focused);
       again?.focus({ preventScroll: true });
     }
 
@@ -2284,6 +2526,16 @@ class HaSwitchCard extends HTMLElement {
         this._power(ev.target.checked ? 'turn_on' : 'turn_off');
       });
     }
+  }
+
+  // The power control: a round button (mdi:power, the status colour while on, grey while off) on the illustrated
+  // header's top line, the ha-switch toggle in the classic header.
+  _powerControl(sw, statusColor, t, banner) {
+    const label = esc(`${t.power}${t.colon}${this._config.name}`);
+    if (!banner) return `<ha-switch aria-label="${label}" title="${esc(t.power)}"></ha-switch>`;
+    const on = sw.state === 'on';
+    const off = isUnavailable(sw);
+    return `<button class="pw${on ? ' on' : ''}" type="button" data-action="power"${on ? ` style="--c:${statusColor}"` : ''} aria-label="${label}" aria-pressed="${on}" title="${esc(on ? t.turn_off : t.power)}"${off ? ' disabled' : ''}><ha-icon icon="mdi:power"></ha-icon></button>`;
   }
 
   // Power toggle service call.
@@ -2337,7 +2589,7 @@ class HaSwitchCard extends HTMLElement {
     this._dropConfirm();
     this._key = '';
     this._render();
-    if (restoreFocus) this.shadowRoot.querySelector('ha-switch')?.focus?.({ preventScroll: true });
+    if (restoreFocus) this.shadowRoot.querySelector('ha-switch, .pw')?.focus?.({ preventScroll: true });
   }
 
   _confirmHtml(t) {
@@ -2368,12 +2620,21 @@ class HaSwitchCard extends HTMLElement {
 
   static get styles() {
     return `
+      /* A block, so that its width is measured (the status pill's place follows it, see _fitPill). */
       :host {
+        display: block;
         --hs-body-top: color-mix(in srgb, var(--primary-text-color, #212121) 24%, var(--card-background-color, #fff));
         --hs-body-bottom: color-mix(in srgb, var(--primary-text-color, #212121) 14%, var(--card-background-color, #fff));
         --hs-dark: color-mix(in srgb, var(--primary-text-color, #212121) 45%, var(--card-background-color, #fff));
       }
       ha-card { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+      /* The illustrated header and its title block are size containers, which take no width from their content: in a
+         parent sized by its content (inline-block, an \`auto\` grid column, layout-card) the card would fall to its
+         padding. This empty, zero-height grid gives it a natural (max-content) width of 300px without any minimum (its
+         min-content width is 0): in a "1fr 1fr" grid (grid card, horizontal-stack), wrapped in a <div> or not, the card
+         still shrinks to its column. A fixed-width line or a min-width would be a minimum and overflow there. The mini
+         card's own rule (240px) follows. */
+      :host::before { content: ""; display: grid; grid-template-columns: minmax(0, 300px); height: 0; }
       [data-entity], [data-url] { cursor: pointer; }
       /* The body starts 8px under the header (the card gap is 10px between body blocks). */
       .header { display: flex; align-items: center; gap: 10px; margin-bottom: -2px; }
@@ -2384,16 +2645,24 @@ class HaSwitchCard extends HTMLElement {
         color: var(--c); background: color-mix(in srgb, var(--c) 15%, transparent);
       }
       .ic.big { --size: 40px; --mdc-icon-size: 24px; background: color-mix(in srgb, var(--c) 16%, transparent); }
-      .titles { flex: 1 1 0; min-width: 0; }
+      .titles { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
       :host([hide-title]) .titles .name { display: none; }
-      /* The status pill shares the title's line, right of the name (left of the power toggle), whatever the subtitle.
-         The name only takes the room the pill leaves (flex-basis 0), but keeps about four characters: when the pill's
-         full text no longer fits beside them, the pill wraps under the name with its whole text, and is only cut
-         with an ellipsis when even a line of its own is too short. */
-      .title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; }
-      .title-row > .name { flex: 1 1 0; min-width: 5ch; }
-      .title-row > .chip { flex: 0 1 auto; min-width: 0; overflow: hidden; }
+      /* The status pill (classic header and banner): on the title row, 8 px after the name, only when the whole name
+         and the pill's whole text fit there; otherwise on its own line under the subtitle, which then keeps one line.
+         Its dot and the port count alone at 200 px or less, or when the banner has no room left for its text
+         (pill-dot): the whole text stays in its title and aria-label. Measured after each render (_fitPill), in every
+         language, never by a fixed width. */
+      .title-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+      .title-row > .name { flex: 0 1 auto; min-width: 0; }
+      .title-row > .chip { flex: none; max-width: none; }
+      .title-row > .chip span { overflow: visible; }
       .title-row > .chip ha-icon { flex: none; }
+      .titles.pill-below .title-row { display: contents; }
+      .titles.pill-below > .sub { order: 1; }
+      .titles.pill-below .title-row > .chip { order: 2; align-self: flex-start; margin-top: 2px; }
+      .titles.pill-dot .title-row > .chip > span:not(.cnt) { display: none; }
+      .titles.pill-dot .title-row > .chip .cnt { font-size: 0; margin-left: 0; }
+      .titles.pill-dot .title-row > .chip .cnt::after { content: attr(data-n); font-size: 11px; }
       .name { font-size: 16px; font-weight: 500; line-height: 1.25; color: var(--primary-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .sub { font-size: 12px; color: var(--secondary-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       ha-switch {
@@ -2433,14 +2702,16 @@ class HaSwitchCard extends HTMLElement {
       .ports.abs .port { position: absolute; top: 50%; transform: translate(-50%, -50%); }
       .port { width: 27px; line-height: 0; }
       .port svg { width: 100%; height: auto; }
-      .traffic { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px; }
+      /* Tiles of at least 140px side by side, one per line below; never wider than the card (a 1fr 1fr grid's column). */
+      .traffic { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr)); gap: 6px; }
       .tile { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 10px; min-width: 0;
               background: var(--secondary-background-color, rgba(127,127,127,.08)); position: relative; overflow: hidden; }
       .tile > :not(.spark) { position: relative; }
       .tile .ic { --mdc-icon-size: 20px; }
       .tile .t { font-size: 11px; color: var(--secondary-text-color); }
-      /* 24 h curve behind a rate, in the lower half, in the tile's colour. */
-      .spark { position: absolute; left: 0; bottom: 0; width: 100%; height: 55%; pointer-events: none; }
+      /* 24 h curve of a rate, in the tile's colour, in its own 24 px band under the text, never behind it. */
+      .tile:has(> .spark) { padding-bottom: 30px; }
+      .spark { position: absolute; inset: auto 0 0; width: 100%; height: 24px; pointer-events: none; }
       .spark-a { fill: color-mix(in srgb, var(--c) 12%, transparent); }
       .spark-l { fill: none; stroke: color-mix(in srgb, var(--c) 50%, transparent); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
       /* "Online · 6/8": the count follows the status as one text (the chip's gap is for its icon). */
@@ -2452,7 +2723,7 @@ class HaSwitchCard extends HTMLElement {
          padding. An empty, zero-height grid before it gives the host up to 240px there, and no minimum. */
       :host([mini]) { display: block; min-width: 0; }
       :host([mini])::before { content: ""; display: grid; grid-template-columns: minmax(0, 240px); height: 0; }
-      ha-card.mini { gap: 8px; container-type: inline-size; }
+      ha-card.mini { gap: 8px; container: hs-card / inline-size; }
       .zoom { all: unset; flex: none; cursor: pointer; width: 24px; height: 24px; margin: -4px -4px -4px 0; border-radius: 50%; align-self: flex-start;
               display: grid; place-items: center; color: var(--secondary-text-color); --mdc-icon-size: 16px; }
       .zoom:hover { background: color-mix(in srgb, var(--secondary-text-color) 14%, transparent); color: var(--primary-text-color); }
@@ -2466,7 +2737,9 @@ class HaSwitchCard extends HTMLElement {
                   color: var(--primary-text-color); white-space: nowrap; --mdc-icon-size: 14px; }
       .rt ha-icon { flex: none; color: var(--c); }
       .rt span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-      .rt .spark { height: 60%; }
+      /* The mini card's rate chips: a 14 px band under the rate. */
+      .rt:has(> .spark) { padding-bottom: 16px; }
+      .rt .spark { height: 14px; }
       /* A narrow mini card (a phone, 6 columns of a section): the panel takes the whole width, the rates go under it
          side by side, then one per line; the pill keeps only the port count. */
       @container (max-width: 330px) {
@@ -2474,13 +2747,10 @@ class HaSwitchCard extends HTMLElement {
         .rates { flex-direction: row; }
         .rt { flex: 1 1 0; }
       }
-      @container (max-width: 200px) {
+      @container hs-card (max-width: 200px) {
         .rates { flex-direction: column; }
         .rt { flex: none; padding: 3px 6px; }
         .rt > div { font-size: 12px; }
-        ha-card.mini .title-row > .chip > span:not(.cnt) { display: none; }
-        ha-card.mini .title-row > .chip .cnt { font-size: 0; }
-        ha-card.mini .title-row > .chip .cnt::after { content: attr(data-n); font-size: 11px; }
       }
       .tile .txt { min-width: 0; }
       /* The label wraps rather than being cut: "Ruch przychodzący" or "Eingehender Datenverkehr" in a 140px tile. */
@@ -2499,9 +2769,107 @@ class HaSwitchCard extends HTMLElement {
                             background: var(--secondary-background-color, rgba(127,127,127,.12)); color: var(--primary-text-color); }
       .modal-actions .btn.primary { background: color-mix(in srgb, var(--primary-color, #03a9f4) 15%, transparent); color: var(--primary-color, #03a9f4); }
       .modal-actions .btn:focus-visible { outline: 2px solid var(--primary-color, #03a9f4); outline-offset: 2px; }
+
+      /* Illustrated header: 90px edge to edge at the top of the card (full and mini), the title on the network
+         background at its left, the front panel big at its right over a 10px network strip. Its own colours, day and
+         night, whatever the theme. */
+      .banner {
+        /* A size container (it takes its width from the card, never from its content), so that the full card's
+           banner follows its own width too. The panel's width is resolved where it is used (cqw: the banner's). */
+        container: hs-banner / inline-size;
+        --hb-scene-w: min(200px, 58cqw);
+        position: relative; isolation: isolate; overflow: hidden; box-sizing: border-box;
+        height: 90px; margin: -12px -12px 0; padding: 0 12px 10px;
+        border-radius: var(--ha-card-border-radius, 12px) var(--ha-card-border-radius, 12px) 0 0;
+        background: #eaf2fb; color: #0d2a45;
+        /* The panel's chassis: dark, as the real switch, on the light and the night background alike. */
+        --hs-body-top: #33373e; --hs-body-bottom: #1d2025; --hs-dark: #4a5059;
+      }
+      .banner.night { background: #101827; color: #fff; --hs-body-top: #2b2f36; --hs-body-bottom: #16191e; --hs-dark: #3e444d; }
+      .banner > :not(.scene, .ground) { position: relative; z-index: 1; }
+      /* The title block keeps clear of the panel (its left quarter may run under the text's end). */
+      .banner > .titles { margin-right: calc(var(--hb-scene-w) * 0.76 - 6px); }
+      .banner .scene { position: absolute; right: 0; bottom: 10px; height: 80px; width: var(--hb-scene-w); z-index: 0; overflow: visible; }
+      .banner .scene .dots { fill: #c9dcf2; }
+      .banner.night .scene .dots { fill: #22324d; }
+      .banner .scene .hs-label { fill: #c4cad3; }
+      .banner .ic.big { background: rgba(255,255,255,.62); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 22%, transparent); }
+      .banner.night .ic.big { background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
+      /* Title row: the name, then the status pill 8 px after it (a dot in the icon's colour and the status, see
+         .title-row); the subtitle under them. */
+      .banner .titles { justify-content: center; gap: 2px; }
+      .banner .title-row > .chip { gap: 4px; padding: 1px 8px; line-height: 16px; }
+      .banner .title-row > .chip ha-icon { display: none !important; }
+      .banner .title-row > .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--c); flex: none; }
+      /* The full card and the mini card's expanded view: no front panel in the header (it is right under it), the title takes the room. */
+      .banner.noart > .titles { margin-right: 0; }
+      /* There, the title row keeps clear of the buttons on the banner's top line (power, expand / collapse). */
+      .banner.noart:has(> .pw, > .zoom) > .titles { margin-right: 22px; }
+      .banner.noart:has(> .pw):has(> .zoom) > .titles { margin-right: 50px; }
+      .banner .name { color: #0d2a45; }
+      .banner .sub { color: #3b5b78; }
+      .banner.night .name { color: #fff; }
+      .banner.night .sub { color: rgba(255,255,255,.78); }
+      .banner .chip { background: color-mix(in srgb, var(--c) 18%, rgba(255,255,255,.78)); color: color-mix(in srgb, var(--c) 45%, #0d2a45); }
+      .banner.night .chip { background: color-mix(in srgb, var(--c) 30%, rgba(8,18,38,.55)); color: color-mix(in srgb, var(--c) 35%, #ffffff); }
+      /* The expand / collapse button: 24 px, round, frosted, in the banner's top right corner. */
+      .banner .zoom { position: absolute; z-index: 2; top: 5px; right: 5px; width: 24px; height: 24px; margin: 0; color: #33506b;
+                      background: rgba(255,255,255,.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,.7);
+                      -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+      .banner .zoom:hover { background: rgba(255,255,255,.75); color: #33506b; }
+      .banner.night .zoom { color: #fff; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
+      .banner.night .zoom:hover { background: rgba(255,255,255,.22); color: #fff; }
+      /* The power button: the same round frosted button, 4 px left of the expand / collapse one (or in the corner),
+         its icon in the status colour while on, grey while off. */
+      .banner .pw { all: unset; position: absolute; z-index: 2; top: 5px; right: 5px; width: 24px; height: 24px; border-radius: 50%;
+                    display: grid; place-items: center; cursor: pointer; --mdc-icon-size: 16px; color: var(--c);
+                    background: rgba(255,255,255,.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,.7);
+                    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+      .banner .pw:hover { background: rgba(255,255,255,.75); }
+      .banner .pw:not(.on) { color: #7b8a99; }
+      .banner.night .pw:not(.on) { color: rgba(255,255,255,.5); }
+      .banner.night .pw { background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
+      .banner.night .pw:hover { background: rgba(255,255,255,.22); }
+      .banner .pw:focus-visible { outline: 2px solid var(--primary-color, #03a9f4); outline-offset: 1px; }
+      .banner .pw:disabled { cursor: default; opacity: .6; }
+      .banner:has(> .zoom) > .pw { right: 33px; }
+      /* Activity LEDs ("Blink=ACT"), in the header only: each port with link flickers at its own rhythm; the power LED
+         stays steady. A port is drawn with link only while the switch is up, so everything stops when it is down. */
+      .lk { display: none; }
+      .banner .scene .lk { display: inline; fill: #b9f6ca; filter: drop-shadow(0 0 3px #5dff8f); }
+      .banner .scene .act { fill: #5dff8f !important; animation: hs-act var(--d, .8s) steps(1, end) var(--dl, 0s) infinite; }
+      .banner .scene .act.halo { filter: blur(1.5px); animation-name: hs-act-halo; }
+      @keyframes hs-act { 0% { opacity: 1; } 18% { opacity: .1; } 30% { opacity: 1; } 55% { opacity: .1; } 68% { opacity: 1; } 84% { opacity: .25; } }
+      @keyframes hs-act-halo { 0% { opacity: .45; } 18% { opacity: 0; } 30% { opacity: .45; } 55% { opacity: 0; } 68% { opacity: .45; } 84% { opacity: .1; } }
+      @media (prefers-reduced-motion: reduce) { .banner .scene .act { animation: none; } }
+      /* Network strip: blue dashes flowing (traffic) while the switch is up, red still dashes when it is down. */
+      .ground { position: absolute; left: 0; right: 0; bottom: 0; height: 10px; z-index: 0; background-repeat: no-repeat; background-size: calc(100% + 22px) 2px; background-position: 0 50%; }
+      .g-net { background-color: #1e3a5f; background-image: repeating-linear-gradient(90deg, #4fc3f7 0 14px, transparent 14px 22px); box-shadow: inset 0 2px 0 #2f5a8a;
+               animation: hb-flow 1.6s linear infinite; }
+      .night .g-net { background-color: #0f1d33; box-shadow: inset 0 2px 0 #1e3a5f; }
+      .g-netdown { background-color: #5a6370; background-image: repeating-linear-gradient(90deg, #e5484d 0 6px, transparent 6px 16px); box-shadow: inset 0 2px 0 #77808c; }
+      .night .g-netdown { background-color: #2c323b; box-shadow: inset 0 2px 0 #3a414c; }
+      @keyframes hb-flow { from { background-position: -22px 50%; } to { background-position: 0 50%; } }
+      .g-net.still { animation: none; }
+      @media (prefers-reduced-motion: reduce) { .g-net { animation: none; } }
+      /* A card of about 300 px: a smaller panel, so the name and the whole status pill keep their room. */
+      @container hs-banner (max-width: 340px) { .banner > .scene, .banner > .titles { --hb-scene-w: 46cqw; } }
+      /* A narrow card (a phone, 6 columns of a section): no room for the panel beside the title, the background alone
+         stays; the title keeps clear of the buttons on the top line (power toggle, expand / collapse). */
+      @container hs-banner (max-width: 260px) {
+        .banner > .scene { display: none; }
+        .banner > .titles { margin-right: 0; }
+        .banner:not(.noart) > .titles .name { padding-right: 18px; }
+        .banner:not(.noart):has(> .pw):has(> .zoom) > .titles .name { padding-right: 46px; }
+      }
     `;
   }
 }
+
+// The banner's ground strip (the network strip), that the title block keeps clear of, and the gap between the name
+// and the status pill on its row (.title-row).
+const PILL_GROUND_PX = 10;
+const PILL_GAP_PX = 8;
 
 /* ------------------------------------------------------------------ */
 /* Mini card                                                           */
@@ -2549,6 +2917,10 @@ class HaSwitchMiniCard extends HaSwitchCard {
     return !this._zoomed;
   }
 
+  _headerArt() {
+    return !this._zoomed;
+  }
+
   setConfig(config) {
     // The host attribute behind the mini card's styles (its size container); never set in the constructor.
     this.setAttribute?.('mini', '');
@@ -2584,12 +2956,12 @@ class HaSwitchMiniCard extends HaSwitchCard {
 /* Visual editor                                                       */
 /* ------------------------------------------------------------------ */
 // Editor toggles whose default is on, and that default.
-const EDITOR_TOGGLES = { show_title: true, show_history: true, zoom: true, confirm_off: true };
+const EDITOR_TOGGLES = { show_title: true, show_history: true, zoom: true, confirm_off: true, illustration: true };
 
 // Config → form data: `port_names` as a map ({ 3: NAS }) becomes the list in port order the text fields edit
 // (an empty name keeps the number), and `watched_ports` (numbers, or "1, 3, 8") the strings of the port select.
 const toForm = (config) => {
-  const data = { ...EDITOR_TOGGLES, ...config };
+  const data = { ...EDITOR_TOGGLES, illustration_theme: 'auto', ...config };
   const names = config.port_names;
   if (names && typeof names === 'object') {
     const n = Array.isArray(names) ? names.length : Math.max(0, ...Object.keys(names).map((k) => parseInt(k, 10)).filter(Number.isFinite));
@@ -2609,6 +2981,8 @@ const fromForm = (value) => {
     config.port_names = names;
   }
   if (Array.isArray(config.watched_ports)) config.watched_ports = [...watchedPorts(config)];
+  // The automatic theme is the default: kept out of the YAML.
+  if (config.illustration_theme === 'auto') delete config.illustration_theme;
   Object.keys(config).forEach((k) => {
     const v = config[k];
     if (v === '' || v === undefined || (Array.isArray(v) && !v.length) || EDITOR_TOGGLES[k] === v) delete config[k];
@@ -2706,6 +3080,11 @@ class HaSwitchCardEditor extends HTMLElement {
                 ],
               },
             },
+          },
+          { name: 'illustration', selector: { boolean: {} } },
+          {
+            name: 'illustration_theme',
+            selector: { select: { mode: 'dropdown', options: ['auto', 'day', 'night'].map((v) => ({ value: v, label: t[`theme_${v}`] })) } },
           },
           { name: 'show_title', selector: { boolean: {} } },
           { name: 'show_history', selector: { boolean: {} } },
