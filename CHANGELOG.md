@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.16.0 - 2026-11-17
+
+### Features
+- **Illustrated header: traffic flow** instead of the front panel drawn again, on the full card and the mini card (compact and expanded): a download lane (green, right to left) and an upload lane (blue, left to right) from `traffic_in_entity` / `traffic_out_entity`, each with its rate on its left, packets running faster as the rate grows (log scale, 4.8 s at 1 kB/s to 0.6 s at 1 GB/s, snapped to a few paces so a small change does not restart them). A lane at rest (no traffic) or the switch down has no packets; packets stand still under `prefers-reduced-motion`. Without a traffic sensor the header keeps its network background and the title takes the room. The header's activity LEDs go with the drawn panel. README GIFs of the flow on both cards, light and dark.
+
 ## 1.15.0 - 2026-11-17
 
 ### Features

@@ -1,5 +1,5 @@
 // Renders the card with mock data and saves the README screenshots, plus one looping GIF per animated header
-// (activity LEDs) — the GIFs need ffmpeg on PATH.
+// (traffic flow) — the GIFs need ffmpeg on PATH.
 // Usage: npm run build && npm run screenshots
 import { chromium } from "playwright";
 import { execFileSync } from "node:child_process";
@@ -277,14 +277,14 @@ await render(
   { icons, hass, extra: extra + ws }
 );
 
-// The header's activity LEDs: every port with link flickers at its own rhythm (0.4 / 0.6 / 0.8 / 1.2 s) and the
-// network strip flows (1.6 s); 4.8 s holds a whole number of each, so the GIF loops seamlessly.
+// The header's traffic flow: packets run along each lane at a pace dividing 4.8 s, and the network strip flows (1.6 s);
+// 4.8 s holds a whole number of each, so the GIF loops seamlessly.
 await recordGifs(
   [
-    { file: "header-gs308t", type: "ha-switch-mini-card", theme: "light", width: 380, config: { ...config, model: "gs308t" }, seconds: 4.8 },
-    { file: "header-gs308t-dark", type: "ha-switch-mini-card", theme: "dark", width: 380, config: { ...config, model: "gs308t" }, seconds: 4.8 },
-    { file: "header-generic", type: "ha-switch-mini-card", theme: "light", width: 380, config: { ...config, subtitle: "Generic" }, seconds: 4.8 },
-    { file: "header-generic-dark", type: "ha-switch-mini-card", theme: "dark", width: 380, config: { ...config, subtitle: "Generic" }, seconds: 4.8 },
+    { file: "header-flow", type: "ha-switch-mini-card", theme: "light", width: 380, config: { ...config, model: "gs308t" }, seconds: 4.8 },
+    { file: "header-flow-dark", type: "ha-switch-mini-card", theme: "dark", width: 380, config: { ...config, model: "gs308t" }, seconds: 4.8 },
+    { file: "header-flow-full", type: "ha-switch-card", theme: "light", width: 460, config: { ...config, subtitle: "Generic" }, seconds: 4.8 },
+    { file: "header-flow-full-dark", type: "ha-switch-card", theme: "dark", width: 460, config: { ...config, subtitle: "Generic" }, seconds: 4.8 },
   ],
   { icons, hass, extra: extra + ws }
 );
