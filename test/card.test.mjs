@@ -961,7 +961,7 @@ test("focus restore: the power toggle is found again after its node was replaced
   assert.equal(focusKey({ tagName: "DIV", getAttribute: () => null }), "");
 });
 
-test("illustrated header: the dark theme shows the night picture even while the sun is up; forced day/night win", () => {
+test("illustrated header: the dark theme alone shows the night picture, the sun left aside; forced day/night win", () => {
   const { HaSwitchCard, HaSwitchMiniCard } = loadCard("ha-switch-card.js", ["HaSwitchCard", "HaSwitchMiniCard"]);
   const states = { "sensor.s": { state: "Offline", attributes: {} }, "sensor.p1": { state: "1", attributes: {} }, "sun.sun": { state: "above_horizon", attributes: {} } };
   for (const Card of [HaSwitchCard, HaSwitchMiniCard]) {
@@ -976,6 +976,12 @@ test("illustrated header: the dark theme shows the night picture even while the 
     assert.match(render(true, { illustration_theme: "day" }), /<div class="header banner(?! night)/);
     assert.match(render(false, { illustration_theme: "night" }), /<div class="header banner night/);
   }
+  // After sunset, a light theme keeps the day picture.
+  states["sun.sun"] = { state: "below_horizon", attributes: {} };
+  const card = new HaSwitchCard();
+  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", status_entity: "sensor.s", model: "gs308t" });
+  card.hass = { language: "en", states, themes: { darkMode: false } };
+  assert.match(card.shadowRoot.innerHTML, /<div class="header banner(?! night)/);
 });
 
 test("illustrated header: the traffic flow on the full and the mini card, faster with the rate, still while the switch is down; night and classic header", () => {
@@ -991,13 +997,13 @@ test("illustrated header: the traffic flow on the full and the mini card, faster
   const render = (config, Card = HaSwitchCard, s = "Online") => {
     const card = new Card();
     card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", status_entity: "sensor.s", online_state: "Online", ...config });
-    card.hass = { language: "en", states: states(s) };
+    card.hass = { language: "en", states: states(s), themes: { darkMode: true } };
     const html = card.shadowRoot.innerHTML;
     return html.slice(html.indexOf('<div class="header'), html.indexOf('<div class="ic big'));
   };
   for (const Card of [HaSwitchCard, HaSwitchMiniCard]) {
     const banner = render({ model: "gs308t", ...traffic }, Card);
-    assert.match(banner, /<div class="header banner night">/, "night after sun.sun");
+    assert.match(banner, /<div class="header banner night">/, "night with the dark theme");
     assert.doesNotMatch(banner, /NETGEAR|<svg x="48"|data-entity|tabindex/, "no front panel, nothing interactive in the header");
     // Download: three packets running right to left; upload at 0: its lane at rest, no packet.
     assert.equal((banner.match(/class="pk pk-l"/g) || []).length, 3);

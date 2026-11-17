@@ -118,7 +118,7 @@ url: http://switch.local
 |---|---|---|
 | `name` | `Switch` | Title |
 | `illustration` | `true` | Illustrated header (full and mini card): a network background with the traffic flowing on it (a download and an upload lane from `traffic_in_entity` / `traffic_out_entity`, packets faster as the rate grows, still when the switch is down), the title and status pill on its left, a network strip along its bottom (flowing blue dashes, red dashes when the switch is down). `false` keeps the classic header |
-| `illustration_theme` | `auto` | Header picture: `auto` (night when `sun.sun` is below the horizon or with Home Assistant's dark theme, even while the sun is up), `day` or `night` |
+| `illustration_theme` | `auto` | Header picture: `auto` (follows the Home Assistant theme: night with a dark theme, day with a light theme), `day` or `night` |
 | `show_title` | `true` | Show the title in the header (e.g. `false` under a section heading of your own) |
 | `subtitle` | – | Subtitle |
 | `icon` | `mdi:switch` | Header icon, colored by status |
