@@ -46,19 +46,21 @@ jobs:
       - name: Install Chromium
         timeout-minutes: 5
         run: npx playwright install chromium
-      # Roboto + gh (re-run step) + the browser's apt deps, each apt call time-boxed and retried
-      # so a flaky mirror is abandoned and retried instead of hanging.
-      - name: Install Roboto and browser deps
+      # ffmpeg (required for the GIFs, not preinstalled) + Roboto + gh (re-run step) + the browser's apt deps, each apt
+      # call time-boxed and retried so a flaky mirror is abandoned and retried instead of hanging; fail loudly if ffmpeg
+      # is still missing.
+      - name: Install ffmpeg, Roboto and browser deps
         timeout-minutes: 12
         run: |
           for i in 1 2 3; do
             timeout 150 apt-get update \
-              && DEBIAN_FRONTEND=noninteractive timeout 300 apt-get install -y --no-install-recommends fonts-roboto gh \
+              && DEBIAN_FRONTEND=noninteractive timeout 300 apt-get install -y --no-install-recommends ffmpeg fonts-roboto gh \
               && timeout 300 npx playwright install-deps chromium \
               && ok=1 && break
             echo "apt attempt $i failed or timed out, retrying in 15s"; sleep 15
           done
           [ -n "$ok" ] || { echo "::error::apt failed 3 times"; exit 1; }
+          ffmpeg -version > /dev/null
       - run: npm run build
       - name: Render screenshots
         run: |

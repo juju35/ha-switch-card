@@ -183,7 +183,8 @@ test("unavailable / unknown ports, status and connectivity are grey, not red", (
     assert.deepEqual(ports, [COLORS.grey, COLORS.grey], state);
     card.setConfig({ ports: 2, port_pattern: "sensor.p{n}", connectivity_entity: "binary_sensor.c", watched_ports: [2] });
     const watched = [...card.shadowRoot.innerHTML.matchAll(/data-entity="sensor\.p\d"[\s\S]*?style="fill:([^"]+)"/g)].map((m) => m[1]);
-    assert.deepEqual(watched, [COLORS.grey, COLORS.red], state);
+    // The switch itself unreachable: every port drawn off (grey), a watched one too, whatever its sensor reports.
+    assert.deepEqual(watched, [COLORS.grey, COLORS.grey], state);
 
     const card2 = new HaSwitchCard();
     card2.setConfig({ ports: 1, port_pattern: "sensor.p{n}", status_entity: "sensor.s", connectivity_entity: "binary_sensor.c" });
@@ -610,7 +611,10 @@ test("narrow header: the name gives way to the pill down to a few characters, th
   // No size container: inline-size containment drops the element's intrinsic width, which collapses a card
   // placed in a shrink-to-fit parent (inline-block, a grid "auto" column, layout-card, button-card).
   // Only the mini card is one (ha-card.mini), with a minimum width from its host for such parents.
-  assert.doesNotMatch(css.replace(/ha-card\.mini \{[^}]*\}/, ""), /container-type|container:/);
+  // The illustrated header (.banner) and its title block are containers too; the full card then gets a 300px
+  // zero-height line as its intrinsic width.
+  assert.doesNotMatch(css.replace(/ha-card\.mini \{[^}]*\}/, "").replace(/\.banner \{[^}]*\}/, "").replace(/\.banner \.titles \{[^}]*\}/, ""), /container-type|container:/);
+  assert.match(cssRule(css, "ha-card:not(.mini):has(> .banner)::before"), /width: 300px; max-width: 100%; height: 0/);
   assert.doesNotMatch(cssRule(css, "ha-card"), /container/);
   assert.match(cssRule(css, ":host([mini])::before"), /grid-template-columns: minmax\(0, 240px\)/);
 });

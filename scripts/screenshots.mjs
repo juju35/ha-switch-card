@@ -1,7 +1,11 @@
-// Renders the card with mock data and saves the README screenshots.
+// Renders the card with mock data and saves the README screenshots, plus one looping GIF per animated header
+// (activity LEDs) — the GIFs need ffmpeg on PATH.
 // Usage: npm run build && npm run screenshots
 import { chromium } from "playwright";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { copyFileSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { samePixels } from "./png.mjs";
 
@@ -66,30 +70,35 @@ const pageHtml = (theme, width) => `<!doctype html><html><head><meta charset="ut
          font-family: Roboto, "Segoe UI", Helvetica, Arial, sans-serif; width: ${width}px; }
 </style></head><body><div id="root"></div></body></html>`;
 
+// A fresh page with the card of shot { type, theme, width, config, hass?, after? } mounted (a fresh page per shot:
+// re-running the scripts in the same realm would redeclare their globals). extra: more stand-in elements, as script source.
+async function openCard(browser, s, { icons = {}, hass = {}, extra = "" } = {}) {
+  const page = await browser.newPage({ deviceScaleFactor: 2, viewport: { width: 1000, height: 2000 } });
+  page.on("pageerror", (err) => console.error(`${s.file}: ${err.message}`));
+  await page.setContent(pageHtml(s.theme, s.width));
+  await page.addScriptTag({ content: haElements(icons) + extra });
+  await page.addScriptTag({ content: cardJs });
+  await page.evaluate(
+    ({ type, config, hass, dark }) => {
+      const el = document.createElement(type);
+      el.setConfig({ type: `custom:${type}`, ...config });
+      el.hass = { states: {}, entities: {}, devices: {}, language: "en", locale: { language: "en" },
+                  themes: { darkMode: dark }, callService: async () => {}, callWS: window.__ws || (async () => ({})),
+                  ...(window.formatEntityState ? { formatEntityState: window.formatEntityState } : {}), ...hass };
+      document.getElementById("root").appendChild(el);
+    },
+    { type: s.type, config: s.config || {}, hass: { ...hass, ...(s.hass || {}) }, dark: s.theme === "dark" }
+  );
+  if (s.after) await s.after(page);
+  await page.waitForTimeout(400);
+  return page;
+}
+
 // Renders each shot { file, type, theme, width, config, hass?, after? } into screenshots/<file>.png.
-// extra: more stand-in elements, as script source.
-export async function render(shots, { icons = {}, hass = {}, extra = "" } = {}) {
+export async function render(shots, opts = {}) {
   const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
-  // A fresh page per shot: re-running the scripts in the same realm would redeclare their globals.
   for (const s of shots) {
-    const page = await browser.newPage({ deviceScaleFactor: 2, viewport: { width: 1000, height: 2000 } });
-    page.on("pageerror", (err) => console.error(`${s.file}: ${err.message}`));
-    await page.setContent(pageHtml(s.theme, s.width));
-    await page.addScriptTag({ content: haElements(icons) + extra });
-    await page.addScriptTag({ content: cardJs });
-    await page.evaluate(
-      ({ type, config, hass, dark }) => {
-        const el = document.createElement(type);
-        el.setConfig({ type: `custom:${type}`, ...config });
-        el.hass = { states: {}, entities: {}, devices: {}, language: "en", locale: { language: "en" },
-                    themes: { darkMode: dark }, callService: async () => {}, callWS: window.__ws || (async () => ({})),
-                    ...(window.formatEntityState ? { formatEntityState: window.formatEntityState } : {}), ...hass };
-        document.getElementById("root").appendChild(el);
-      },
-      { type: s.type, config: s.config || {}, hass: { ...hass, ...(s.hass || {}) }, dark: s.theme === "dark" }
-    );
-    if (s.after) await s.after(page);
-    await page.waitForTimeout(400);
+    const page = await openCard(browser, s, opts);
     // The card plus the 16px page padding around it, on the theme background.
     const box = await page.locator("#root").boundingBox();
     const png = await page.screenshot({
@@ -109,6 +118,55 @@ export async function render(shots, { icons = {}, hass = {}, extra = "" } = {}) 
   }
   await browser.close();
 }
+
+// Records the header of each gif { file, type, theme, width, config, seconds } into screenshots/<file>.gif (needs
+// ffmpeg on PATH): every animation of the page and of the card is paused and stepped frame by frame, so the GIF is the
+// same whatever the machine's speed, and `seconds` is a whole number of every rhythm, so it loops seamlessly.
+export async function recordGifs(gifs, opts = {}, fps = 12) {
+  const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+  for (const g of gifs) {
+    const page = await openCard(browser, g, opts);
+    // The banner only, with a few pixels of the page around it.
+    const b = await page.evaluate(() => {
+      const r = document.querySelector("#root").firstElementChild.shadowRoot.querySelector(".banner").getBoundingClientRect();
+      return { x: r.x, y: r.y, width: r.width, height: r.height };
+    });
+    const clip = { x: Math.floor(b.x) - 4, y: Math.floor(b.y) - 4, width: Math.ceil(b.width) + 8, height: Math.ceil(b.height) + 8 };
+    const dir = mkdtempSync(join(tmpdir(), "hs-frames-"));
+    const frames = Math.round(fps * g.seconds);
+    for (let i = 0; i < frames; i++) {
+      await page.evaluate((t) => {
+        const card = document.querySelector("#root").firstElementChild;
+        for (const a of [...document.getAnimations(), ...card.shadowRoot.getAnimations()]) {
+          a.pause();
+          a.currentTime = t;
+        }
+      }, (i * 1000) / fps);
+      await page.screenshot({ path: join(dir, `f${String(i).padStart(3, "0")}.png`), clip });
+    }
+    await page.close();
+    const path = `${root}screenshots/${g.file}.gif`;
+    const fresh = join(dir, "out.gif");
+    // Deterministic GIF: one palette computed from all the frames and an ordered (Bayer) dither, no random dithering;
+    // drawn at 1x (half the 2x frames) to stay small.
+    execFileSync("ffmpeg", [
+      "-y", "-loglevel", "error", "-framerate", String(fps), "-i", join(dir, "f%03d.png"),
+      "-vf", `scale=${clip.width}:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96[p];[b][p]paletteuse=dither=bayer:bayer_scale=4`,
+      "-loop", "0", fresh,
+    ]);
+    const changed = !existsSync(path) || gifHash(fresh) !== gifHash(path);
+    if (changed) copyFileSync(fresh, path);
+    rmSync(dir, { recursive: true });
+    console.log(`screenshots/${g.file}.gif${changed ? "" : " (unchanged)"}`);
+  }
+  await browser.close();
+}
+
+// A GIF's decoded frames, as ffmpeg's per-frame checksums of the RGBA pixels: a new encoder build alone (other
+// palette order, other bytes) does not count as a change.
+const gifHash = (file) =>
+  execFileSync("ffmpeg", ["-loglevel", "error", "-i", file, "-pix_fmt", "rgba", "-f", "framemd5", "-"], { encoding: "utf8" })
+    .split("\n").filter((l) => l && !l.startsWith("#")).join("\n");
 
 const icons = {
   "switch": "M13,18H14A1,1 0 0,1 15,19H22V21H15A1,1 0 0,1 14,22H10A1,1 0 0,1 9,21H2V19H9A1,1 0 0,1 10,18H11V16H8A1,1 0 0,1 7,15V3A1,1 0 0,1 8,2H16A1,1 0 0,1 17,3V15A1,1 0 0,1 16,16H13V18M13,6H14V4H13V6M9,4V6H11V4H9M9,8V10H11V8H9M9,12V14H11V12H9Z",
@@ -181,6 +239,13 @@ const config = {
 const ws = `window.__ws = async (msg) => Object.fromEntries((msg.statistic_ids || []).map((id, k) => [id,
   Array.from({ length: 288 }, (_, i) => ({ start: Date.now() - (288 - i) * 300000, change: 300 * (k ? 0.15 : 1) * 1048576 * (2 + 14 * Math.exp(-((i - 240) ** 2) / 900) + 6 * Math.exp(-((i - 110) ** 2) / 400) + Math.sin(i * 0.12 + k) ** 2) }))]));`;
 const hass = { states };
+// The switch offline (turned off, status Offline, link lost): its port sensors still report their last link, but the
+// card draws every port off.
+const offline = { states: { ...states, ...Object.fromEntries([
+  state("switch.office_switch", "off"),
+  state("sensor.office_switch_status", "Offline"),
+  state("binary_sensor.office_switch_connectivity", "off", { device_class: "connectivity" }),
+]) } };
 // Flips the power toggle off as a user would: the card asks for a confirmation first.
 const turnOff = (page) =>
   page.evaluate(() => {
@@ -202,6 +267,20 @@ await render(
     // A phone: 6 columns of a section, then the narrowest mini card.
     { file: "mini-card-narrow", type: "ha-switch-mini-card", theme: "light", width: 240, config: { ...config, model: "gs308t" } },
     { file: "mini-card-narrow-dark", type: "ha-switch-mini-card", theme: "dark", width: 240, config: { ...config, model: "gs308t" } },
+    { file: "mini-card-offline", type: "ha-switch-mini-card", theme: "light", width: 380, config: { ...config, model: "gs308t" }, hass: offline },
+    { file: "mini-card-offline-dark", type: "ha-switch-mini-card", theme: "dark", width: 380, config: { ...config, model: "gs308t" }, hass: offline },
+  ],
+  { icons, hass, extra: extra + ws }
+);
+
+// The header's activity LEDs: every port with link flickers at its own rhythm (0.4 / 0.6 / 0.8 / 1.2 s) and the
+// network strip flows (1.6 s); 4.8 s holds a whole number of each, so the GIF loops seamlessly.
+await recordGifs(
+  [
+    { file: "header-gs308t", type: "ha-switch-mini-card", theme: "light", width: 380, config: { ...config, model: "gs308t" }, seconds: 4.8 },
+    { file: "header-gs308t-dark", type: "ha-switch-mini-card", theme: "dark", width: 380, config: { ...config, model: "gs308t" }, seconds: 4.8 },
+    { file: "header-generic", type: "ha-switch-mini-card", theme: "light", width: 380, config: { ...config, subtitle: "Generic" }, seconds: 4.8 },
+    { file: "header-generic-dark", type: "ha-switch-mini-card", theme: "dark", width: 380, config: { ...config, subtitle: "Generic" }, seconds: 4.8 },
   ],
   { icons, hass, extra: extra + ws }
 );

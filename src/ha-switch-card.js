@@ -1708,6 +1708,10 @@ const portSvg = (color, dark) => `
 // A port's tooltip: "Port 3", or "Port 3 · NAS" when it has a name.
 const portTitle = (portLabel, p) => `${portLabel} ${p.n}${p.name ? ` · ${p.name}` : ''}`;
 
+// The activity LED of a port with link ("Blink=ACT" on the panel), in the illustrated header only: each port flickers
+// at its own rhythm (0.4 to 1.2 s), offset by its index, so the panel looks busy without being random.
+const actTiming = (i, step = 0.37) => `--d:${[0.6, 0.8, 1.2, 0.4][i % 4]}s;--dl:-${((i * step) % 1.2).toFixed(2)}s`;
+
 const GS308T = { H: 150, CELL: 62, GAP: 8, GROUP_GAP: 16, X0: 150, BEZEL_Y: 38, PORT_Y: 52, PORT_H: 44 };
 const gs308tSvg = (ports, powerColor, portLabel) => {
   const g = GS308T;
@@ -1730,8 +1734,8 @@ const gs308tSvg = (ports, powerColor, portLabel) => {
           <rect x="${x}" y="${y}" width="${g.CELL}" height="${g.PORT_H}" rx="2" fill="#0d0e10"/>
           <path d="M${x + 6} ${y + 6} h${g.CELL - 12} v${g.PORT_H - 16} h-16 v6 h-${g.CELL - 44} v-6 h-16 z" style="fill:${col}"/>
           ${contacts}
-          <rect x="${x + 3}" y="${g.BEZEL_Y + 4}" width="12" height="6" rx="1" style="fill:${led}"/>
-          ${led === COLORS.green ? `<rect x="${x + 1}" y="${g.BEZEL_Y + 2}" width="16" height="10" rx="2" style="fill:${led}" opacity="0.3"/>` : ''}
+          <rect x="${x + 3}" y="${g.BEZEL_Y + 4}" width="12" height="6" rx="1" ${led === COLORS.green ? `class="act" style="fill:${led};${actTiming(i)}"` : `style="fill:${led}"`}/>
+          ${led === COLORS.green ? `<rect class="act halo" x="${x + 1}" y="${g.BEZEL_Y + 2}" width="16" height="10" rx="2" style="fill:${led};${actTiming(i)}" opacity="0.3"/>` : ''}
           <text x="${cx}" y="${g.PORT_Y + g.PORT_H + 30}" text-anchor="middle" font-size="13" fill="#d6d6d6">${esc(p?.label ?? i + 1)}</text>`;
     return p
       ? `<g class="port" data-entity="${esc(p.id)}" role="button" tabindex="0"><title>${esc(portTitle(portLabel, p))}</title>${body}</g>`
@@ -1809,6 +1813,7 @@ const chassisSvg = (ports, powerColor, portLabel) => {
           ${contacts}
           <rect x="${x + 4}" y="${y + 26}" width="8" height="4" rx="1" style="fill:${dark}" opacity="0.8"/>
           <rect x="${x + 28}" y="${y + 26}" width="8" height="4" rx="1" style="fill:${dark}" opacity="0.8"/>
+          ${col === COLORS.green ? `<rect class="act lk" x="${x + 3}" y="${y + 25}" width="10" height="6" rx="1.5" style="${actTiming(i)}"/><rect class="act lk" x="${x + 27}" y="${y + 25}" width="10" height="6" rx="1.5" style="${actTiming(i + 1, 0.53)}"/>` : ''}
           <text x="${x + 20}" y="${labelY}" text-anchor="middle" font-size="11" class="hs-label">${esc(p.label)}</text>
         </g>`;
     })
@@ -2320,14 +2325,17 @@ class HaSwitchCard extends HTMLElement {
     const watched = watchedPorts(c);
     const portInfo = [];
     let upCount = 0;
+    // The switch down (status or connectivity offline or unavailable, or turned off): its ports are drawn off (grey),
+    // whatever their sensors still report, and the header's activity LEDs stop.
+    const down = sw?.state === 'off' || ((c.status_entity || c.connectivity_entity) && (statusColor === COLORS.red || statusColor === COLORS.grey));
     for (let n = 1; n <= count; n++) {
       const id = this._portEntity(n);
       const ps = this._state(id);
-      const up = ps?.state === String(c.port_on_state);
+      const up = !down && ps?.state === String(c.port_on_state);
       if (up) upCount++;
       // Missing, unavailable or unknown: grey, so a dead SNMP poll does not show every port as down. A port without
       // link is grey too (nothing plugged in), red only when it is one of the `watched_ports`.
-      const color = !ps || isUnavailable(ps) ? COLORS.grey : up ? COLORS.green : watched.has(n) ? COLORS.red : COLORS.grey;
+      const color = down || !ps || isUnavailable(ps) ? COLORS.grey : up ? COLORS.green : watched.has(n) ? COLORS.red : COLORS.grey;
       const name = portName(c, n);
       portInfo.push({ n, id, name, label: name ? shortName(name) : String(n), colors: [color, shade(color)] });
     }
@@ -2404,7 +2412,7 @@ class HaSwitchCard extends HTMLElement {
             ${c.subtitle ? `<div class="sub">${esc(c.subtitle)}</div>` : ''}
           </div>
           ${sw && !compact ? `<ha-switch aria-label="${esc(`${t.power}${t.colon}${c.name}`)}" title="${esc(t.power)}"></ha-switch>` : ''}${this._zoomButton()}${
-            banner ? `<div class="ground ${statusColor === COLORS.red ? 'g-netdown' : 'g-net'}"></div>` : ''
+            banner ? `<div class="ground ${statusColor === COLORS.red || sw?.state === 'off' ? 'g-netdown' : down ? 'g-net still' : 'g-net'}"></div>` : ''
           }
         </div>
         ${body}${confirm ? this._confirmHtml(t) : ''}
@@ -2530,6 +2538,10 @@ class HaSwitchCard extends HTMLElement {
         --hs-dark: color-mix(in srgb, var(--primary-text-color, #212121) 45%, var(--card-background-color, #fff));
       }
       ha-card { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+      /* The illustrated header and its title block are size containers, which take no width from their content: in a
+         parent sized by its content (inline-block, an \`auto\` grid column, layout-card) a zero-height line gives the
+         full card up to 300px there (its gap taken back), as the header's content used to. */
+      ha-card:not(.mini):has(> .banner)::before { content: ""; width: 300px; max-width: 100%; height: 0; margin-bottom: -10px; }
       [data-entity], [data-url] { cursor: pointer; }
       /* The body starts 8px under the header (the card gap is 10px between body blocks). */
       .header { display: flex; align-items: center; gap: 10px; margin-bottom: -2px; }
@@ -2608,7 +2620,7 @@ class HaSwitchCard extends HTMLElement {
          padding. An empty, zero-height grid before it gives the host up to 240px there, and no minimum. */
       :host([mini]) { display: block; min-width: 0; }
       :host([mini])::before { content: ""; display: grid; grid-template-columns: minmax(0, 240px); height: 0; }
-      ha-card.mini { gap: 8px; container-type: inline-size; }
+      ha-card.mini { gap: 8px; container: hs-card / inline-size; }
       .zoom { all: unset; flex: none; cursor: pointer; width: 24px; height: 24px; margin: -4px -4px -4px 0; border-radius: 50%; align-self: flex-start;
               display: grid; place-items: center; color: var(--secondary-text-color); --mdc-icon-size: 16px; }
       .zoom:hover { background: color-mix(in srgb, var(--secondary-text-color) 14%, transparent); color: var(--primary-text-color); }
@@ -2630,7 +2642,7 @@ class HaSwitchCard extends HTMLElement {
         .rates { flex-direction: row; }
         .rt { flex: 1 1 0; }
       }
-      @container (max-width: 200px) {
+      @container hs-card (max-width: 200px) {
         .rates { flex-direction: column; }
         .rt { flex: none; padding: 3px 6px; }
         .rt > div { font-size: 12px; }
@@ -2660,10 +2672,12 @@ class HaSwitchCard extends HTMLElement {
          background at its left, the front panel big at its right over a 10px network strip. Its own colours, day and
          night, whatever the theme. */
       .banner {
-        --hb-scene-w: min(200px, 58%);
+        /* A size container (it takes its width from the card, never from its content), so that the full card's
+           banner follows its own width too. The panel's width is resolved where it is used (cqw: the banner's). */
+        container: hs-banner / inline-size;
+        --hb-scene-w: min(200px, 58cqw);
         position: relative; isolation: isolate; overflow: hidden; box-sizing: border-box;
         height: 90px; margin: -12px -12px 0; padding: 0 12px 10px;
-        padding-right: calc(var(--hb-scene-w) * 0.76 + 6px);
         border-radius: var(--ha-card-border-radius, 12px) var(--ha-card-border-radius, 12px) 0 0;
         background: #eaf2fb; color: #0d2a45;
         /* The panel's chassis: dark, as the real switch, on the light and the night background alike. */
@@ -2671,26 +2685,51 @@ class HaSwitchCard extends HTMLElement {
       }
       .banner.night { background: #101827; color: #fff; --hs-body-top: #2b2f36; --hs-body-bottom: #16191e; --hs-dark: #3e444d; }
       .banner > :not(.scene, .ground) { position: relative; z-index: 1; }
+      /* The title block keeps clear of the panel (its left quarter may run under the text's end). */
+      .banner > .titles { margin-right: calc(var(--hb-scene-w) * 0.76 - 6px); }
       .banner .scene { position: absolute; right: 0; bottom: 10px; height: 80px; width: var(--hb-scene-w); z-index: 0; overflow: visible; }
       .banner .scene .dots { fill: #c9dcf2; }
       .banner.night .scene .dots { fill: #22324d; }
       .banner .scene .hs-label { fill: #c4cad3; }
       .banner .ic.big { background: rgba(255,255,255,.62); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 22%, transparent); }
       .banner.night .ic.big { background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
-      /* The status pill under the name, on the background. */
-      .banner .title-row { flex-direction: column; align-items: flex-start; flex-wrap: nowrap; gap: 3px; }
-      .banner .title-row > .name { flex: none; min-width: 0; max-width: 100%; }
-      .banner .title-row > .chip { max-width: 100%; }
+      /* Title row: the name, then the status pill 8 px after it (a dot in the icon's colour and the status), both
+         shrinking (the name keeps a few characters, the pill at most about half the row); the subtitle under them.
+         Short of room the pill takes its own line under the subtitle. */
+      .banner .titles { display: grid; grid-template-columns: minmax(min(4.5ch, 100%), max-content) max-content;
+                        justify-content: start; align-items: center; column-gap: 8px; row-gap: 2px; container: hs-titles / inline-size; }
+      .banner .title-row { display: contents; }
+      .banner .titles > .sub { grid-column: 1 / -1; }
+      .banner .title-row > .name { min-width: 0; }
+      .banner .title-row > .chip { justify-self: start; max-width: 100%; gap: 4px; padding: 1px 8px; line-height: 16px; }
+      .banner .title-row > .chip ha-icon { display: none !important; }
+      .banner .title-row > .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--c); flex: none; }
+      @container hs-titles (max-width: 200px) { .banner .title-row > .chip { grid-column: 1; grid-row: 3; } }
+      /* The power toggle and the expand / collapse button on the banner's top line, at its right. */
+      .banner.header > ha-switch { position: absolute; z-index: 2; top: 9px; right: 10px; }
+      .banner.header:has(.zoom) > ha-switch { right: 38px; }
       .banner .name { color: #0d2a45; }
       .banner .sub { color: #3b5b78; }
       .banner.night .name { color: #fff; }
       .banner.night .sub { color: rgba(255,255,255,.78); }
-      .banner .chip { background: rgba(255,255,255,.72); color: color-mix(in srgb, var(--c) 62%, #0d2a45); }
-      .banner.night .chip { background: rgba(10,20,40,.55); color: color-mix(in srgb, var(--c) 55%, #fff); }
-      .banner .zoom { position: absolute; top: 6px; right: 6px; margin: 0; color: #10283f; background: rgba(255,255,255,.55); }
-      .banner.night .zoom { color: #fff; background: rgba(10,20,40,.45); }
-      .banner .zoom:hover { background: rgba(255,255,255,.8); color: #10283f; }
-      .banner.night .zoom:hover { background: rgba(10,20,40,.7); color: #fff; }
+      .banner .chip { background: color-mix(in srgb, var(--c) 18%, rgba(255,255,255,.78)); color: color-mix(in srgb, var(--c) 45%, #0d2a45); }
+      .banner.night .chip { background: color-mix(in srgb, var(--c) 30%, rgba(8,18,38,.55)); color: color-mix(in srgb, var(--c) 35%, #ffffff); }
+      /* The expand / collapse button: 24 px, round, frosted, in the banner's top right corner. */
+      .banner .zoom { position: absolute; z-index: 2; top: 5px; right: 5px; width: 24px; height: 24px; margin: 0; color: #33506b;
+                      background: rgba(255,255,255,.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,.7);
+                      -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+      .banner .zoom:hover { background: rgba(255,255,255,.75); color: #33506b; }
+      .banner.night .zoom { color: #fff; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
+      .banner.night .zoom:hover { background: rgba(255,255,255,.22); color: #fff; }
+      /* Activity LEDs ("Blink=ACT"), in the header only: each port with link flickers at its own rhythm; the power LED
+         stays steady. A port is drawn with link only while the switch is up, so everything stops when it is down. */
+      .lk { display: none; }
+      .banner .scene .lk { display: inline; fill: #b9f6ca; filter: drop-shadow(0 0 3px #5dff8f); }
+      .banner .scene .act { fill: #5dff8f !important; animation: hs-act var(--d, .8s) steps(1, end) var(--dl, 0s) infinite; }
+      .banner .scene .act.halo { filter: blur(1.5px); animation-name: hs-act-halo; }
+      @keyframes hs-act { 0% { opacity: 1; } 18% { opacity: .1; } 30% { opacity: 1; } 55% { opacity: .1; } 68% { opacity: 1; } 84% { opacity: .25; } }
+      @keyframes hs-act-halo { 0% { opacity: .45; } 18% { opacity: 0; } 30% { opacity: .45; } 55% { opacity: 0; } 68% { opacity: .45; } 84% { opacity: .1; } }
+      @media (prefers-reduced-motion: reduce) { .banner .scene .act { animation: none; } }
       /* Network strip: blue dashes flowing (traffic) while the switch is up, red still dashes when it is down. */
       .ground { position: absolute; left: 0; right: 0; bottom: 0; height: 10px; z-index: 0; background-repeat: no-repeat; background-size: calc(100% + 22px) 2px; background-position: 0 50%; }
       .g-net { background-color: #1e3a5f; background-image: repeating-linear-gradient(90deg, #4fc3f7 0 14px, transparent 14px 22px); box-shadow: inset 0 2px 0 #2f5a8a;
@@ -2699,11 +2738,26 @@ class HaSwitchCard extends HTMLElement {
       .g-netdown { background-color: #5a6370; background-image: repeating-linear-gradient(90deg, #e5484d 0 6px, transparent 6px 16px); box-shadow: inset 0 2px 0 #77808c; }
       .night .g-netdown { background-color: #2c323b; box-shadow: inset 0 2px 0 #3a414c; }
       @keyframes hb-flow { from { background-position: -22px 50%; } to { background-position: 0 50%; } }
+      .g-net.still { animation: none; }
       @media (prefers-reduced-motion: reduce) { .g-net { animation: none; } }
-      /* A narrow mini card: no room for the panel beside the title, the background alone stays. */
-      @container (max-width: 230px) {
-        .banner .scene { display: none; }
-        .banner { padding-right: 36px; }
+      /* A card of about 300 px: a smaller panel, so the name and the whole status pill keep their room. */
+      @container hs-banner (max-width: 340px) { .banner > .scene, .banner > .titles { --hb-scene-w: 46cqw; } }
+      /* A narrow card (a phone, 6 columns of a section): no room for the panel beside the title, the background alone
+         stays; the title keeps clear of the buttons on the top line (power toggle, expand / collapse). */
+      @container hs-banner (max-width: 260px) {
+        .banner > .scene { display: none; }
+        .banner > .titles { margin-right: 0; }
+        .banner > .titles .name { padding-right: 18px; }
+        .banner:has(> ha-switch) > .titles .name { padding-right: 44px; }
+        .banner:has(> ha-switch):has(> .zoom) > .titles .name { padding-right: 72px; }
+      }
+      /* 200 px or less: the pill keeps its dot and the port count (its whole text stays in its title and aria-label). */
+      @container hs-banner (max-width: 200px) {
+        .banner .title-row > .chip > span:not(.cnt) { display: none; }
+        .banner .title-row > .chip .cnt { font-size: 0; margin-left: 0; }
+        .banner .title-row > .chip .cnt::after { content: attr(data-n); font-size: 11px; }
+        /* With the power toggle on the top line, the name takes the icon's room (the pill keeps the status colour). */
+        .banner:has(> ha-switch) > .ic.big { display: none; }
       }
     `;
   }

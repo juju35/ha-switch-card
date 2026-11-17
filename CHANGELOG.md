@@ -4,6 +4,11 @@
 
 ### Features
 - **Illustrated header** on the full and the mini card (90px): the card's own front panel (generic or Netgear GS308T, with its port colours: up, unplugged, watched port down in red) drawn big on a network background, the title and the status pill on its left, a 10px network strip along the bottom (flowing blue dashes while up, red dashes when the switch is down). The header icon keeps the status colour. Night picture after `sun.sun` or the dark theme, forced with `illustration_theme: day | night`; `illustration: false` keeps the classic header. Both options are in the visual editor (full and mini card); the flowing strip stays still under `prefers-reduced-motion`.
+- **Activity LEDs** in the header: the LED of each port with link flickers at its own rhythm, like the panel's "Blink=ACT" (on the generic panel, the two small LEDs under each port); the power LED stays steady, everything stops while the switch is down, and nothing moves under `prefers-reduced-motion`. README GIFs of both panels, light and dark.
+- Status pill right after the name (its own line under the subtitle on a narrow card, dot and port count only at 200 px or less); the power toggle and the mini card's expand / collapse button (24 px, round, frosted) on the banner's top line, at its right.
+
+### Fixes
+- Switch down (turned off, status or connectivity offline or unavailable): the ports are drawn off (grey) instead of following their sensors' last state.
 
 ## 1.14.1 - 2026-11-14
 
