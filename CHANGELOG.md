@@ -11,6 +11,7 @@
 
 ### Fixes
 - Switch down (turned off, status or connectivity offline or unavailable): the ports are drawn off (grey) instead of following their sensors' last state.
+- The 24 h traffic curves no longer run under the text: the download / upload tiles draw theirs in a 24 px band of their own under the rate and its total ("Total 172 GiB"), and the mini card's rate chips in a thin band under the rate.
 
 ## 1.14.1 - 2026-11-14
 

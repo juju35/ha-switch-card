@@ -2647,8 +2647,9 @@ class HaSwitchCard extends HTMLElement {
       .tile > :not(.spark) { position: relative; }
       .tile .ic { --mdc-icon-size: 20px; }
       .tile .t { font-size: 11px; color: var(--secondary-text-color); }
-      /* 24 h curve behind a rate, in the lower half, in the tile's colour. */
-      .spark { position: absolute; left: 0; bottom: 0; width: 100%; height: 55%; pointer-events: none; }
+      /* 24 h curve of a rate, in the tile's colour, in its own 24 px band under the text, never behind it. */
+      .tile:has(> .spark) { padding-bottom: 30px; }
+      .spark { position: absolute; inset: auto 0 0; width: 100%; height: 24px; pointer-events: none; }
       .spark-a { fill: color-mix(in srgb, var(--c) 12%, transparent); }
       .spark-l { fill: none; stroke: color-mix(in srgb, var(--c) 50%, transparent); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
       /* "Online · 6/8": the count follows the status as one text (the chip's gap is for its icon). */
@@ -2674,7 +2675,9 @@ class HaSwitchCard extends HTMLElement {
                   color: var(--primary-text-color); white-space: nowrap; --mdc-icon-size: 14px; }
       .rt ha-icon { flex: none; color: var(--c); }
       .rt span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-      .rt .spark { height: 60%; }
+      /* The mini card's rate chips: a 14 px band under the rate. */
+      .rt:has(> .spark) { padding-bottom: 16px; }
+      .rt .spark { height: 14px; }
       /* A narrow mini card (a phone, 6 columns of a section): the panel takes the whole width, the rates go under it
          side by side, then one per line; the pill keeps only the port count. */
       @container (max-width: 330px) {
