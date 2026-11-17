@@ -1898,9 +1898,11 @@ function configWarnings(c) {
 const focusKey = (el) =>
   el?.tagName === 'HA-SWITCH'
     ? 'ha-switch'
-    : el?.getAttribute?.('tabindex') != null
-      ? [el.getAttribute('class'), el.getAttribute('data-entity'), el.getAttribute('data-url')].join('|')
-      : '';
+    : el?.getAttribute?.('data-action') === 'power'
+      ? 'power'
+      : el?.getAttribute?.('tabindex') != null
+        ? [el.getAttribute('class'), el.getAttribute('data-entity'), el.getAttribute('data-url')].join('|')
+        : '';
 
 // Patch the shadow DOM in place from the new HTML: nodes whose tag is unchanged are kept, so keyboard
 // focus, hover, the power toggle and its listener survive an update (a new rate every few seconds), and only
@@ -2226,6 +2228,24 @@ class HaSwitchCard extends HTMLElement {
     return '';
   }
 
+  // The front panel drawn big in the illustrated header. The mini card's expanded view leaves it out (its panel is
+  // right under the header).
+  _headerArt() {
+    return true;
+  }
+
+  // The power button on the illustrated header's top line: on, it turns the switch off (after the confirmation, unless
+  // `confirm_off: false`); off, it turns it on.
+  _powerPress() {
+    const sw = this._state(this._config.switch_entity);
+    if (sw?.state === 'on') {
+      if (this._config.confirm_off !== false) this._openConfirm();
+      else this._power('turn_off');
+    } else if (sw && !isUnavailable(sw)) {
+      this._power('turn_on');
+    }
+  }
+
   _onClick(ev) {
     const path = ev.composedPath();
     // Just closed: the rest of a double click on Turn off does nothing.
@@ -2246,6 +2266,10 @@ class HaSwitchCard extends HTMLElement {
       return;
     }
     if (path.some((el) => el.tagName === 'HA-SWITCH')) return;
+    if (path.some((el) => el.dataset?.action === 'power')) {
+      this._powerPress();
+      return;
+    }
     const target = path.find((el) => el.dataset && (el.dataset.entity || el.dataset.url));
     if (!target) return;
     if (target.dataset.entity) this._moreInfo(target.dataset.entity);
@@ -2392,7 +2416,9 @@ class HaSwitchCard extends HTMLElement {
     // background, the title on its left, a network strip along its bottom (red dashes when the switch is down).
     let banner = '';
     if (c.illustration !== false) {
-      const art = c.image
+      const art = !this._headerArt()
+        ? ''
+        : c.image
         ? `<image href="${esc(c.image)}" x="48" y="22" width="150" height="44" preserveAspectRatio="xMaxYMax meet"/>`
         : headerArt(panel, this._uid);
       banner = `<svg class="scene" viewBox="0 0 200 80" preserveAspectRatio="xMaxYMax meet" aria-hidden="true"><path class="dots" d="${NET_DOTS}"/>${art}</svg>`;
@@ -2403,7 +2429,7 @@ class HaSwitchCard extends HTMLElement {
     const html = `
       <style>${HaSwitchCard.styles}</style>
       <ha-card class="${compact ? 'mini' : ''}${confirm ? 'dialog-open' : ''}">
-        <div class="${banner ? `header banner${night ? ' night' : ''}` : 'header'}">${banner}
+        <div class="${banner ? `header banner${night ? ' night' : ''}${this._headerArt() ? '' : ' noart'}` : 'header'}">${banner}
           <div class="ic big" style="--c:${statusColor}" ${headerEntity ? `data-entity="${esc(headerEntity)}" role="button" tabindex="0" aria-label="${esc(this._state(headerEntity)?.attributes?.friendly_name || headerEntity)}"` : ''}>
             <ha-icon icon="${esc(c.icon)}"></ha-icon>
           </div>
@@ -2411,7 +2437,7 @@ class HaSwitchCard extends HTMLElement {
             <div class="title-row"><div class="name">${esc(c.name)}</div>${pill}</div>
             ${c.subtitle ? `<div class="sub">${esc(c.subtitle)}</div>` : ''}
           </div>
-          ${sw && !compact ? `<ha-switch aria-label="${esc(`${t.power}${t.colon}${c.name}`)}" title="${esc(t.power)}"></ha-switch>` : ''}${this._zoomButton()}${
+          ${sw && !compact ? this._powerControl(sw, statusColor, t, !!banner) : ''}${this._zoomButton()}${
             banner ? `<div class="ground ${statusColor === COLORS.red || sw?.state === 'off' ? 'g-netdown' : down ? 'g-net still' : 'g-net'}"></div>` : ''
           }
         </div>
@@ -2426,7 +2452,7 @@ class HaSwitchCard extends HTMLElement {
     // The focused element was replaced (first render, or its place changed): focus its counterpart, the power toggle
     // included, so keyboard navigation keeps its place.
     if (focused && (!patched || this.shadowRoot.activeElement !== active)) {
-      const again = [...this.shadowRoot.querySelectorAll('[tabindex], ha-switch')].find((el) => focusKey(el) === focused);
+      const again = [...this.shadowRoot.querySelectorAll('[tabindex], ha-switch, .pw')].find((el) => focusKey(el) === focused);
       again?.focus({ preventScroll: true });
     }
 
@@ -2448,6 +2474,16 @@ class HaSwitchCard extends HTMLElement {
         this._power(ev.target.checked ? 'turn_on' : 'turn_off');
       });
     }
+  }
+
+  // The power control: a round button (mdi:power, the status colour while on, grey while off) on the illustrated
+  // header's top line, the ha-switch toggle in the classic header.
+  _powerControl(sw, statusColor, t, banner) {
+    const label = esc(`${t.power}${t.colon}${this._config.name}`);
+    if (!banner) return `<ha-switch aria-label="${label}" title="${esc(t.power)}"></ha-switch>`;
+    const on = sw.state === 'on';
+    const off = isUnavailable(sw);
+    return `<button class="pw${on ? ' on' : ''}" type="button" data-action="power"${on ? ` style="--c:${statusColor}"` : ''} aria-label="${label}" aria-pressed="${on}" title="${esc(on ? t.turn_off : t.power)}"${off ? ' disabled' : ''}><ha-icon icon="mdi:power"></ha-icon></button>`;
   }
 
   // Power toggle service call.
@@ -2501,7 +2537,7 @@ class HaSwitchCard extends HTMLElement {
     this._dropConfirm();
     this._key = '';
     this._render();
-    if (restoreFocus) this.shadowRoot.querySelector('ha-switch')?.focus?.({ preventScroll: true });
+    if (restoreFocus) this.shadowRoot.querySelector('ha-switch, .pw')?.focus?.({ preventScroll: true });
   }
 
   _confirmHtml(t) {
@@ -2709,9 +2745,8 @@ class HaSwitchCard extends HTMLElement {
       .banner .title-row > .chip ha-icon { display: none !important; }
       .banner .title-row > .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--c); flex: none; }
       @container hs-titles (max-width: 200px) { .banner .title-row > .chip { grid-column: 1; grid-row: 3; } }
-      /* The power toggle and the expand / collapse button on the banner's top line, at its right. */
-      .banner.header > ha-switch { position: absolute; z-index: 2; top: 9px; right: 10px; }
-      .banner.header:has(.zoom) > ha-switch { right: 38px; }
+      /* The mini card's expanded view: no front panel in the header (it is right under it), the title takes the room. */
+      .banner.noart > .titles { margin-right: 0; }
       .banner .name { color: #0d2a45; }
       .banner .sub { color: #3b5b78; }
       .banner.night .name { color: #fff; }
@@ -2725,6 +2760,20 @@ class HaSwitchCard extends HTMLElement {
       .banner .zoom:hover { background: rgba(255,255,255,.75); color: #33506b; }
       .banner.night .zoom { color: #fff; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
       .banner.night .zoom:hover { background: rgba(255,255,255,.22); color: #fff; }
+      /* The power button: the same round frosted button, 4 px left of the expand / collapse one (or in the corner),
+         its icon in the status colour while on, grey while off. */
+      .banner .pw { all: unset; position: absolute; z-index: 2; top: 5px; right: 5px; width: 24px; height: 24px; border-radius: 50%;
+                    display: grid; place-items: center; cursor: pointer; --mdc-icon-size: 16px; color: var(--c);
+                    background: rgba(255,255,255,.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,.7);
+                    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+      .banner .pw:hover { background: rgba(255,255,255,.75); }
+      .banner .pw:not(.on) { color: #7b8a99; }
+      .banner.night .pw:not(.on) { color: rgba(255,255,255,.5); }
+      .banner.night .pw { background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
+      .banner.night .pw:hover { background: rgba(255,255,255,.22); }
+      .banner .pw:focus-visible { outline: 2px solid var(--primary-color, #03a9f4); outline-offset: 1px; }
+      .banner .pw:disabled { cursor: default; opacity: .6; }
+      .banner:has(> .zoom) > .pw { right: 33px; }
       /* Activity LEDs ("Blink=ACT"), in the header only: each port with link flickers at its own rhythm; the power LED
          stays steady. A port is drawn with link only while the switch is up, so everything stops when it is down. */
       .lk { display: none; }
@@ -2752,16 +2801,13 @@ class HaSwitchCard extends HTMLElement {
         .banner > .scene { display: none; }
         .banner > .titles { margin-right: 0; }
         .banner > .titles .name { padding-right: 18px; }
-        .banner:has(> ha-switch) > .titles .name { padding-right: 44px; }
-        .banner:has(> ha-switch):has(> .zoom) > .titles .name { padding-right: 72px; }
+        .banner:has(> .pw):has(> .zoom) > .titles .name { padding-right: 46px; }
       }
       /* 200 px or less: the pill keeps its dot and the port count (its whole text stays in its title and aria-label). */
       @container hs-banner (max-width: 200px) {
         .banner .title-row > .chip > span:not(.cnt) { display: none; }
         .banner .title-row > .chip .cnt { font-size: 0; margin-left: 0; }
         .banner .title-row > .chip .cnt::after { content: attr(data-n); font-size: 11px; }
-        /* With the power toggle on the top line, the name takes the icon's room (the pill keeps the status colour). */
-        .banner:has(> ha-switch) > .ic.big { display: none; }
       }
     `;
   }
@@ -2810,6 +2856,10 @@ class HaSwitchMiniCard extends HaSwitchCard {
   }
 
   _compact() {
+    return !this._zoomed;
+  }
+
+  _headerArt() {
     return !this._zoomed;
   }
 

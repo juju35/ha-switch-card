@@ -193,7 +193,8 @@ test("unavailable / unknown ports, status and connectivity are grey, not red", (
   }
 });
 
-// A card with a fake power toggle and manual timers. click(checked) flips the toggle as ha-switch does and fires `change`.
+// A card with a fake power toggle (the classic header's ha-switch) and manual timers. click(checked) flips the toggle as
+// ha-switch does and fires `change`.
 // Window and document listeners are recorded (`on`), so that Escape and outside clicks can be fired.
 function toggleCard({ callService, state = "off", config = {} } = {}) {
   const timers = [];
@@ -209,7 +210,7 @@ function toggleCard({ callService, state = "off", config = {} } = {}) {
   const card = new HaSwitchCard();
   const toggle = { checked: false, disabled: false, listeners: [], addEventListener(_, fn) { this.listeners.push(fn); } };
   card.shadowRoot.querySelector = (sel) => (sel === "ha-switch" ? toggle : null);
-  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", switch_entity: "switch.sw", ...config });
+  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", switch_entity: "switch.sw", illustration: false, ...config });
   const hass = (s) => ({ language: "en", states: { "switch.sw": { state: s, attributes: {} } }, callService: callService ?? (() => Promise.resolve()) });
   card.hass = hass(state);
   const click = async (checked) => {
@@ -928,9 +929,16 @@ test("mini card: compact front panel and rates, no power toggle; the detail butt
   card._onClick({ composedPath: () => [{ classList: { contains: (c) => c === "zoom" } }], stopPropagation() {}, detail: 1 });
   html = card.shadowRoot.innerHTML;
   assert.match(html, /<ha-card class="">/);
-  assert.match(html, /<ha-switch [^>]*><\/ha-switch><button class="zoom" title="Back to the compact view"/);
+  // Expanded: the power button left of the collapse button; no front panel in the header (it is right under it).
+  assert.match(html, /<button class="pw on" type="button" data-action="power"[^>]*><ha-icon icon="mdi:power"><\/ha-icon><\/button><button class="zoom" title="Back to the compact view"/);
+  assert.match(html, /class="header banner noart"/);
+  assert.doesNotMatch(html.split('class="titles"')[0], /<svg x="48"/);
   assert.match(html, /class="chips"/);
   assert.equal(card.getGridOptions().min_columns, 8);
+  // Compact: the front panel in the header.
+  card._onClick({ composedPath: () => [{ classList: { contains: (c) => c === "zoom" } }], stopPropagation() {}, detail: 1 });
+  assert.match(card.shadowRoot.innerHTML.split('class="titles"')[0], /<svg x="48"/);
+  assert.doesNotMatch(card.shadowRoot.innerHTML, /class="header banner[^"]*noart/);
   card.setConfig({ ports: 3, port_pattern: "sensor.p{n}", zoom: false });
   assert.doesNotMatch(card.shadowRoot.innerHTML, /class="zoom"/);
 });
@@ -943,7 +951,7 @@ test("mini card: the header icon keeps the full card's size", () => {
 test("power toggle: named for assistive technologies in the card's language", () => {
   const { card } = toggleCard({ state: "on", config: { name: "Rack" } });
   assert.match(card.shadowRoot.innerHTML, /<ha-switch aria-label="Power: Rack" title="Power"><\/ha-switch>/);
-  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", switch_entity: "switch.sw", name: "Rack", language: "fr" });
+  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", switch_entity: "switch.sw", name: "Rack", language: "fr", illustration: false });
   assert.match(card.shadowRoot.innerHTML, /<ha-switch aria-label="Alimentation : Rack" title="Alimentation"><\/ha-switch>/);
 });
 
@@ -957,6 +965,7 @@ test("power toggle: listened once, however many times the card is drawn again", 
 test("focus restore: the power toggle is found again after its node was replaced", () => {
   const { focusKey } = loadCard("ha-switch-card.js", ["focusKey"]);
   assert.equal(focusKey({ tagName: "HA-SWITCH", getAttribute: () => null }), "ha-switch");
+  assert.equal(focusKey({ tagName: "BUTTON", getAttribute: (a) => (a === "data-action" ? "power" : null) }), "power");
   assert.equal(focusKey({ tagName: "DIV", getAttribute: () => null }), "");
 });
 
@@ -980,4 +989,50 @@ test("illustrated header: the card's own front panel, decorative, with ids uniqu
   const classic = render({ illustration: false }).html;
   assert.match(classic, /<div class="header">/);
   assert.doesNotMatch(classic, /class="scene"|class="ground/);
+});
+
+// The illustrated header: a round power button (mdi:power) on the top line instead of the ha-switch toggle, the
+// status colour while on, grey (no colour of its own) while off, disabled while the switch is unavailable.
+function powerButtonCard(state, config = {}) {
+  const calls = [];
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const card = new HaSwitchCard();
+  card._openConfirm = () => calls.push("confirm");
+  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", switch_entity: "switch.sw", name: "Rack", ...config });
+  card.hass = { language: "en", states: { "switch.sw": { state, attributes: {} } }, callService: (d, s, data) => calls.push([d, s, data.entity_id]) && Promise.resolve() };
+  const press = () => card._onClick({ composedPath: () => [{ dataset: { action: "power" } }], stopPropagation() {} });
+  return { card, calls, press };
+}
+
+test("power button: in the illustrated header, round, labelled, coloured by the power state", () => {
+  let { card } = powerButtonCard("on");
+  let html = card.shadowRoot.innerHTML;
+  assert.doesNotMatch(html, /<ha-switch/);
+  assert.match(html, /<button class="pw on" type="button" data-action="power" style="--c:[^"]+" aria-label="Power: Rack" aria-pressed="true" title="Turn off"><ha-icon icon="mdi:power"><\/ha-icon><\/button>/);
+  ({ card } = powerButtonCard("off"));
+  html = card.shadowRoot.innerHTML;
+  assert.match(html, /<button class="pw" type="button" data-action="power" aria-label="Power: Rack" aria-pressed="false" title="Power">/);
+  ({ card } = powerButtonCard("unavailable"));
+  assert.match(card.shadowRoot.innerHTML, /<button class="pw"[^>]* disabled>/);
+  ({ card } = powerButtonCard("on", { language: "fr" }));
+  assert.match(card.shadowRoot.innerHTML, /aria-label="Alimentation : Rack" aria-pressed="true" title="Éteindre"/);
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const css = HaSwitchCard.styles.replace(/\s+/g, " ");
+  assert.match(cssRule(css, ".banner .pw"), /top: 5px; right: 5px; width: 24px; height: 24px; border-radius: 50%/);
+  assert.match(cssRule(css, ".banner:has(> .zoom) > .pw"), /right: 33px/);
+});
+
+test("power button: on, it asks for the confirmation (or turns off at once with confirm_off: false); off, it turns on", () => {
+  let { calls, press } = powerButtonCard("on");
+  press();
+  assert.deepEqual(calls, ["confirm"]);
+  ({ calls, press } = powerButtonCard("on", { confirm_off: false }));
+  press();
+  assert.deepEqual(calls, [["switch", "turn_off", "switch.sw"]]);
+  ({ calls, press } = powerButtonCard("off"));
+  press();
+  assert.deepEqual(calls, [["switch", "turn_on", "switch.sw"]]);
+  ({ calls, press } = powerButtonCard("unavailable"));
+  press();
+  assert.deepEqual(calls, []);
 });

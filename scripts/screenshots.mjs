@@ -179,7 +179,8 @@ const icons = {
   "arrow-down-bold": "M9,4H15V12H19.84L12,19.84L4.16,12H9V4Z",
   "arrow-up-bold": "M15,20H9V12H4.16L12,4.16L19.84,12H15V20Z",
   "arrow-expand": "M10,21V19H6.41L10.91,14.5L9.5,13.09L5,17.59V14H3V21H10M14.5,10.91L19,6.41V10H21V3H14V5H17.59L13.09,9.5L14.5,10.91Z",
-  "arrow-collapse": "M19.5,3.09L15,7.59V4H13V11H20V9H16.41L20.91,4.5L19.5,3.09M4,13V15H7.59L3.09,19.5L4.5,20.91L9,16.41V20H11V13H4Z"
+  "arrow-collapse": "M19.5,3.09L15,7.59V4H13V11H20V9H16.41L20.91,4.5L19.5,3.09M4,13V15H7.59L3.09,19.5L4.5,20.91L9,16.41V20H11V13H4Z",
+  "power": "M16.56,5.44L15.11,6.89C16.84,7.94 18,9.83 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12C6,9.83 7.16,7.94 8.88,6.88L7.44,5.44C5.36,6.88 4,9.28 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12C20,9.28 18.64,6.88 16.56,5.44M13,3H11V13H13"
 };
 
 // Home Assistant (2024.8+, the card's minimum) translates states through hass.formatEntityState:
@@ -246,13 +247,14 @@ const offline = { states: { ...states, ...Object.fromEntries([
   state("sensor.office_switch_status", "Offline"),
   state("binary_sensor.office_switch_connectivity", "off", { device_class: "connectivity" }),
 ]) } };
-// Flips the power toggle off as a user would: the card asks for a confirmation first.
-const turnOff = (page) =>
-  page.evaluate(() => {
-    const toggle = document.querySelector("ha-switch-card").shadowRoot.querySelector("ha-switch");
-    toggle.checked = false;
-    toggle.dispatchEvent(new Event("change"));
-  });
+// Presses the header's power button as a user would: the card asks for a confirmation first.
+const turnOff = (page) => page.evaluate(() => document.querySelector("ha-switch-card").shadowRoot.querySelector(".pw").click());
+// The mini card's expand button: its expanded view (the full card, without the front panel in the header).
+// A mouse click (detail 1): the button does not keep the keyboard focus ring.
+const expand = (page) =>
+  page.evaluate(() =>
+    document.querySelector("ha-switch-mini-card").shadowRoot.querySelector(".zoom")
+      .dispatchEvent(new MouseEvent("click", { bubbles: true, composed: true, detail: 1 })));
 
 await render(
   [
@@ -269,6 +271,8 @@ await render(
     { file: "mini-card-narrow-dark", type: "ha-switch-mini-card", theme: "dark", width: 240, config: { ...config, model: "gs308t" } },
     { file: "mini-card-offline", type: "ha-switch-mini-card", theme: "light", width: 380, config: { ...config, model: "gs308t" }, hass: offline },
     { file: "mini-card-offline-dark", type: "ha-switch-mini-card", theme: "dark", width: 380, config: { ...config, model: "gs308t" }, hass: offline },
+    { file: "mini-card-expanded", type: "ha-switch-mini-card", theme: "light", width: 380, config: { ...config, model: "gs308t" }, after: expand },
+    { file: "mini-card-expanded-dark", type: "ha-switch-mini-card", theme: "dark", width: 380, config: { ...config, model: "gs308t" }, after: expand },
   ],
   { icons, hass, extra: extra + ws }
 );
