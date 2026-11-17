@@ -955,3 +955,25 @@ test("focus restore: the power toggle is found again after its node was replaced
   assert.equal(focusKey({ tagName: "HA-SWITCH", getAttribute: () => null }), "ha-switch");
   assert.equal(focusKey({ tagName: "DIV", getAttribute: () => null }), "");
 });
+
+test("illustrated header: the card's own front panel, decorative, with ids unique to the card; night and classic header", () => {
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const states = { "sensor.s": { state: "Offline", attributes: {} }, "sensor.p1": { state: "1", attributes: {} }, "sun.sun": { state: "below_horizon", attributes: {} } };
+  const render = (config) => {
+    const card = new HaSwitchCard();
+    card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", status_entity: "sensor.s", ...config });
+    card.hass = { language: "en", states };
+    return { card, html: card.shadowRoot.innerHTML };
+  };
+  const { card, html } = render({ model: "gs308t" });
+  const banner = html.slice(html.indexOf('<div class="header banner'), html.indexOf('<div class="ic big'));
+  assert.match(html, /<div class="header banner night">/, "night after sun.sun");
+  assert.match(banner, /aria-label|NETGEAR/);
+  assert.doesNotMatch(banner, /data-entity|tabindex/, "the header's panel is not interactive");
+  assert.ok(banner.includes(`id="ng-body-h${card._uid}"`) && banner.includes(`url(#ng-body-h${card._uid})`), "ids suffixed with the card uid");
+  assert.match(html, /class="ground g-netdown"/, "switch down: red network strip");
+  assert.match(render({ illustration_theme: "day" }).html, /<div class="header banner">/);
+  const classic = render({ illustration: false }).html;
+  assert.match(classic, /<div class="header">/);
+  assert.doesNotMatch(classic, /class="scene"|class="ground/);
+});

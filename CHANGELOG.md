@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.15.0 - 2026-11-17
+
+### Features
+- **Illustrated header** on the full and the mini card (90px): the card's own front panel (generic or Netgear GS308T, with its port colours: up, unplugged, watched port down in red) drawn big on a network background, the title and the status pill on its left, a 10px network strip along the bottom (flowing blue dashes while up, red dashes when the switch is down). The header icon keeps the status colour. Night picture after `sun.sun` or the dark theme, forced with `illustration_theme: day | night`; `illustration: false` keeps the classic header. Both options are in the visual editor (full and mini card); the flowing strip stays still under `prefers-reduced-motion`.
+
 ## 1.14.1 - 2026-11-14
 
 ### Fixes
