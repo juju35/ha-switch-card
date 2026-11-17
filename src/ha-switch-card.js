@@ -2228,10 +2228,10 @@ class HaSwitchCard extends HTMLElement {
     return '';
   }
 
-  // The front panel drawn big in the illustrated header. The mini card's expanded view leaves it out (its panel is
-  // right under the header).
+  // The front panel drawn big in the illustrated header: only on the compact mini card. The full card (and the mini
+  // card's expanded view) leaves it out, its panel being right under the header.
   _headerArt() {
-    return true;
+    return false;
   }
 
   // The power button on the illustrated header's top line: on, it turns the switch off (after the confirmation, unless
@@ -2745,7 +2745,7 @@ class HaSwitchCard extends HTMLElement {
       .banner .title-row > .chip ha-icon { display: none !important; }
       .banner .title-row > .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--c); flex: none; }
       @container hs-titles (max-width: 200px) { .banner .title-row > .chip { grid-column: 1; grid-row: 3; } }
-      /* The mini card's expanded view: no front panel in the header (it is right under it), the title takes the room. */
+      /* The full card and the mini card's expanded view: no front panel in the header (it is right under it), the title takes the room. */
       .banner.noart > .titles { margin-right: 0; }
       .banner .name { color: #0d2a45; }
       .banner .sub { color: #3b5b78; }

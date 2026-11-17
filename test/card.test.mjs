@@ -969,23 +969,28 @@ test("focus restore: the power toggle is found again after its node was replaced
   assert.equal(focusKey({ tagName: "DIV", getAttribute: () => null }), "");
 });
 
-test("illustrated header: the card's own front panel, decorative, with ids unique to the card; night and classic header", () => {
-  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+test("illustrated header: the card's own front panel on the compact mini card, decorative, with ids unique to the card; night and classic header", () => {
+  const { HaSwitchCard, HaSwitchMiniCard } = loadCard("ha-switch-card.js", ["HaSwitchCard", "HaSwitchMiniCard"]);
   const states = { "sensor.s": { state: "Offline", attributes: {} }, "sensor.p1": { state: "1", attributes: {} }, "sun.sun": { state: "below_horizon", attributes: {} } };
-  const render = (config) => {
-    const card = new HaSwitchCard();
+  const render = (config, Card = HaSwitchCard) => {
+    const card = new Card();
     card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", status_entity: "sensor.s", ...config });
     card.hass = { language: "en", states };
     return { card, html: card.shadowRoot.innerHTML };
   };
-  const { card, html } = render({ model: "gs308t" });
+  // The full card: no front panel in its header (it is right under it), the background and the strip stay.
+  const full = render({ model: "gs308t" }).html;
+  assert.match(full, /<div class="header banner night noart">/);
+  assert.doesNotMatch(full.slice(full.indexOf('<div class="header banner'), full.indexOf('<div class="ic big')), /NETGEAR|<svg x="48"/);
+  assert.match(full, /class="scene"[^>]*><path class="dots"/);
+  const { card, html } = render({ model: "gs308t" }, HaSwitchMiniCard);
   const banner = html.slice(html.indexOf('<div class="header banner'), html.indexOf('<div class="ic big'));
-  assert.match(html, /<div class="header banner night">/, "night after sun.sun");
+  assert.match(html, /<div class="header banner night">/, "night after sun.sun; the compact mini card draws its panel");
   assert.match(banner, /aria-label|NETGEAR/);
   assert.doesNotMatch(banner, /data-entity|tabindex/, "the header's panel is not interactive");
   assert.ok(banner.includes(`id="ng-body-h${card._uid}"`) && banner.includes(`url(#ng-body-h${card._uid})`), "ids suffixed with the card uid");
   assert.match(html, /class="ground g-netdown"/, "switch down: red network strip");
-  assert.match(render({ illustration_theme: "day" }).html, /<div class="header banner">/);
+  assert.match(render({ illustration_theme: "day" }).html, /<div class="header banner noart">/);
   const classic = render({ illustration: false }).html;
   assert.match(classic, /<div class="header">/);
   assert.doesNotMatch(classic, /class="scene"|class="ground/);
