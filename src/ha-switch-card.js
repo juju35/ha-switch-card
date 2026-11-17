@@ -1708,10 +1708,6 @@ const portSvg = (color, dark) => `
 // A port's tooltip: "Port 3", or "Port 3 · NAS" when it has a name.
 const portTitle = (portLabel, p) => `${portLabel} ${p.n}${p.name ? ` · ${p.name}` : ''}`;
 
-// The activity LED of a port with link ("Blink=ACT" on the panel), in the illustrated header only: each port flickers
-// at its own rhythm (0.4 to 1.2 s), offset by its index, so the panel looks busy without being random.
-const actTiming = (i, step = 0.37) => `--d:${[0.6, 0.8, 1.2, 0.4][i % 4]}s;--dl:-${((i * step) % 1.2).toFixed(2)}s`;
-
 const GS308T = { H: 150, CELL: 62, GAP: 8, GROUP_GAP: 16, X0: 150, BEZEL_Y: 38, PORT_Y: 52, PORT_H: 44 };
 const gs308tSvg = (ports, powerColor, portLabel) => {
   const g = GS308T;
@@ -1734,8 +1730,8 @@ const gs308tSvg = (ports, powerColor, portLabel) => {
           <rect x="${x}" y="${y}" width="${g.CELL}" height="${g.PORT_H}" rx="2" fill="#0d0e10"/>
           <path d="M${x + 6} ${y + 6} h${g.CELL - 12} v${g.PORT_H - 16} h-16 v6 h-${g.CELL - 44} v-6 h-16 z" style="fill:${col}"/>
           ${contacts}
-          <rect x="${x + 3}" y="${g.BEZEL_Y + 4}" width="12" height="6" rx="1" ${led === COLORS.green ? `class="act" style="fill:${led};${actTiming(i)}"` : `style="fill:${led}"`}/>
-          ${led === COLORS.green ? `<rect class="act halo" x="${x + 1}" y="${g.BEZEL_Y + 2}" width="16" height="10" rx="2" style="fill:${led};${actTiming(i)}" opacity="0.3"/>` : ''}
+          <rect x="${x + 3}" y="${g.BEZEL_Y + 4}" width="12" height="6" rx="1" style="fill:${led}"/>
+          ${led === COLORS.green ? `<rect x="${x + 1}" y="${g.BEZEL_Y + 2}" width="16" height="10" rx="2" style="fill:${led}" opacity="0.3"/>` : ''}
           <text x="${cx}" y="${g.PORT_Y + g.PORT_H + 30}" text-anchor="middle" font-size="13" fill="#d6d6d6">${esc(p?.label ?? i + 1)}</text>`;
     return p
       ? `<g class="port" data-entity="${esc(p.id)}" role="button" tabindex="0"><title>${esc(portTitle(portLabel, p))}</title>${body}</g>`
@@ -1813,7 +1809,6 @@ const chassisSvg = (ports, powerColor, portLabel) => {
           ${contacts}
           <rect x="${x + 4}" y="${y + 26}" width="8" height="4" rx="1" style="fill:${dark}" opacity="0.8"/>
           <rect x="${x + 28}" y="${y + 26}" width="8" height="4" rx="1" style="fill:${dark}" opacity="0.8"/>
-          ${col === COLORS.green ? `<rect class="act lk" x="${x + 3}" y="${y + 25}" width="10" height="6" rx="1.5" style="${actTiming(i)}"/><rect class="act lk" x="${x + 27}" y="${y + 25}" width="10" height="6" rx="1.5" style="${actTiming(i + 1, 0.53)}"/>` : ''}
           <text x="${x + 20}" y="${labelY}" text-anchor="middle" font-size="11" class="hs-label">${esc(p.label)}</text>
         </g>`;
     })
@@ -1851,24 +1846,41 @@ const isNight = (hass, config) => {
   return !!hass?.themes?.darkMode;
 };
 
-// The network background of the header's 200 × 80 scene: a dotted grid on its right side, behind the switch.
+// The network background of the header's 200 × 80 scene: a dotted grid on its right side, behind the traffic flow.
 const NET_DOTS = (() => {
   const d = [];
   for (let y = 6; y < 78; y += 6) for (let x = 80; x < 200; x += 6) if ((x * 7 + y * 13) % 11 < 5) d.push(`M${x - 0.9} ${y}a.9 .9 0 1 0 1.8 0a.9 .9 0 1 0-1.8 0`);
   return d.join('');
 })();
 
-// The card's own front panel drawn again, big, in the header: decorative (its ports are not focusable there, the
-// body's panel is), and its SVG ids suffixed with the card's uid so they never resolve to another copy's.
-const headerArt = (svg, uid) => {
-  const ids = [...svg.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
-  let out = svg
-    .replace(/\s(data-entity|role|tabindex|aria-label)="[^"]*"/g, '')
-    .replace(/<title>[^<]*<\/title>/g, '');
-  for (const id of ids) out = out.split(`id="${id}"`).join(`id="${id}-h${uid}"`).split(`url(#${id})`).join(`url(#${id}-h${uid})`);
-  // Fitted in a 150 × 44 box whose bottom right corner is 2 units from the scene's right edge, 14 above the ground.
-  return out.replace(/<svg\b([^>]*?)\sxmlns="[^"]*"([^>]*)>/, '<svg x="48" y="22" width="150" height="44"$1$2 preserveAspectRatio="xMaxYMax meet">');
+// The header's traffic flow, in its 200 × 80 scene: one lane per traffic sensor, download (green, right to left) then
+// upload (blue, left to right), its rate on its left. Packets run along a lane faster as its rate grows, on a log
+// scale from 4.8 s (1 kB/s or less) to 0.6 s (1 GB/s or more), snapped to a few paces that all divide 4.8 s: a small
+// change of rate does not restart them, and the README GIFs loop seamlessly. A lane at rest (0, unknown, or the
+// switch down) has none.
+const FLOW = { X0: 118, X1: 186, PK: 8, Y: [46, 66] };
+const FLOW_PACES = [0.6, 0.8, 1.2, 1.6, 2.4, 4.8];
+const flowDuration = (bps) => {
+  if (!(bps > 0)) return 0;
+  const lvl = Math.min(1, Math.max(0, (Math.log10(bps) - 3) / 6));
+  const d = 4.8 * (0.6 / 4.8) ** lvl;
+  return FLOW_PACES.reduce((best, p) => (Math.abs(Math.log(p / d)) < Math.abs(Math.log(best / d)) ? p : best));
 };
+const flowScene = (lanes) =>
+  lanes
+    .map(({ dir, color, dur, label }, i) => {
+      const y = FLOW.Y[i];
+      const left = dir === 'in';
+      const span = FLOW.X1 - FLOW.X0 - FLOW.PK;
+      const x = left ? FLOW.X1 - FLOW.PK : FLOW.X0;
+      const pks = dur
+        ? [0, 1, 2]
+            .map((k) => `<rect class="pk ${left ? 'pk-l' : 'pk-r'}" x="${x}" y="${y - 2.5}" width="${FLOW.PK}" height="5" rx="1" style="fill:${color};--d:${dur}s;--dl:-${((dur * k) / 3).toFixed(2)}s;--o:${left ? '-' : ''}${Math.round((span * k) / 3 + span / 6)}px"/>`)
+            .join('')
+        : '';
+      return `<g class="lane-${dir}"><path class="lane" d="M${FLOW.X0} ${y}H${FLOW.X1}"/>${pks}<text class="fl" x="${FLOW.X0 - 8}" y="${y + 3}" text-anchor="end">${left ? '↓' : '↑'} ${esc(label)}</text></g>`;
+    })
+    .join('');
 
 let uidSeq = 0;
 
@@ -2279,12 +2291,6 @@ class HaSwitchCard extends HTMLElement {
     return '';
   }
 
-  // The front panel drawn big in the illustrated header: only on the compact mini card. The full card (and the mini
-  // card's expanded view) leaves it out, its panel being right under the header.
-  _headerArt() {
-    return false;
-  }
-
   // The power button on the illustrated header's top line: on, it turns the switch off (after the confirmation, unless
   // `confirm_off: false`); off, it turns it on.
   _powerPress() {
@@ -2426,7 +2432,7 @@ class HaSwitchCard extends HTMLElement {
            <div class="ports abs" style="bottom:${num(c.port_bottom, DEFAULTS.port_bottom)}%">${ports.join('')}</div>
          </div>`;
     }
-    // The drawn front panel (the model's, else the generic one): in the body, and big in the illustrated header.
+    // The drawn front panel (the model's, else the generic one), in the body.
     const panel = c.image ? '' : (MODELS[c.model]?.svg || chassisSvg)(portInfo, statusColor, t.port);
     if (!c.image) device = `<div class="device" ${urlAttr}>${panel}</div>`;
 
@@ -2463,16 +2469,21 @@ class HaSwitchCard extends HTMLElement {
     const count2 = `${upCount}/${count}`;
     pill = pill.split('\u0000COUNT\u0000').join(esc(count2));
 
-    // Illustrated header (`illustration: false`: the classic one): the switch's front panel drawn big on a network
-    // background, the title on its left, a network strip along its bottom (red dashes when the switch is down).
+    // Illustrated header (`illustration: false`: the classic one): the traffic flowing on a network background (one
+    // lane per traffic sensor, see flowScene), the title on its left, a network strip along its bottom (red dashes
+    // when the switch is down).
     let banner = '';
+    let flows = '';
     if (c.illustration !== false) {
-      const art = !this._headerArt()
-        ? ''
-        : c.image
-        ? `<image href="${esc(c.image)}" x="48" y="22" width="150" height="44" preserveAspectRatio="xMaxYMax meet"/>`
-        : headerArt(panel, this._uid);
-      banner = `<svg class="scene" viewBox="0 0 200 80" preserveAspectRatio="xMaxYMax meet" aria-hidden="true"><path class="dots" d="${NET_DOTS}"/>${art}</svg>`;
+      const lane = (id, dir, color) => {
+        if (!id) return null;
+        const st = this._state(id);
+        // A byte counter flows at its rate; a sensor that is already a rate flows at a mid pace while above 0.
+        const bps = this._byteFactor(st) ? this._rate(id) : parseFloat(st?.state) > 0 ? 1e5 : 0;
+        return { dir, color, dur: down || sw?.state === 'off' ? 0 : flowDuration(bps), label: value(id) };
+      };
+      flows = flowScene([lane(c.traffic_in_entity, 'in', COLORS.green), lane(c.traffic_out_entity, 'out', COLORS.blue)].filter(Boolean));
+      banner = `<svg class="scene" viewBox="0 0 200 80" preserveAspectRatio="xMaxYMax meet" aria-hidden="true"><path class="dots" d="${NET_DOTS}"/>${flows}</svg>`;
     }
 
     const active = this.shadowRoot.activeElement;
@@ -2480,7 +2491,7 @@ class HaSwitchCard extends HTMLElement {
     const html = `
       <style>${HaSwitchCard.styles}</style>
       <ha-card class="${compact ? 'mini' : ''}${confirm ? 'dialog-open' : ''}">
-        <div class="${banner ? `header banner${night ? ' night' : ''}${this._headerArt() ? '' : ' noart'}` : 'header'}">${banner}
+        <div class="${banner ? `header banner${night ? ' night' : ''}${flows ? '' : ' noart'}` : 'header'}">${banner}
           <div class="ic big" style="--c:${statusColor}" ${headerEntity ? `data-entity="${esc(headerEntity)}" role="button" tabindex="0" aria-label="${esc(this._state(headerEntity)?.attributes?.friendly_name || headerEntity)}"` : ''}>
             <ha-icon icon="${esc(c.icon)}"></ha-icon>
           </div>
@@ -2771,28 +2782,36 @@ class HaSwitchCard extends HTMLElement {
       .modal-actions .btn:focus-visible { outline: 2px solid var(--primary-color, #03a9f4); outline-offset: 2px; }
 
       /* Illustrated header: 90px edge to edge at the top of the card (full and mini), the title on the network
-         background at its left, the front panel big at its right over a 10px network strip. Its own colours, day and
+         background at its left, the traffic flow at its right over a 10px network strip. Its own colours, day and
          night, whatever the theme. */
       .banner {
         /* A size container (it takes its width from the card, never from its content), so that the full card's
-           banner follows its own width too. The panel's width is resolved where it is used (cqw: the banner's). */
+           banner follows its own width too. The scene's width is resolved where it is used (cqw: the banner's). */
         container: hs-banner / inline-size;
         --hb-scene-w: min(200px, 58cqw);
         position: relative; isolation: isolate; overflow: hidden; box-sizing: border-box;
         height: 90px; margin: -12px -12px 0; padding: 0 12px 10px;
         border-radius: var(--ha-card-border-radius, 12px) var(--ha-card-border-radius, 12px) 0 0;
         background: #eaf2fb; color: #0d2a45;
-        /* The panel's chassis: dark, as the real switch, on the light and the night background alike. */
-        --hs-body-top: #33373e; --hs-body-bottom: #1d2025; --hs-dark: #4a5059;
       }
-      .banner.night { background: #101827; color: #fff; --hs-body-top: #2b2f36; --hs-body-bottom: #16191e; --hs-dark: #3e444d; }
+      .banner.night { background: #101827; color: #fff; }
       .banner > :not(.scene, .ground) { position: relative; z-index: 1; }
-      /* The title block keeps clear of the panel (its left quarter may run under the text's end). */
-      .banner > .titles { margin-right: calc(var(--hb-scene-w) * 0.76 - 6px); }
+      /* The title block keeps clear of the traffic flow (its rates start at a third of the scene). */
+      .banner > .titles { margin-right: calc(var(--hb-scene-w) * 0.7); }
       .banner .scene { position: absolute; right: 0; bottom: 10px; height: 80px; width: var(--hb-scene-w); z-index: 0; overflow: visible; }
       .banner .scene .dots { fill: #c9dcf2; }
       .banner.night .scene .dots { fill: #22324d; }
-      .banner .scene .hs-label { fill: #c4cad3; }
+      /* Traffic flow: a lane per traffic sensor, its rate on its left, packets running along it (see flowScene). */
+      .banner .scene .lane { fill: none; stroke: #c9dcf2; stroke-width: 9; stroke-linecap: round; }
+      .banner.night .scene .lane { stroke: #22324d; }
+      .banner .scene .fl { font-size: 9px; font-weight: 500; fill: #33506b; }
+      .banner.night .scene .fl { fill: rgba(255,255,255,.78); }
+      .banner .scene .pk { animation: var(--d) linear var(--dl) infinite; }
+      .banner .scene .pk-l { animation-name: hs-pk-l; }
+      .banner .scene .pk-r { animation-name: hs-pk-r; }
+      @keyframes hs-pk-l { 0% { transform: translateX(0); opacity: 0; } 12%, 88% { opacity: 1; } 100% { transform: translateX(-60px); opacity: 0; } }
+      @keyframes hs-pk-r { 0% { transform: translateX(0); opacity: 0; } 12%, 88% { opacity: 1; } 100% { transform: translateX(60px); opacity: 0; } }
+      @media (prefers-reduced-motion: reduce) { .banner .scene .pk { animation: none; transform: translateX(var(--o)); } }
       .banner .ic.big { background: rgba(255,255,255,.62); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 22%, transparent); }
       .banner.night .ic.big { background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
       /* Title row: the name, then the status pill 8 px after it (a dot in the icon's colour and the status, see
@@ -2801,7 +2820,7 @@ class HaSwitchCard extends HTMLElement {
       .banner .title-row > .chip { gap: 4px; padding: 1px 8px; line-height: 16px; }
       .banner .title-row > .chip ha-icon { display: none !important; }
       .banner .title-row > .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--c); flex: none; }
-      /* The full card and the mini card's expanded view: no front panel in the header (it is right under it), the title takes the room. */
+      /* No traffic sensor: no flow in the header, the title takes the room. */
       .banner.noart > .titles { margin-right: 0; }
       /* There, the title row keeps clear of the buttons on the banner's top line (power, expand / collapse). */
       .banner.noart:has(> .pw, > .zoom) > .titles { margin-right: 22px; }
@@ -2833,15 +2852,6 @@ class HaSwitchCard extends HTMLElement {
       .banner .pw:focus-visible { outline: 2px solid var(--primary-color, #03a9f4); outline-offset: 1px; }
       .banner .pw:disabled { cursor: default; opacity: .6; }
       .banner:has(> .zoom) > .pw { right: 33px; }
-      /* Activity LEDs ("Blink=ACT"), in the header only: each port with link flickers at its own rhythm; the power LED
-         stays steady. A port is drawn with link only while the switch is up, so everything stops when it is down. */
-      .lk { display: none; }
-      .banner .scene .lk { display: inline; fill: #b9f6ca; filter: drop-shadow(0 0 3px #5dff8f); }
-      .banner .scene .act { fill: #5dff8f !important; animation: hs-act var(--d, .8s) steps(1, end) var(--dl, 0s) infinite; }
-      .banner .scene .act.halo { filter: blur(1.5px); animation-name: hs-act-halo; }
-      @keyframes hs-act { 0% { opacity: 1; } 18% { opacity: .1; } 30% { opacity: 1; } 55% { opacity: .1; } 68% { opacity: 1; } 84% { opacity: .25; } }
-      @keyframes hs-act-halo { 0% { opacity: .45; } 18% { opacity: 0; } 30% { opacity: .45; } 55% { opacity: 0; } 68% { opacity: .45; } 84% { opacity: .1; } }
-      @media (prefers-reduced-motion: reduce) { .banner .scene .act { animation: none; } }
       /* Network strip: blue dashes flowing (traffic) while the switch is up, red still dashes when it is down. */
       .ground { position: absolute; left: 0; right: 0; bottom: 0; height: 10px; z-index: 0; background-repeat: no-repeat; background-size: calc(100% + 22px) 2px; background-position: 0 50%; }
       .g-net { background-color: #1e3a5f; background-image: repeating-linear-gradient(90deg, #4fc3f7 0 14px, transparent 14px 22px); box-shadow: inset 0 2px 0 #2f5a8a;
@@ -2852,14 +2862,14 @@ class HaSwitchCard extends HTMLElement {
       @keyframes hb-flow { from { background-position: -22px 50%; } to { background-position: 0 50%; } }
       .g-net.still { animation: none; }
       @media (prefers-reduced-motion: reduce) { .g-net { animation: none; } }
-      /* A card of about 300 px: a smaller panel, so the name and the whole status pill keep their room. */
+      /* A card of about 300 px: a smaller flow, so the name and the whole status pill keep their room. */
       @container hs-banner (max-width: 340px) { .banner > .scene, .banner > .titles { --hb-scene-w: 46cqw; } }
-      /* A narrow card (a phone, 6 columns of a section): no room for the panel beside the title, the background alone
+      /* A narrow card (a phone, 6 columns of a section): no room for the flow beside the title, the background alone
          stays; the title keeps clear of the buttons on the top line (power toggle, expand / collapse). */
       @container hs-banner (max-width: 260px) {
         .banner > .scene { display: none; }
         .banner > .titles { margin-right: 0; }
-        .banner:not(.noart) > .titles .name { padding-right: 18px; }
+        .banner:not(.noart):has(> .pw, > .zoom) > .titles .name { padding-right: 18px; }
         .banner:not(.noart):has(> .pw):has(> .zoom) > .titles .name { padding-right: 46px; }
       }
     `;
@@ -2914,10 +2924,6 @@ class HaSwitchMiniCard extends HaSwitchCard {
   }
 
   _compact() {
-    return !this._zoomed;
-  }
-
-  _headerArt() {
     return !this._zoomed;
   }
 

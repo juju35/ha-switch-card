@@ -921,16 +921,16 @@ test("mini card: compact front panel and rates, no power toggle; the detail butt
   card._onClick({ composedPath: () => [{ classList: { contains: (c) => c === "zoom" } }], stopPropagation() {}, detail: 1 });
   html = card.shadowRoot.innerHTML;
   assert.match(html, /<ha-card class="">/);
-  // Expanded: the power button left of the collapse button; no front panel in the header (it is right under it).
+  // Expanded: the power button left of the collapse button; the traffic flow stays in the header.
   assert.match(html, /<button class="pw on" type="button" data-action="power"[^>]*><ha-icon icon="mdi:power"><\/ha-icon><\/button><button class="zoom" title="Back to the compact view"/);
-  assert.match(html, /class="header banner noart"/);
-  assert.doesNotMatch(html.split('class="titles"')[0], /<svg x="48"/);
+  assert.match(html, /class="header banner"/);
+  assert.match(html.split('class="titles"')[0], /<g class="lane-in">/);
   assert.match(html, /class="chips"/);
   assert.equal(card.getGridOptions().min_columns, 8);
-  // Compact: the front panel in the header.
+  // Compact: the same traffic flow in the header, never the front panel (it is right under it).
   card._onClick({ composedPath: () => [{ classList: { contains: (c) => c === "zoom" } }], stopPropagation() {}, detail: 1 });
-  assert.match(card.shadowRoot.innerHTML.split('class="titles"')[0], /<svg x="48"/);
-  assert.doesNotMatch(card.shadowRoot.innerHTML, /class="header banner[^"]*noart/);
+  assert.match(card.shadowRoot.innerHTML.split('class="titles"')[0], /<g class="lane-in">/);
+  assert.doesNotMatch(card.shadowRoot.innerHTML.split('class="titles"')[0], /<svg x="48"|NETGEAR/);
   card.setConfig({ ports: 3, port_pattern: "sensor.p{n}", zoom: false });
   assert.doesNotMatch(card.shadowRoot.innerHTML, /class="zoom"/);
 });
@@ -978,29 +978,41 @@ test("illustrated header: the dark theme shows the night picture even while the 
   }
 });
 
-test("illustrated header: the card's own front panel on the compact mini card, decorative, with ids unique to the card; night and classic header", () => {
-  const { HaSwitchCard, HaSwitchMiniCard } = loadCard("ha-switch-card.js", ["HaSwitchCard", "HaSwitchMiniCard"]);
-  const states = { "sensor.s": { state: "Offline", attributes: {} }, "sensor.p1": { state: "1", attributes: {} }, "sun.sun": { state: "below_horizon", attributes: {} } };
-  const render = (config, Card = HaSwitchCard) => {
+test("illustrated header: the traffic flow on the full and the mini card, faster with the rate, still while the switch is down; night and classic header", () => {
+  const { HaSwitchCard, HaSwitchMiniCard, flowDuration } = loadCard("ha-switch-card.js", ["HaSwitchCard", "HaSwitchMiniCard", "flowDuration"]);
+  const traffic = { traffic_in_entity: "sensor.in", traffic_out_entity: "sensor.out" };
+  const states = (s, inRate = "5", outRate = "0") => ({
+    "sensor.s": { state: s, attributes: {} },
+    "sensor.p1": { state: "1", attributes: {} },
+    "sensor.in": { state: inRate, attributes: { unit_of_measurement: "Mbit/s" } },
+    "sensor.out": { state: outRate, attributes: { unit_of_measurement: "Mbit/s" } },
+    "sun.sun": { state: "below_horizon", attributes: {} },
+  });
+  const render = (config, Card = HaSwitchCard, s = "Online") => {
     const card = new Card();
-    card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", status_entity: "sensor.s", ...config });
-    card.hass = { language: "en", states };
-    return { card, html: card.shadowRoot.innerHTML };
+    card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", status_entity: "sensor.s", online_state: "Online", ...config });
+    card.hass = { language: "en", states: states(s) };
+    const html = card.shadowRoot.innerHTML;
+    return html.slice(html.indexOf('<div class="header'), html.indexOf('<div class="ic big'));
   };
-  // The full card: no front panel in its header (it is right under it), the background and the strip stay.
-  const full = render({ model: "gs308t" }).html;
-  assert.match(full, /<div class="header banner night noart">/);
-  assert.doesNotMatch(full.slice(full.indexOf('<div class="header banner'), full.indexOf('<div class="ic big')), /NETGEAR|<svg x="48"/);
-  assert.match(full, /class="scene"[^>]*><path class="dots"/);
-  const { card, html } = render({ model: "gs308t" }, HaSwitchMiniCard);
-  const banner = html.slice(html.indexOf('<div class="header banner'), html.indexOf('<div class="ic big'));
-  assert.match(html, /<div class="header banner night">/, "night after sun.sun; the compact mini card draws its panel");
-  assert.match(banner, /aria-label|NETGEAR/);
-  assert.doesNotMatch(banner, /data-entity|tabindex/, "the header's panel is not interactive");
-  assert.ok(banner.includes(`id="ng-body-h${card._uid}"`) && banner.includes(`url(#ng-body-h${card._uid})`), "ids suffixed with the card uid");
-  assert.match(html, /class="ground g-netdown"/, "switch down: red network strip");
-  assert.match(render({ illustration_theme: "day" }).html, /<div class="header banner noart">/);
-  const classic = render({ illustration: false }).html;
+  for (const Card of [HaSwitchCard, HaSwitchMiniCard]) {
+    const banner = render({ model: "gs308t", ...traffic }, Card);
+    assert.match(banner, /<div class="header banner night">/, "night after sun.sun");
+    assert.doesNotMatch(banner, /NETGEAR|<svg x="48"|data-entity|tabindex/, "no front panel, nothing interactive in the header");
+    // Download: three packets running right to left; upload at 0: its lane at rest, no packet.
+    assert.equal((banner.match(/class="pk pk-l"/g) || []).length, 3);
+    assert.doesNotMatch(banner, /pk-r/);
+    assert.match(banner, /<g class="lane-in"><path class="lane"[^>]*\/>.*↓ 5 Mbit\/s<\/text><\/g><g class="lane-out"><path class="lane"[^>]*\/><text class="fl"[^>]*>↑ 0 Mbit\/s<\/text><\/g>/);
+    // Switch down: the lanes stay, without packets, and the strip is red.
+    const down = render({ ...traffic }, Card, "Offline");
+    assert.match(down, /class="lane-in"/);
+    assert.doesNotMatch(down, /class="pk /);
+  }
+  // No traffic sensor: the network background alone, the title takes the room.
+  assert.match(render({}), /<div class="header banner night noart">/);
+  // The pace follows the rate on a log scale, from 4.8 s (1 kB/s or less) to 0.6 s (1 GB/s or more), snapped to paces dividing 4.8 s.
+  assert.deepEqual([0, null, 10, 1e3, 1e6, 1e8, 1e9, 1e12].map(flowDuration), [0, 0, 4.8, 4.8, 1.6, 0.8, 0.6, 0.6]);
+  const classic = render({ illustration: false, ...traffic });
   assert.match(classic, /<div class="header">/);
   assert.doesNotMatch(classic, /class="scene"|class="ground/);
 });
