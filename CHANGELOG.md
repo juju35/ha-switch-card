@@ -7,6 +7,7 @@
 - **Activity LEDs** in the compact mini card's header: the LED of each port with link flickers at its own rhythm, like the panel's "Blink=ACT" (on the generic panel, the two small LEDs under each port); the power LED stays steady, everything stops while the switch is down, and nothing moves under `prefers-reduced-motion`. README GIFs of both panels, light and dark.
 - Status pill right after the name (its own line under the subtitle on a narrow card, dot and port count only at 200 px or less); the power toggle and the mini card's expand / collapse button (24 px, round, frosted) on the banner's top line, at its right.
 - Illustrated header: the power toggle becomes a round `mdi:power` button (24 px, frosted like the expand / collapse button, 4 px left of it), in the status colour while on and grey while off, with the same power-off confirmation. Only the compact mini card draws the front panel (with its activity LEDs) in the header: the full card and the mini card's expanded view show it right under the header, so their banner keeps the background, the network strip, the icon, the title, the pill and the buttons.
+- Night picture with the dark theme even while the sun is up (a day picture would glare on a dark dashboard); `illustration_theme: day | night` still forces one.
 
 ### Fixes
 - Switch down (turned off, status or connectivity offline or unavailable): the ports are drawn off (grey) instead of following their sensors' last state.

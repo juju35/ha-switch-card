@@ -969,6 +969,23 @@ test("focus restore: the power toggle is found again after its node was replaced
   assert.equal(focusKey({ tagName: "DIV", getAttribute: () => null }), "");
 });
 
+test("illustrated header: the dark theme shows the night picture even while the sun is up; forced day/night win", () => {
+  const { HaSwitchCard, HaSwitchMiniCard } = loadCard("ha-switch-card.js", ["HaSwitchCard", "HaSwitchMiniCard"]);
+  const states = { "sensor.s": { state: "Offline", attributes: {} }, "sensor.p1": { state: "1", attributes: {} }, "sun.sun": { state: "above_horizon", attributes: {} } };
+  for (const Card of [HaSwitchCard, HaSwitchMiniCard]) {
+    const render = (darkMode, config = {}) => {
+      const card = new Card();
+      card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", status_entity: "sensor.s", model: "gs308t", ...config });
+      card.hass = { language: "en", states, themes: { darkMode } };
+      return card.shadowRoot.innerHTML;
+    };
+    assert.match(render(true), /<div class="header banner night/);
+    assert.match(render(false), /<div class="header banner(?! night)/);
+    assert.match(render(true, { illustration_theme: "day" }), /<div class="header banner(?! night)/);
+    assert.match(render(false, { illustration_theme: "night" }), /<div class="header banner night/);
+  }
+});
+
 test("illustrated header: the card's own front panel on the compact mini card, decorative, with ids unique to the card; night and classic header", () => {
   const { HaSwitchCard, HaSwitchMiniCard } = loadCard("ha-switch-card.js", ["HaSwitchCard", "HaSwitchMiniCard"]);
   const states = { "sensor.s": { state: "Offline", attributes: {} }, "sensor.p1": { state: "1", attributes: {} }, "sun.sun": { state: "below_horizon", attributes: {} } };

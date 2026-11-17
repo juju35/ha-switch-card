@@ -118,7 +118,7 @@ url: http://switch.local
 |---|---|---|
 | `name` | `Switch` | Title |
 | `illustration` | `true` | Illustrated header (full and mini card): a network background with the switch's own drawn front panel (or your custom `image`) big on it in the compact mini card (the full card shows its panel right under the header), the title and status pill on its left, a network strip along its bottom (flowing blue dashes, red dashes when the switch is down). `false` keeps the classic header |
-| `illustration_theme` | `auto` | Header picture: `auto` (night when `sun.sun` is below the horizon, else Home Assistant's dark mode), `day` or `night` |
+| `illustration_theme` | `auto` | Header picture: `auto` (night when `sun.sun` is below the horizon or with Home Assistant's dark theme, even while the sun is up), `day` or `night` |
 | `show_title` | `true` | Show the title in the header (e.g. `false` under a section heading of your own) |
 | `subtitle` | – | Subtitle |
 | `icon` | `mdi:switch` | Header icon, colored by status |
