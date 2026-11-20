@@ -121,6 +121,7 @@ url: http://switch.local
 | `illustration_theme` | `auto` | Header picture: `auto` (follows the Home Assistant theme: night with a dark theme, day with a light theme), `day` or `night` |
 | `show_title` | `true` | Show the title in the header (e.g. `false` under a section heading of your own) |
 | `subtitle` | – | Subtitle |
+| `show_subtitle` | `true` | Show the subtitle (`false` hides it, as in the other juju35 cards) |
 | `icon` | `mdi:switch` | Header icon, colored by status |
 | `switch_entity` | – | Power button (`switch` / `input_boolean`): round `mdi:power` button on the illustrated header's top line (status colour while on, grey while off), toggle in the classic header |
 | `confirm_off` | `true` | Ask for a confirmation (at the top of the card) before turning the switch off: cutting its power can cut the network Home Assistant runs on. Turning it on is immediate. `false` turns it off at once |
