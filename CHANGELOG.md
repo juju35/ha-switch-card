@@ -3,6 +3,7 @@
 ## 1.16.2 - 2026-11-20
 
 ### Fixes
+- The status pill is placed from the card's first frame: it was measured before Home Assistant's `<ha-card>` had laid out its content (0 px wide), so it showed under the title for a frame (or beside it, for a frame, when it belongs under it) before jumping to its place. It is now fitted once the card is drawn.
 - The power-off confirmation closes, without turning anything off, when the card leaves the page (another view, the editor, a conditional card hidden): it no longer comes back open with the card.
 
 ### Maintenance

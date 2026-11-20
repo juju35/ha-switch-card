@@ -2042,6 +2042,18 @@ class HaSwitchCard extends HTMLElement {
   // text, over the picture), the pill keeps its dot only.
   // Measured after each render and on every new width (or once the web font is loaded), never by a fixed width.
   _fitPill() {
+    // Home Assistant's <ha-card> (a Lit element) shows its content only from its first update, a microtask after it
+    // is connected: measured before, everything is 0 px wide and the pill lands under the title. Fitted then.
+    const card = this.shadowRoot?.querySelector?.("ha-card");
+    if (card && card.hasUpdated === false) {
+      if (!this._pillWait) {
+        this._pillWait = (card.updateComplete?.then ? card.updateComplete : new Promise((r) => requestAnimationFrame(r))).then(() => {
+          this._pillWait = null;
+          this._fitPill();
+        });
+      }
+      return;
+    }
     for (const t of this.shadowRoot?.querySelectorAll?.(".titles") || []) {
       const row = t.querySelector?.(".title-row");
       const name = row?.querySelector(".name");
