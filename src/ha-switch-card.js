@@ -48,6 +48,7 @@ const I18N = {
       watched_ports: 'Ports surveillés (rouges si coupés)',
       show_history: 'Historique 24 h du trafic',
       show_title: 'Afficher le titre',
+      show_subtitle: 'Afficher le sous-titre',
       zoom: 'Bouton détail',
       confirm_off: 'Confirmer avant d’éteindre',
       illustration: 'En-tête illustré',
@@ -116,6 +117,7 @@ const I18N = {
       watched_ports: 'Watched ports (red when down)',
       show_history: '24 h traffic history',
       show_title: 'Show title',
+      show_subtitle: 'Show subtitle',
       zoom: 'Detail button',
       confirm_off: 'Confirm before turning off',
       illustration: 'Illustrated header',
@@ -184,6 +186,7 @@ const I18N = {
       watched_ports: 'Überwachte Ports (rot bei Ausfall)',
       show_history: '24-h-Verlauf des Datenverkehrs',
       show_title: 'Titel anzeigen',
+      show_subtitle: 'Untertitel anzeigen',
       zoom: 'Detail-Schaltfläche',
       confirm_off: 'Vor dem Ausschalten bestätigen',
       illustration: 'Illustrierter Kopfbereich',
@@ -252,6 +255,7 @@ const I18N = {
       watched_ports: 'Puertos vigilados (rojos si caen)',
       show_history: 'Historial de 24 h del tráfico',
       show_title: 'Mostrar el título',
+      show_subtitle: 'Mostrar subtítulo',
       zoom: 'Botón de detalle',
       confirm_off: 'Confirmar antes de apagar',
       illustration: 'Encabezado ilustrado',
@@ -320,6 +324,7 @@ const I18N = {
       watched_ports: 'Праћени портови (црвени када падну)',
       show_history: 'Историја саобраћаја за 24 ч',
       show_title: 'Прикажи наслов',
+      show_subtitle: 'Прикажи поднаслов',
       zoom: 'Дугме за детаље',
       confirm_off: 'Потврди пре искључивања',
       illustration: 'Илустровано заглавље',
@@ -388,6 +393,7 @@ const I18N = {
       watched_ports: 'Praćeni portovi (crveni kada padnu)',
       show_history: 'Istorija saobraćaja za 24 č',
       show_title: 'Prikaži naslov',
+      show_subtitle: 'Prikaži podnaslov',
       zoom: 'Dugme za detalje',
       confirm_off: 'Potvrdi pre isključivanja',
       illustration: 'Ilustrovano zaglavlje',
@@ -456,6 +462,7 @@ const I18N = {
       watched_ports: 'Porte sorvegliate (rosse se giù)',
       show_history: 'Storico 24 h del traffico',
       show_title: 'Mostra il titolo',
+      show_subtitle: 'Mostra sottotitolo',
       zoom: 'Pulsante dettagli',
       confirm_off: 'Conferma prima di spegnere',
       illustration: 'Intestazione illustrata',
@@ -524,6 +531,7 @@ const I18N = {
       watched_ports: 'Bewaakte poorten (rood bij uitval)',
       show_history: '24-uursgeschiedenis van het verkeer',
       show_title: 'Titel tonen',
+      show_subtitle: 'Ondertitel tonen',
       zoom: 'Detailknop',
       confirm_off: 'Bevestigen voor uitschakelen',
       illustration: 'Geïllustreerde koptekst',
@@ -592,6 +600,7 @@ const I18N = {
       watched_ports: 'Portas vigiadas (vermelhas se caírem)',
       show_history: 'Histórico de 24 h do tráfego',
       show_title: 'Mostrar o título',
+      show_subtitle: 'Mostrar subtítulo',
       zoom: 'Botão de detalhe',
       confirm_off: 'Confirmar antes de desligar',
       illustration: 'Cabeçalho ilustrado',
@@ -660,6 +669,7 @@ const I18N = {
       watched_ports: 'Monitorowane porty (czerwone po awarii)',
       show_history: 'Historia ruchu z 24 h',
       show_title: 'Pokaż tytuł',
+      show_subtitle: 'Pokaż podtytuł',
       zoom: 'Przycisk szczegółów',
       confirm_off: 'Potwierdzaj przed wyłączeniem',
       illustration: 'Ilustrowany nagłówek',
@@ -728,6 +738,7 @@ const I18N = {
       watched_ports: 'Porturi supravegheate (roșii la cădere)',
       show_history: 'Istoricul traficului pe 24 h',
       show_title: 'Afișează titlul',
+      show_subtitle: 'Afișează subtitlul',
       zoom: 'Buton de detalii',
       confirm_off: 'Confirmare înainte de oprire',
       illustration: 'Antet ilustrat',
@@ -796,6 +807,7 @@ const I18N = {
       watched_ports: 'Overvågede porte (røde ved nedbrud)',
       show_history: '24-timers trafikhistorik',
       show_title: 'Vis titel',
+      show_subtitle: 'Vis undertitel',
       zoom: 'Detaljeknap',
       confirm_off: 'Bekræft før slukning',
       illustration: 'Illustreret overskrift',
@@ -864,6 +876,7 @@ const I18N = {
       watched_ports: 'Övervakade portar (röda vid avbrott)',
       show_history: '24 h-trafikhistorik',
       show_title: 'Visa rubrik',
+      show_subtitle: 'Visa undertitel',
       zoom: 'Detaljknapp',
       confirm_off: 'Bekräfta före avstängning',
       illustration: 'Illustrerad rubrik',
@@ -932,6 +945,7 @@ const I18N = {
       watched_ports: 'Наблюдавани портове (червени при отпадане)',
       show_history: 'История на трафика за 24 ч',
       show_title: 'Показване на заглавието',
+      show_subtitle: 'Покажи подзаглавие',
       zoom: 'Бутон за подробности',
       confirm_off: 'Потвърждение преди изключване',
       illustration: 'Илюстрирана заглавна част',
@@ -1000,6 +1014,7 @@ const I18N = {
       watched_ports: 'Отслеживаемые порты (красные при падении)',
       show_history: 'История трафика за 24 ч',
       show_title: 'Показывать заголовок',
+      show_subtitle: 'Показывать подзаголовок',
       zoom: 'Кнопка подробностей',
       confirm_off: 'Подтверждать выключение',
       illustration: 'Иллюстрированный заголовок',
@@ -1068,6 +1083,7 @@ const I18N = {
       watched_ports: 'Відстежувані порти (червоні при падінні)',
       show_history: 'Історія трафіку за 24 год',
       show_title: 'Показувати заголовок',
+      show_subtitle: 'Показувати підзаголовок',
       zoom: 'Кнопка деталей',
       confirm_off: 'Підтверджувати вимкнення',
       illustration: 'Ілюстрований заголовок',
@@ -1136,6 +1152,7 @@ const I18N = {
       watched_ports: 'Figyelt portok (pirosak kieséskor)',
       show_history: '24 órás forgalmi előzmények',
       show_title: 'Cím megjelenítése',
+      show_subtitle: 'Alcím megjelenítése',
       zoom: 'Részletek gomb',
       confirm_off: 'Megerősítés kikapcsolás előtt',
       illustration: 'Illusztrált fejléc',
@@ -1204,6 +1221,7 @@ const I18N = {
       watched_ports: 'Sledované porty (červené pri výpadku)',
       show_history: '24 h história prevádzky',
       show_title: 'Zobraziť názov',
+      show_subtitle: 'Zobraziť podnadpis',
       zoom: 'Tlačidlo podrobností',
       confirm_off: 'Potvrdiť pred vypnutím',
       illustration: 'Ilustrovaná hlavička',
@@ -1272,6 +1290,7 @@ const I18N = {
       watched_ports: 'Sledované porty (červené při výpadku)',
       show_history: '24h historie provozu',
       show_title: 'Zobrazit název',
+      show_subtitle: 'Zobrazit podtitul',
       zoom: 'Tlačítko podrobností',
       confirm_off: 'Potvrdit před vypnutím',
       illustration: 'Ilustrované záhlaví',
@@ -1340,6 +1359,7 @@ const I18N = {
       watched_ports: 'Nadzorovana vrata (rdeča ob izpadu)',
       show_history: '24-urna zgodovina prometa',
       show_title: 'Prikaži naslov',
+      show_subtitle: 'Prikaži podnaslov',
       zoom: 'Gumb za podrobnosti',
       confirm_off: 'Potrdi pred izklopom',
       illustration: 'Ilustrirana glava',
@@ -1408,6 +1428,7 @@ const I18N = {
       watched_ports: 'Uzraudzītie porti (sarkani, ja krīt)',
       show_history: 'Datplūsmas 24 h vēsture',
       show_title: 'Rādīt virsrakstu',
+      show_subtitle: 'Rādīt apakšvirsrakstu',
       zoom: 'Detaļu poga',
       confirm_off: 'Apstiprināt pirms izslēgšanas',
       illustration: 'Ilustrēta galvene',
@@ -1476,6 +1497,7 @@ const I18N = {
       watched_ports: 'Θύρες υπό παρακολούθηση (κόκκινες σε πτώση)',
       show_history: 'Ιστορικό κίνησης 24 ωρών',
       show_title: 'Εμφάνιση τίτλου',
+      show_subtitle: 'Εμφάνιση υπότιτλου',
       zoom: 'Κουμπί λεπτομερειών',
       confirm_off: 'Επιβεβαίωση πριν από την απενεργοποίηση',
       illustration: 'Εικονογραφημένη κεφαλίδα',
@@ -1589,10 +1611,19 @@ const fmtLang = (hass, config) => {
   return loc === 'pt' ? 'pt-PT' : loc;
 };
 
+// The number formats, made once per language, decimals and kind (a render formats many numbers).
+const _numFormats = new Map();
+const numFormat = (loc, min, max) => {
+  const key = `${loc}|${min}|${max}`;
+  let f = _numFormats.get(key);
+  if (!f) _numFormats.set(key, (f = new Intl.NumberFormat(loc, { minimumFractionDigits: min, maximumFractionDigits: max, useGrouping: false })));
+  return f;
+};
+
 // A number with exactly `d` decimals, with the decimal separator of `loc` (no grouping, as before).
 const fmtNum = (v, d, loc) => {
   try {
-    return new Intl.NumberFormat(loc, { minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: false }).format(v);
+    return numFormat(loc, d, d).format(v);
   } catch {
     return v.toFixed(d);
   }
@@ -1602,7 +1633,7 @@ const fmtNum = (v, d, loc) => {
 // dropped: "1.5 KiB", "20 GiB"), as in the system-monitor and docker cards.
 const fmtNumMax = (v, d, loc) => {
   try {
-    return new Intl.NumberFormat(loc, { minimumFractionDigits: 0, maximumFractionDigits: d, useGrouping: false }).format(v);
+    return numFormat(loc, 0, d).format(v);
   } catch {
     return String(Number(v.toFixed(d)));
   }
@@ -2010,9 +2041,12 @@ class HaSwitchCard extends HTMLElement {
       this._closeConfirm();
     };
     // A click outside the card (and not in a dialog opened from it) cancels the confirmation.
-    this._onConfirmOutside = (ev) => {
-      if (this._confirm && !ev.composedPath().includes(this) && !inDialog(ev)) this._closeConfirm(false);
-    };
+    this._onConfirmOutside = watchOutside(
+      (ev) => !ev.composedPath().includes(this) && !inDialog(ev),
+      () => {
+        if (this._confirm) this._closeConfirm(false);
+      },
+    );
   }
 
   connectedCallback() {
@@ -2033,7 +2067,7 @@ class HaSwitchCard extends HTMLElement {
       this._key = '';
     }
     window.removeEventListener('keydown', this._onConfirmKey);
-    document.removeEventListener('click', this._onConfirmOutside, true);
+    this._onConfirmOutside.off();
   }
 
   // The status pill goes on the title row, right after the title, only when the whole title and the pill's whole
@@ -2511,7 +2545,7 @@ class HaSwitchCard extends HTMLElement {
           </div>
           <div class="titles">
             <div class="title-row"><div class="name">${esc(c.name)}</div>${pill}</div>
-            ${c.subtitle ? `<div class="sub" title="${esc(c.subtitle)}">${esc(c.subtitle)}</div>` : ''}
+            ${c.subtitle && c.show_subtitle !== false ? `<div class="sub" title="${esc(c.subtitle)}">${esc(c.subtitle)}</div>` : ''}
           </div>
           ${sw && !compact ? this._powerControl(sw, statusColor, t, !!banner) : ''}${this._zoomButton()}${
             banner ? `<div class="ground ${statusColor === COLORS.red || sw?.state === 'off' ? 'g-netdown' : down ? 'g-net still' : 'g-net'}"></div>` : ''
@@ -2595,7 +2629,7 @@ class HaSwitchCard extends HTMLElement {
   _openConfirm() {
     this._confirm = true;
     window.addEventListener('keydown', this._onConfirmKey);
-    document.addEventListener('click', this._onConfirmOutside, true);
+    this._onConfirmOutside.on();
     this._key = '';
     this._render();
     // preventScroll: opening the popup must not bring a scrolled page back to the card.
@@ -2606,7 +2640,7 @@ class HaSwitchCard extends HTMLElement {
     this._confirm = false;
     this._confirmClosedAt = Date.now();
     window.removeEventListener('keydown', this._onConfirmKey);
-    document.removeEventListener('click', this._onConfirmOutside, true);
+    this._onConfirmOutside.off();
   }
 
   // restoreFocus: back on the power toggle, unless closed by a click elsewhere (the focus goes where it put it).
@@ -2898,6 +2932,47 @@ const PILL_GAP_PX = 8;
 /* ------------------------------------------------------------------ */
 /* Mini card                                                           */
 /* ------------------------------------------------------------------ */
+// "A click elsewhere" is caught on the pointer, not only on the click event: on iOS (Safari and the companion app) a
+// tap on something that is not clickable (the background, an empty spot, a card with no action) sends no click to the
+// page. It counts when the press and the release are both outside the card (a slider dragged out of the card does not
+// count), and a scroll does not count (the browser cancels the pointer). Keyboard clicks still go through the click
+// event. `tap(ev)` (a press and a release at the same spot) is for the tests.
+const watchOutside = (isOut, handler) => {
+  let downOutside = false;
+  const onDown = (ev) => {
+    downOutside = isOut(ev);
+  };
+  const onUp = (ev) => {
+    if (downOutside && isOut(ev)) handler(ev);
+    downOutside = false;
+  };
+  const onCancel = () => {
+    downOutside = false;
+  };
+  const onClick = (ev) => {
+    if (ev.detail === 0 && isOut(ev)) handler(ev);
+  };
+  return {
+    on() {
+      document.addEventListener('pointerdown', onDown, true);
+      document.addEventListener('pointerup', onUp, true);
+      document.addEventListener('pointercancel', onCancel, true);
+      document.addEventListener('click', onClick, true);
+    },
+    tap(ev) {
+      onDown(ev);
+      onUp(ev);
+    },
+    off() {
+      downOutside = false;
+      document.removeEventListener('pointerdown', onDown, true);
+      document.removeEventListener('pointerup', onUp, true);
+      document.removeEventListener('pointercancel', onCancel, true);
+      document.removeEventListener('click', onClick, true);
+    },
+  };
+};
+
 // A click in a dialog opened from the card (its more-info) does not fold it back.
 const inDialog = (ev) => ev.composedPath().some((n) => ['ha-more-info-dialog', 'ha-dialog', 'dialog'].includes(n.localName));
 
@@ -2910,9 +2985,12 @@ class HaSwitchMiniCard extends HaSwitchCard {
   constructor() {
     super();
     this._zoomed = false;
-    this._onOutside = (ev) => {
-      if (this._zoomed && !ev.composedPath().includes(this) && !inDialog(ev)) this._setZoom(false);
-    };
+    this._onOutside = watchOutside(
+      (ev) => !ev.composedPath().includes(this) && !inDialog(ev),
+      () => {
+        if (this._zoomed) this._setZoom(false);
+      },
+    );
   }
 
   static getConfigElement() {
@@ -2921,12 +2999,17 @@ class HaSwitchMiniCard extends HaSwitchCard {
 
   connectedCallback() {
     super.connectedCallback();
-    document.addEventListener('click', this._onOutside, true);
+    this._onOutside.on();
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    document.removeEventListener('click', this._onOutside, true);
+    this._onOutside.off();
+    // Left (another view, a conditional card hidden): back to the compact view, so that it never comes back expanded.
+    if (this._zoomed) {
+      this._zoomed = false;
+      this._key = '';
+    }
   }
 
   getCardSize() {
@@ -2976,7 +3059,7 @@ class HaSwitchMiniCard extends HaSwitchCard {
 /* Visual editor                                                       */
 /* ------------------------------------------------------------------ */
 // Editor toggles whose default is on, and that default.
-const EDITOR_TOGGLES = { show_title: true, show_history: true, zoom: true, confirm_off: true, illustration: true };
+const EDITOR_TOGGLES = { show_title: true, show_subtitle: true, show_history: true, zoom: true, confirm_off: true, illustration: true };
 
 // Config → form data: `port_names` as a map ({ 3: NAS }) becomes the list in port order the text fields edit
 // (an empty name keeps the number), and `watched_ports` (numbers, or "1, 3, 8") the strings of the port select.
@@ -3107,6 +3190,7 @@ class HaSwitchCardEditor extends HTMLElement {
             selector: { select: { mode: 'dropdown', options: ['auto', 'day', 'night'].map((v) => ({ value: v, label: t[`theme_${v}`] })) } },
           },
           { name: 'show_title', selector: { boolean: {} } },
+          { name: 'show_subtitle', selector: { boolean: {} } },
           { name: 'show_history', selector: { boolean: {} } },
           ...(this.constructor.mini ? [{ name: 'zoom', selector: { boolean: {} } }] : []),
           { name: 'image', selector: { text: {} } },

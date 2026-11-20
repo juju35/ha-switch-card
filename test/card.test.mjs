@@ -202,7 +202,7 @@ function toggleCard({ callService, state = "off", config = {} } = {}) {
   const clearTimeout = (id) => {
     if (timers[id - 1]) timers[id - 1].fn = null;
   };
-  const on = { keydown: new Set(), click: new Set() };
+  const on = { keydown: new Set(), click: new Set(), pointerdown: new Set(), pointerup: new Set(), pointercancel: new Set() };
   const addEventListener = (type, fn) => on[type]?.add(fn);
   const removeEventListener = (type, fn) => on[type]?.delete(fn);
   const document = { documentElement: { lang: "en" }, createElement: () => ({}), addEventListener, removeEventListener };
@@ -268,7 +268,17 @@ test("power toggle: Turn off in the confirmation calls the service and closes it
   press(card, "confirm_ok");
   assert.deepEqual(calls, [["switch", "turn_off", "switch.sw"]]);
   assert.doesNotMatch(card.shadowRoot.innerHTML, /confirm_ok/);
-  assert.equal(on.keydown.size + on.click.size, 0, "no listener left behind");
+  assert.equal(listening(on), 0, "no listener left behind");
+});
+
+const listening = (on) => Object.values(on).reduce((n, set) => n + set.size, 0);
+
+test("power toggle: a press inside the card released outside (a drag) keeps the confirmation open", async () => {
+  const { card, click, on } = powerCard();
+  await click(false);
+  [...on.pointerdown][0]({ composedPath: () => [card] });
+  [...on.pointerup][0]({ composedPath: () => [{}] });
+  assert.match(card.shadowRoot.innerHTML, /confirm_ok/);
 });
 
 test("power toggle: Cancel, the backdrop, Escape and a click outside the card close it without calling", async () => {
@@ -277,7 +287,13 @@ test("power toggle: Cancel, the backdrop, Escape and a click outside the card cl
     () => press(card, "confirm_cancel"),
     () => press(card, "confirm_backdrop"),
     () => [...on.keydown][0]({ key: "Escape", stopPropagation() {} }),
-    () => [...on.click][0]({ composedPath: () => [{}] }),
+    // A tap elsewhere (iOS sends no click on a spot that is not clickable): press and release outside.
+    () => {
+      [...on.pointerdown][0]({ composedPath: () => [{}] });
+      [...on.pointerup][0]({ composedPath: () => [{}] });
+    },
+    // A keyboard click elsewhere (no click count).
+    () => [...on.click][0]({ composedPath: () => [{}], detail: 0 }),
   ];
   for (const cancel of cancels) {
     await click(false);
@@ -287,7 +303,7 @@ test("power toggle: Cancel, the backdrop, Escape and a click outside the card cl
     assert.match(card.shadowRoot.innerHTML, /confirm_ok/);
     cancel();
     assert.doesNotMatch(card.shadowRoot.innerHTML, /confirm_ok/);
-    assert.equal(on.keydown.size + on.click.size, 0);
+    assert.equal(listening(on), 0);
   }
   assert.deepEqual(calls, []);
 });
@@ -297,10 +313,10 @@ test("power toggle: the confirmation closes without acting when the card leaves 
   await click(false);
   assert.match(card.shadowRoot.innerHTML, /confirm_ok/);
   card.disconnectedCallback();
-  assert.equal(on.keydown.size + on.click.size, 0, "no listener left behind");
+  assert.equal(listening(on), 0, "no listener left behind");
   card.connectedCallback();
   assert.doesNotMatch(card.shadowRoot.innerHTML, /confirm_ok/);
-  assert.equal(on.keydown.size + on.click.size, 0);
+  assert.equal(listening(on), 0);
   assert.deepEqual(calls, []);
 });
 
@@ -316,7 +332,7 @@ test("power toggle: the confirmation closes when the switch is turned off elsewh
   await click(false);
   setState("off");
   assert.doesNotMatch(card.shadowRoot.innerHTML, /confirm_ok/);
-  assert.equal(on.keydown.size + on.click.size, 0);
+  assert.equal(listening(on), 0);
   assert.deepEqual(calls, []);
 });
 
@@ -918,6 +934,26 @@ test("traffic history: a lone bucket between two holes is drawn over its 5 minut
   assert.match(card.shadowRoot.innerHTML, /d="M50\.00,2\.00L50\.35,2\.00M95\.83,2\.00L96\.18,2\.00"/);
 });
 
+test("mini card: a tap elsewhere (pointer, for iOS) or leaving the page brings the compact view back", () => {
+  const noop = () => {};
+  const document = { documentElement: { lang: "en" }, createElement: () => ({}), addEventListener: noop, removeEventListener: noop };
+  const { HaSwitchMiniCard } = loadCard("ha-switch-card.js", ["HaSwitchMiniCard"], { addEventListener: noop, removeEventListener: noop, document });
+  const card = new HaSwitchMiniCard();
+  card.setConfig({ ports: 3, port_pattern: "sensor.p{n}" });
+  card.hass = portsHass();
+  const zoom = () => card._onClick({ composedPath: () => [{ classList: { contains: (c) => c === "zoom" } }], stopPropagation() {}, detail: 1 });
+  zoom();
+  assert.equal(card._zoomed, true);
+  // Pressed in the card, released outside (a drag): stays expanded.
+  card._onOutside.tap({ composedPath: () => [card] });
+  card._onOutside.tap({ composedPath: () => [{}] });
+  assert.equal(card._zoomed, false);
+  zoom();
+  card.disconnectedCallback();
+  assert.equal(card._zoomed, false);
+  assert.equal(card.getCardSize(), 3);
+});
+
 test("mini card: compact front panel and rates, no power toggle; the detail button switches to the full card", () => {
   const { HaSwitchMiniCard } = loadCard("ha-switch-card.js", ["HaSwitchMiniCard"]);
   const card = new HaSwitchMiniCard();
@@ -1079,4 +1115,15 @@ test("power button: on, it asks for the confirmation (or turns off at once with 
   ({ calls, press } = powerButtonCard("unavailable"));
   press();
   assert.deepEqual(calls, []);
+});
+
+test("show_subtitle: false hides the subtitle, as in the sibling cards", () => {
+  const { HaSwitchCard } = loadCard("ha-switch-card.js", ["HaSwitchCard"]);
+  const card = new HaSwitchCard();
+  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", subtitle: "Rack" });
+  card.hass = portsHass();
+  assert.match(card.shadowRoot.innerHTML, /<div class="sub" title="Rack">Rack<\/div>/);
+  card.setConfig({ ports: 1, port_pattern: "sensor.p{n}", subtitle: "Rack", show_subtitle: false });
+  card.hass = portsHass();
+  assert.doesNotMatch(card.shadowRoot.innerHTML, /class="sub"/);
 });
