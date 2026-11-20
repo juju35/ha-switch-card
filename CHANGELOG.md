@@ -1,10 +1,17 @@
 # Changelog
 
-## 1.16.2 - 2026-11-20
+## 1.17.0 - 2026-11-20
+
+### Features
+- `show_subtitle` option (`true` by default), in the visual editor of both cards, as in the other juju35 cards: `false` hides the subtitle.
 
 ### Fixes
+- Mini card: a tap elsewhere on the page brings the compact view back on iOS too (caught on the pointer: iOS sends no click for a tap on a spot that is not clickable; a press in the card released outside does not count), and the card is back in its compact view when it leaves the page. The power-off confirmation closes the same way on a tap elsewhere.
 - The status pill is placed from the card's first frame: it was measured before Home Assistant's `<ha-card>` had laid out its content (0 px wide), so it showed under the title for a frame (or beside it, for a frame, when it belongs under it) before jumping to its place. It is now fitted once the card is drawn.
 - The power-off confirmation closes, without turning anything off, when the card leaves the page (another view, the editor, a conditional card hidden): it no longer comes back open with the card.
+
+### Performance
+- The number formats are made once per language and number of decimals instead of at every number of every render.
 
 ### Maintenance
 - Tests: a browser test checks that the cards never move the dashboard: a state change of another entity writes nothing in the card, a change of its own entities patches it in place (no node replaced, pictures kept) and its height stays the same on every frame.
