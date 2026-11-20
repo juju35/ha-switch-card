@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.16.2 - 2026-11-20
+
+### Fixes
+- The power-off confirmation closes, without turning anything off, when the card leaves the page (another view, the editor, a conditional card hidden): it no longer comes back open with the card.
+
 ## 1.16.1 - 2026-11-18
 
 ### Fixes
