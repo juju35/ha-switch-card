@@ -22,8 +22,16 @@ before(async () => {
 });
 after(() => browser?.close());
 
-const STUBS = `customElements.define("ha-card", class extends HTMLElement { constructor() { super();
-  this.attachShadow({ mode: "open" }).innerHTML = "<style>:host{display:block;overflow:hidden}</style><slot></slot>"; } });
+// Like Home Assistant's <ha-card> (a Lit element): its content shows from its first update only, a microtask after it
+// is connected (hasUpdated / updateComplete as Lit's), so whatever is measured before that is 0 px wide.
+const STUBS = `customElements.define("ha-card", class extends HTMLElement {
+  constructor() { super(); this.attachShadow({ mode: "open" }).innerHTML = "<style>:host{display:block;overflow:hidden}</style>"; }
+  connectedCallback() {
+    if (this.updateComplete) return;
+    this.hasUpdated = false;
+    this.updateComplete = Promise.resolve().then(() => { this.shadowRoot.appendChild(document.createElement("slot")); this.hasUpdated = true; return true; });
+  }
+});
 customElements.define("ha-icon", class extends HTMLElement { connectedCallback() { this.style.cssText = "display:inline-block;width:24px;height:24px"; } });
 customElements.define("ha-switch", class extends HTMLElement { connectedCallback() { this.style.cssText = "display:inline-block;width:36px;height:20px"; } });`;
 const state = (entity_id, s, attributes = {}) => [entity_id, { entity_id, state: s, attributes, last_updated: "2026-11-20T08:00:00Z" }];
@@ -74,9 +82,16 @@ const probe = async (tag, config, width) => {
       hass.callService = async () => {};
       el.hass = hass;
       document.getElementById("root").appendChild(el);
-      await frames(6);
+      // The height and the status pill's place on each of the first frames, then once settled: the same.
+      const look = () => `${Math.round(el.getBoundingClientRect().height)} ${[...el.shadowRoot.querySelectorAll(".titles")].map((t) => t.className).join("|")}`;
+      const first = new Set();
+      for (let k = 0; k < 6; k++) {
+        await frames(1);
+        first.add(look());
+      }
       await new Promise((done) => setTimeout(done, 300));
       await frames(3);
+      const settled = look();
       const step = new Function("states", "i", mutate);
       const counts = { unrelated: 0, removed: 0 };
       let kind = "unrelated";
@@ -109,7 +124,7 @@ const probe = async (tag, config, width) => {
       }
       run = false;
       mo.disconnect();
-      return { ...counts, heights: [...heights], mediaKept: media.every((n) => n.isConnected), media: media.length };
+      return { ...counts, first: [...first], settled, heights: [...heights], mediaKept: media.every((n) => n.isConnected), media: media.length };
     },
     { tag, config, hass: HASS(), mutate: MUTATE }
   );
@@ -124,11 +139,16 @@ for (const id of ["sensor.office_switch_in", "sensor.office_switch_out"]) {
 }
 states["sensor.office_switch_uptime"] = { ...states["sensor.office_switch_uptime"], state: String(109530000 + 30 * i), last_updated: at };`;
 
-for (const [tag, config, width] of [["ha-switch-mini-card", CONFIG, 260], ["ha-switch-mini-card", CONFIG, 480], ["ha-switch-card", CONFIG, 300], ["ha-switch-card", CONFIG, 480]]) {
-  test(`${tag} at ${width} px: no write on unrelated updates, patched in place, constant height`, async (t) => {
+const LONG = { ...CONFIG, name: "Office network switch rack two" };
+const CASES = [["ha-switch-mini-card", CONFIG, 260], ["ha-switch-mini-card", CONFIG, 480], ["ha-switch-card", CONFIG, 300], ["ha-switch-card", CONFIG, 480]];
+// At 300 px the pill goes under the title, at 400 px it stays beside it (a long name: under it at both widths).
+for (const tag of ["ha-switch-mini-card", "ha-switch-card"]) for (const width of [300, 400]) CASES.push([tag, CONFIG, width], [tag, LONG, width]);
+for (const [tag, config, width] of CASES) {
+  test(`${tag}${config === LONG ? " (long name)" : ""} at ${width} px: pill placed from the first frame, no write on unrelated updates, patched in place, constant height`, async (t) => {
     if (skip) return t.skip(skip);
     const r = await probe(tag, config, width);
     assert.deepEqual(r.errors, []);
+    assert.deepEqual(r.first, [r.settled], "the first frames show the pill where it settles, at the same height");
     assert.equal(r.unrelated, 0, "an unrelated state change writes nothing");
     assert.equal(r.removed, 0, "no element replaced by an update of the card's own entities");
     assert.ok(r.media > 0 && r.mediaKept, "the pictures and icons are kept");
