@@ -5,6 +5,9 @@
 ### Fixes
 - The power-off confirmation closes, without turning anything off, when the card leaves the page (another view, the editor, a conditional card hidden): it no longer comes back open with the card.
 
+### Maintenance
+- Tests: a browser test checks that the cards never move the dashboard: a state change of another entity writes nothing in the card, a change of its own entities patches it in place (no node replaced, pictures kept) and its height stays the same on every frame.
+
 ## 1.16.1 - 2026-11-18
 
 ### Fixes
