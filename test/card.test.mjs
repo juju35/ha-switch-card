@@ -292,6 +292,18 @@ test("power toggle: Cancel, the backdrop, Escape and a click outside the card cl
   assert.deepEqual(calls, []);
 });
 
+test("power toggle: the confirmation closes without acting when the card leaves the page", async () => {
+  const { card, click, calls, on } = powerCard();
+  await click(false);
+  assert.match(card.shadowRoot.innerHTML, /confirm_ok/);
+  card.disconnectedCallback();
+  assert.equal(on.keydown.size + on.click.size, 0, "no listener left behind");
+  card.connectedCallback();
+  assert.doesNotMatch(card.shadowRoot.innerHTML, /confirm_ok/);
+  assert.equal(on.keydown.size + on.click.size, 0);
+  assert.deepEqual(calls, []);
+});
+
 test("power toggle: confirm_off: false turns the switch off at once", async () => {
   const { card, click, calls } = powerCard({ config: { confirm_off: false } });
   await click(false);

@@ -2015,20 +2015,23 @@ class HaSwitchCard extends HTMLElement {
     };
   }
 
-  // Reattached with the confirmation still open (view switch, editor): Escape and outside clicks keep closing it.
   connectedCallback() {
     this._watchPill();
     // Back on screen: the render schedules the next timed redraw again (rate expiry, uptime minute).
     this._render();
-    if (!this._confirm) return;
-    window.addEventListener('keydown', this._onConfirmKey);
-    document.addEventListener('click', this._onConfirmOutside, true);
   }
 
+  // Off the page (view switch, editor, conditional card hidden): the power-off confirmation closes without acting,
+  // like the other ha-* cards' popups, so that the card never comes back with it open.
   disconnectedCallback() {
     this._unwatchPill();
     clearTimeout(this._tick);
     this._tick = null;
+    clearTimeout(this._toggleCheck);
+    if (this._confirm) {
+      this._dropConfirm();
+      this._key = '';
+    }
     window.removeEventListener('keydown', this._onConfirmKey);
     document.removeEventListener('click', this._onConfirmOutside, true);
   }
