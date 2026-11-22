@@ -1,3 +1,71 @@
+// ── Card picker: light previews ──────────────────────────────────────────────
+// Home Assistant's card picker builds a live preview of every card registered with `preview: true`, all at once and
+// with no lazy loading. A preview here is drawn only once it scrolls into view: the picker calls getStubConfig() right
+// before it creates the preview, which marks the next instance of that card; once connected under <hui-card-picker>,
+// that instance holds Home Assistant's state (no render, no history, no animation) until it is visible. Anywhere else
+// (a dashboard, the card editor) the card behaves as before. Editors and other elements are defined unchanged.
+function pickerDefine(tag, Card, options) {
+  const isCard = !tag.endsWith("-editor") && (typeof Card.getStubConfig === "function" || typeof Card.getConfigElement === "function");
+  if (!isCard || typeof IntersectionObserver !== "function") return customElements.define(tag, Card, options);
+  let marks = [];
+  const lazy = class extends Card {
+    static getStubConfig(...args) {
+      marks.push(Date.now());
+      return Card.getStubConfig ? Card.getStubConfig(...args) : {};
+    }
+
+    constructor() {
+      super();
+      const now = Date.now();
+      marks = marks.filter((t) => now - t < 5000);
+      if (marks.length) {
+        marks.shift();
+        this._plHold = true;
+      }
+    }
+
+    set hass(hass) {
+      if (this._plHold) this._plHass = hass;
+      else super.hass = hass;
+    }
+
+    get hass() {
+      return this._plHold ? this._plHass : super.hass;
+    }
+
+    connectedCallback() {
+      if (!this._plHold) return super.connectedCallback?.();
+      if (this.getRootNode()?.host?.localName !== "hui-card-picker") return this._plRelease();
+      if (this._plIo) return;
+      // A custom element is inline until its styles arrive: a block of a card's height keeps the cells apart, so
+      // that only the previews actually on screen intersect.
+      this.style.display = "block";
+      this.style.minHeight = "120px";
+      this._plIo = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && this._plRelease(), {
+        rootMargin: "200px",
+      });
+      this._plIo.observe(this);
+    }
+
+    disconnectedCallback() {
+      if (this._plHold) return;
+      super.disconnectedCallback?.();
+    }
+
+    _plRelease() {
+      this._plIo?.disconnect();
+      this._plIo = null;
+      this._plHold = false;
+      this.style.display = "";
+      this.style.minHeight = "";
+      if (this._plHass !== undefined) super.hass = this._plHass;
+      this._plHass = undefined;
+      if (this.isConnected) super.connectedCallback?.();
+    }
+  };
+  return customElements.define(tag, lazy, options);
+}
+
 /**
  * ha-switch-card — custom Lovelace card for Home Assistant
  * Displays a managed network switch (SNMP): status, uptime, port states, traffic.
@@ -3274,10 +3342,10 @@ class HaSwitchMiniCardEditor extends HaSwitchCardEditor {
   }
 }
 
-if (!customElements.get('ha-switch-card')) customElements.define('ha-switch-card', HaSwitchCard);
-if (!customElements.get('ha-switch-card-editor')) customElements.define('ha-switch-card-editor', HaSwitchCardEditor);
-if (!customElements.get('ha-switch-mini-card')) customElements.define('ha-switch-mini-card', HaSwitchMiniCard);
-if (!customElements.get('ha-switch-mini-card-editor')) customElements.define('ha-switch-mini-card-editor', HaSwitchMiniCardEditor);
+if (!customElements.get('ha-switch-card')) pickerDefine('ha-switch-card', HaSwitchCard);
+if (!customElements.get('ha-switch-card-editor')) pickerDefine('ha-switch-card-editor', HaSwitchCardEditor);
+if (!customElements.get('ha-switch-mini-card')) pickerDefine('ha-switch-mini-card', HaSwitchMiniCard);
+if (!customElements.get('ha-switch-mini-card-editor')) pickerDefine('ha-switch-mini-card-editor', HaSwitchMiniCardEditor);
 
 const _t = I18N[getLang()];
 window.customCards = window.customCards || [];
@@ -3286,7 +3354,7 @@ if (!window.customCards.some((c) => c.type === 'ha-switch-card')) {
     type: 'ha-switch-card',
     name: _t.card_name,
     description: _t.card_desc,
-    preview: false,
+    preview: true,
     documentationURL: 'https://github.com/juju35/ha-switch-card',
   });
 }
@@ -3295,7 +3363,7 @@ if (!window.customCards.some((c) => c.type === 'ha-switch-mini-card')) {
     type: 'ha-switch-mini-card',
     name: _t.mini_name,
     description: _t.mini_desc,
-    preview: false,
+    preview: true,
     documentationURL: 'https://github.com/juju35/ha-switch-card',
   });
 }
