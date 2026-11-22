@@ -3286,7 +3286,7 @@ if (!window.customCards.some((c) => c.type === 'ha-switch-card')) {
     type: 'ha-switch-card',
     name: _t.card_name,
     description: _t.card_desc,
-    preview: true,
+    preview: false,
     documentationURL: 'https://github.com/juju35/ha-switch-card',
   });
 }
@@ -3295,7 +3295,7 @@ if (!window.customCards.some((c) => c.type === 'ha-switch-mini-card')) {
     type: 'ha-switch-mini-card',
     name: _t.mini_name,
     description: _t.mini_desc,
-    preview: true,
+    preview: false,
     documentationURL: 'https://github.com/juju35/ha-switch-card',
   });
 }
