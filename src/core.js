@@ -1,1600 +1,15 @@
-// ── Card picker: light previews ──────────────────────────────────────────────
-// Home Assistant's card picker builds a live preview of every card registered with `preview: true`, all at once and
-// with no lazy loading. A preview here is drawn only once it scrolls into view: the picker calls getStubConfig() right
-// before it creates the preview, which marks the next instance of that card; once connected under <hui-card-picker>,
-// that instance holds Home Assistant's state (no render, no history, no animation) until it is visible. Anywhere else
-// (a dashboard, the card editor) the card behaves as before. Editors and other elements are defined unchanged.
-function pickerDefine(tag, Card, options) {
-  const isCard = !tag.endsWith("-editor") && (typeof Card.getStubConfig === "function" || typeof Card.getConfigElement === "function");
-  if (!isCard || typeof IntersectionObserver !== "function") return customElements.define(tag, Card, options);
-  let marks = [];
-  const lazy = class extends Card {
-    static getStubConfig(...args) {
-      marks.push(Date.now());
-      return Card.getStubConfig ? Card.getStubConfig(...args) : {};
-    }
-
-    constructor() {
-      super();
-      const now = Date.now();
-      marks = marks.filter((t) => now - t < 5000);
-      if (marks.length) {
-        marks.shift();
-        this._plHold = true;
-      }
-    }
-
-    set hass(hass) {
-      if (this._plHold) this._plHass = hass;
-      else super.hass = hass;
-    }
-
-    get hass() {
-      return this._plHold ? this._plHass : super.hass;
-    }
-
-    connectedCallback() {
-      if (!this._plHold) return super.connectedCallback?.();
-      if (this.getRootNode()?.host?.localName !== "hui-card-picker") return this._plRelease();
-      if (this._plIo) return;
-      // A custom element is inline until its styles arrive: a block of a card's height keeps the cells apart, so
-      // that only the previews actually on screen intersect.
-      this.style.display = "block";
-      this.style.minHeight = "120px";
-      this._plIo = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && this._plRelease(), {
-        rootMargin: "200px",
-      });
-      this._plIo.observe(this);
-    }
-
-    disconnectedCallback() {
-      if (this._plHold) return;
-      super.disconnectedCallback?.();
-    }
-
-    _plRelease() {
-      this._plIo?.disconnect();
-      this._plIo = null;
-      this._plHold = false;
-      this.style.display = "";
-      this.style.minHeight = "";
-      if (this._plHass !== undefined) super.hass = this._plHass;
-      this._plHass = undefined;
-      if (this.isConnected) super.connectedCallback?.();
-    }
-  };
-  return customElements.define(tag, lazy, options);
-}
-
 /**
  * ha-switch-card — custom Lovelace card for Home Assistant
  * Displays a managed network switch (SNMP): status, uptime, port states, traffic.
  * Pure JavaScript, no dependencies (no mushroom / card-mod / button-card required).
  */
-const VERSION = '__VERSION__';
+import { pickerDefine } from "./card-picker.js";
+import { I18N } from "./i18n/i18n.js";
 
-const I18N = {
-  fr: {
-    card_name: 'Carte switch réseau',
-    card_desc: 'Affiche l’état d’un switch réseau : statut, uptime, ports et trafic.',
-    in: 'Réception',
-    out: 'Envoi',
-    port: 'Port',
-    default: 'Défaut',
-    colon: ' : ',
-    lang_auto: 'Automatique',
-    sections: {
-      entities: 'Entités',
-      ports: 'Ports',
-      status: 'Statut',
-      appearance: 'Apparence',
-    },
-    fields: {
-      name: 'Nom',
-      subtitle: 'Sous-titre',
-      icon: 'Icône',
-      url: 'URL d’administration (clic sur l’image)',
-      switch_entity: 'Interrupteur (alimentation)',
-      status_entity: 'Statut global',
-      connectivity_entity: 'Connectivité',
-      uptime_entity: 'Uptime',
-      uptime_unit: 'Unité de l’uptime',
-      traffic_in_entity: 'Trafic entrant',
-      traffic_out_entity: 'Trafic sortant',
-      ports: 'Nombre de ports',
-      port_pattern: 'Modèle d’entité des ports ({n} = numéro)',
-      port_on_state: 'État « port actif »',
-      online_state: 'État « en ligne »',
-      idle_state: 'État « inactif »',
-      model: 'Modèle (façade dessinée)',
-      image: 'Image personnalisée (remplace le modèle)',
-      port_start: 'Position du 1er port (%)',
-      port_step: 'Écart entre ports (%)',
-      port_bottom: 'Hauteur des ports (% depuis le bas)',
-      language: 'Langue',
-      port_names: 'Noms des ports (dans l’ordre)',
-      watched_ports: 'Ports surveillés (rouges si coupés)',
-      show_history: 'Historique 24 h du trafic',
-      show_title: 'Afficher le titre',
-      show_subtitle: 'Afficher le sous-titre',
-      zoom: 'Bouton détail',
-      confirm_off: 'Confirmer avant d’éteindre',
-      illustration: 'En-tête illustré',
-      illustration_theme: 'Thème de l’illustration',
-    },
-    units: { timeticks: 'Centièmes de seconde (SNMP)', seconds: 'Secondes' },
-    day: 'j',
-    hour: 'h',
-    minute: 'min',
-    generic: 'Générique',
-    open_admin: 'Ouvrir la page d’administration',
-    online: 'En ligne',
-    idle: 'Inactif',
-    total: 'Total',
-    zoom_in: 'Afficher la carte complète',
-    zoom_out: 'Revenir à la vue compacte',
-    confirm_text: 'Éteindre {name} ?',
-    cancel: 'Annuler',
-    turn_off: 'Éteindre',
-    power: 'Alimentation',
-    theme_auto: 'Automatique (suit le thème)',
-    theme_day: 'Jour',
-    theme_night: 'Nuit',
-    mini_name: 'Mini-carte switch réseau',
-    mini_desc: 'Switch réseau compact : façade, ports et trafic, avec un bouton pour afficher la carte complète.',
-  },
-  en: {
-    card_name: 'Network switch card',
-    card_desc: 'Shows a network switch: status, uptime, ports and traffic.',
-    in: 'Download',
-    out: 'Upload',
-    port: 'Port',
-    default: 'Default',
-    colon: ': ',
-    lang_auto: 'Automatic',
-    sections: {
-      entities: 'Entities',
-      ports: 'Ports',
-      status: 'Status',
-      appearance: 'Appearance',
-    },
-    fields: {
-      name: 'Name',
-      subtitle: 'Subtitle',
-      icon: 'Icon',
-      url: 'Admin URL (tap on image)',
-      switch_entity: 'Power switch',
-      status_entity: 'Global status',
-      connectivity_entity: 'Connectivity',
-      uptime_entity: 'Uptime',
-      uptime_unit: 'Uptime unit',
-      traffic_in_entity: 'Incoming traffic',
-      traffic_out_entity: 'Outgoing traffic',
-      ports: 'Number of ports',
-      port_pattern: 'Port entity pattern ({n} = number)',
-      port_on_state: '"Port up" state',
-      online_state: '"Online" state',
-      idle_state: '"Idle" state',
-      model: 'Model (drawn front panel)',
-      image: 'Custom image (overrides model)',
-      port_start: 'First port position (%)',
-      port_step: 'Spacing between ports (%)',
-      port_bottom: 'Port height (% from bottom)',
-      language: 'Language',
-      port_names: 'Port names (in order)',
-      watched_ports: 'Watched ports (red when down)',
-      show_history: '24 h traffic history',
-      show_title: 'Show title',
-      show_subtitle: 'Show subtitle',
-      zoom: 'Detail button',
-      confirm_off: 'Confirm before turning off',
-      illustration: 'Illustrated header',
-      illustration_theme: 'Illustration theme',
-    },
-    units: { timeticks: 'Hundredths of a second (SNMP)', seconds: 'Seconds' },
-    day: 'd',
-    hour: 'h',
-    minute: 'min',
-    generic: 'Generic',
-    open_admin: 'Open the admin page',
-    online: 'Online',
-    idle: 'Idle',
-    total: 'Total',
-    zoom_in: 'Show the full card',
-    zoom_out: 'Back to the compact view',
-    confirm_text: 'Turn off {name}?',
-    cancel: 'Cancel',
-    turn_off: 'Turn off',
-    power: 'Power',
-    theme_auto: 'Automatic (follows the theme)',
-    theme_day: 'Day',
-    theme_night: 'Night',
-    mini_name: 'Network switch mini card',
-    mini_desc: 'Compact network switch: front panel, ports and traffic, with a button to show the full card.',
-  },
-  de: {
-    card_name: 'Netzwerk-Switch-Karte',
-    card_desc: 'Zeigt einen Netzwerk-Switch: Status, Betriebszeit, Ports und Datenverkehr.',
-    in: 'Download',
-    out: 'Upload',
-    port: 'Port',
-    default: 'Standard',
-    colon: ': ',
-    lang_auto: 'Automatisch',
-    sections: {
-      entities: 'Entitäten',
-      ports: 'Ports',
-      status: 'Status',
-      appearance: 'Darstellung',
-    },
-    fields: {
-      name: 'Name',
-      subtitle: 'Untertitel',
-      icon: 'Symbol',
-      url: 'Admin-URL (Tippen auf das Bild)',
-      switch_entity: 'Netzschalter',
-      status_entity: 'Gesamtstatus',
-      connectivity_entity: 'Konnektivität',
-      uptime_entity: 'Betriebszeit',
-      uptime_unit: 'Einheit der Betriebszeit',
-      traffic_in_entity: 'Eingehender Datenverkehr',
-      traffic_out_entity: 'Ausgehender Datenverkehr',
-      ports: 'Anzahl der Ports',
-      port_pattern: 'Muster der Port-Entitäten ({n} = Nummer)',
-      port_on_state: 'Zustand „Port aktiv“',
-      online_state: 'Zustand „Online“',
-      idle_state: 'Zustand „Inaktiv“',
-      model: 'Modell (gezeichnete Frontblende)',
-      image: 'Eigenes Bild (ersetzt das Modell)',
-      port_start: 'Position des ersten Ports (%)',
-      port_step: 'Abstand zwischen den Ports (%)',
-      port_bottom: 'Höhe der Ports (% von unten)',
-      language: 'Sprache',
-      port_names: 'Portnamen (in Reihenfolge)',
-      watched_ports: 'Überwachte Ports (rot bei Ausfall)',
-      show_history: '24-h-Verlauf des Datenverkehrs',
-      show_title: 'Titel anzeigen',
-      show_subtitle: 'Untertitel anzeigen',
-      zoom: 'Detail-Schaltfläche',
-      confirm_off: 'Vor dem Ausschalten bestätigen',
-      illustration: 'Illustrierter Kopfbereich',
-      illustration_theme: 'Thema der Illustration',
-    },
-    units: { timeticks: 'Hundertstelsekunden (SNMP)', seconds: 'Sekunden' },
-    day: 'T',
-    hour: 'h',
-    minute: 'min',
-    generic: 'Generisch',
-    open_admin: 'Admin-Seite öffnen',
-    online: 'Online',
-    idle: 'Inaktiv',
-    total: 'Gesamt',
-    zoom_in: 'Vollständige Karte anzeigen',
-    zoom_out: 'Zurück zur kompakten Ansicht',
-    confirm_text: '{name} ausschalten?',
-    cancel: 'Abbrechen',
-    turn_off: 'Ausschalten',
-    power: 'Stromversorgung',
-    theme_auto: 'Automatisch (folgt dem Design)',
-    theme_day: 'Tag',
-    theme_night: 'Nacht',
-    mini_name: 'Netzwerk-Switch-Minikarte',
-    mini_desc: 'Kompakter Netzwerk-Switch: Frontansicht, Ports und Datenverkehr, mit einer Schaltfläche für die vollständige Karte.',
-  },
-  es: {
-    card_name: 'Tarjeta de switch de red',
-    card_desc: 'Muestra un switch de red: estado, tiempo de actividad, puertos y tráfico.',
-    in: 'Descarga',
-    out: 'Subida',
-    port: 'Puerto',
-    default: 'Predeterminado',
-    colon: ': ',
-    lang_auto: 'Automático',
-    sections: {
-      entities: 'Entidades',
-      ports: 'Puertos',
-      status: 'Estado',
-      appearance: 'Apariencia',
-    },
-    fields: {
-      name: 'Nombre',
-      subtitle: 'Subtítulo',
-      icon: 'Icono',
-      url: 'URL de administración (toca la imagen)',
-      switch_entity: 'Interruptor de alimentación',
-      status_entity: 'Estado general',
-      connectivity_entity: 'Conectividad',
-      uptime_entity: 'Tiempo de actividad',
-      uptime_unit: 'Unidad del tiempo de actividad',
-      traffic_in_entity: 'Tráfico entrante',
-      traffic_out_entity: 'Tráfico saliente',
-      ports: 'Número de puertos',
-      port_pattern: 'Patrón de entidad de los puertos ({n} = número)',
-      port_on_state: 'Estado «puerto activo»',
-      online_state: 'Estado «en línea»',
-      idle_state: 'Estado «inactivo»',
-      model: 'Modelo (panel frontal dibujado)',
-      image: 'Imagen personalizada (reemplaza el modelo)',
-      port_start: 'Posición del primer puerto (%)',
-      port_step: 'Separación entre puertos (%)',
-      port_bottom: 'Altura de los puertos (% desde abajo)',
-      language: 'Idioma',
-      port_names: 'Nombres de los puertos (en orden)',
-      watched_ports: 'Puertos vigilados (rojos si caen)',
-      show_history: 'Historial de 24 h del tráfico',
-      show_title: 'Mostrar el título',
-      show_subtitle: 'Mostrar subtítulo',
-      zoom: 'Botón de detalle',
-      confirm_off: 'Confirmar antes de apagar',
-      illustration: 'Encabezado ilustrado',
-      illustration_theme: 'Tema de la ilustración',
-    },
-    units: { timeticks: 'Centésimas de segundo (SNMP)', seconds: 'Segundos' },
-    day: 'd',
-    hour: 'h',
-    minute: 'min',
-    generic: 'Genérico',
-    open_admin: 'Abrir la página de administración',
-    online: 'En línea',
-    idle: 'Inactivo',
-    total: 'Total',
-    zoom_in: 'Mostrar la tarjeta completa',
-    zoom_out: 'Volver a la vista compacta',
-    confirm_text: '¿Apagar {name}?',
-    cancel: 'Cancelar',
-    turn_off: 'Apagar',
-    power: 'Alimentación',
-    theme_auto: 'Automático (sigue el tema)',
-    theme_day: 'Día',
-    theme_night: 'Noche',
-    mini_name: 'Minitarjeta de switch de red',
-    mini_desc: 'Switch de red compacto: frontal, puertos y tráfico, con un botón para mostrar la tarjeta completa.',
-  },
-  sr: {
-    card_name: 'Картица мрежног свича',
-    card_desc: 'Приказује мрежни свич: статус, време рада, портове и саобраћај.',
-    in: 'Преузимање',
-    out: 'Слање',
-    port: 'Порт',
-    default: 'Подразумевано',
-    colon: ': ',
-    lang_auto: 'Аутоматски',
-    sections: {
-      entities: 'Ентитети',
-      ports: 'Портови',
-      status: 'Статус',
-      appearance: 'Изглед',
-    },
-    fields: {
-      name: 'Назив',
-      subtitle: 'Поднаслов',
-      icon: 'Иконица',
-      url: 'URL за администрацију (додир на слику)',
-      switch_entity: 'Прекидач напајања',
-      status_entity: 'Општи статус',
-      connectivity_entity: 'Повезаност',
-      uptime_entity: 'Време рада',
-      uptime_unit: 'Јединица времена рада',
-      traffic_in_entity: 'Долазни саобраћај',
-      traffic_out_entity: 'Одлазни саобраћај',
-      ports: 'Број портова',
-      port_pattern: 'Шаблон ентитета портова ({n} = број)',
-      port_on_state: 'Стање „порт активан“',
-      online_state: 'Стање „на мрежи“',
-      idle_state: 'Стање „неактиван“',
-      model: 'Модел (нацртана предња плоча)',
-      image: 'Прилагођена слика (замењује модел)',
-      port_start: 'Положај првог порта (%)',
-      port_step: 'Размак између портова (%)',
-      port_bottom: 'Висина портова (% од дна)',
-      language: 'Језик',
-      port_names: 'Називи портова (редом)',
-      watched_ports: 'Праћени портови (црвени када падну)',
-      show_history: 'Историја саобраћаја за 24 ч',
-      show_title: 'Прикажи наслов',
-      show_subtitle: 'Прикажи поднаслов',
-      zoom: 'Дугме за детаље',
-      confirm_off: 'Потврди пре искључивања',
-      illustration: 'Илустровано заглавље',
-      illustration_theme: 'Тема илустрације',
-    },
-    units: { timeticks: 'Стотинке секунде (SNMP)', seconds: 'Секунде' },
-    day: 'д',
-    hour: 'ч',
-    minute: 'мин',
-    generic: 'Генерички',
-    open_admin: 'Отвори страницу за администрацију',
-    online: 'На мрежи',
-    idle: 'Неактиван',
-    total: 'Укупно',
-    zoom_in: 'Прикажи целу картицу',
-    zoom_out: 'Назад на компактни приказ',
-    confirm_text: 'Искључити {name}?',
-    cancel: 'Откажи',
-    turn_off: 'Искључи',
-    power: 'Напајање',
-    theme_auto: 'Аутоматски (прати тему)',
-    theme_day: 'Дан',
-    theme_night: 'Ноћ',
-    mini_name: 'Мини картица мрежног свича',
-    mini_desc: 'Компактни мрежни свич: предња плоча, портови и саобраћај, са дугметом за целу картицу.',
-  },
-  'sr-Latn': {
-    card_name: 'Kartica mrežnog sviča',
-    card_desc: 'Prikazuje mrežni svič: status, vreme rada, portove i saobraćaj.',
-    in: 'Preuzimanje',
-    out: 'Slanje',
-    port: 'Port',
-    default: 'Podrazumevano',
-    colon: ': ',
-    lang_auto: 'Automatski',
-    sections: {
-      entities: 'Entiteti',
-      ports: 'Portovi',
-      status: 'Status',
-      appearance: 'Izgled',
-    },
-    fields: {
-      name: 'Naziv',
-      subtitle: 'Podnaslov',
-      icon: 'Ikonica',
-      url: 'URL za administraciju (dodir na sliku)',
-      switch_entity: 'Prekidač napajanja',
-      status_entity: 'Opšti status',
-      connectivity_entity: 'Povezanost',
-      uptime_entity: 'Vreme rada',
-      uptime_unit: 'Jedinica vremena rada',
-      traffic_in_entity: 'Dolazni saobraćaj',
-      traffic_out_entity: 'Odlazni saobraćaj',
-      ports: 'Broj portova',
-      port_pattern: 'Šablon entiteta portova ({n} = broj)',
-      port_on_state: 'Stanje „port aktivan“',
-      online_state: 'Stanje „na mreži“',
-      idle_state: 'Stanje „neaktivan“',
-      model: 'Model (nacrtana prednja ploča)',
-      image: 'Prilagođena slika (zamenjuje model)',
-      port_start: 'Položaj prvog porta (%)',
-      port_step: 'Razmak između portova (%)',
-      port_bottom: 'Visina portova (% od dna)',
-      language: 'Jezik',
-      port_names: 'Nazivi portova (redom)',
-      watched_ports: 'Praćeni portovi (crveni kada padnu)',
-      show_history: 'Istorija saobraćaja za 24 č',
-      show_title: 'Prikaži naslov',
-      show_subtitle: 'Prikaži podnaslov',
-      zoom: 'Dugme za detalje',
-      confirm_off: 'Potvrdi pre isključivanja',
-      illustration: 'Ilustrovano zaglavlje',
-      illustration_theme: 'Tema ilustracije',
-    },
-    units: { timeticks: 'Stotinke sekunde (SNMP)', seconds: 'Sekunde' },
-    day: 'd',
-    hour: 'h',
-    minute: 'min',
-    generic: 'Generički',
-    open_admin: 'Otvori stranicu za administraciju',
-    online: 'Na mreži',
-    idle: 'Neaktivan',
-    total: 'Ukupno',
-    zoom_in: 'Prikaži celu karticu',
-    zoom_out: 'Nazad na kompaktni prikaz',
-    confirm_text: 'Isključiti {name}?',
-    cancel: 'Otkaži',
-    turn_off: 'Isključi',
-    power: 'Napajanje',
-    theme_auto: 'Automatski (prati temu)',
-    theme_day: 'Dan',
-    theme_night: 'Noć',
-    mini_name: 'Mini kartica mrežnog sviča',
-    mini_desc: 'Kompaktni mrežni svič: prednja ploča, portovi i saobraćaj, sa dugmetom za celu karticu.',
-  },
-  it: {
-    card_name: 'Scheda switch di rete',
-    card_desc: 'Mostra uno switch di rete: stato, tempo di attività, porte e traffico.',
-    in: 'Download',
-    out: 'Upload',
-    port: 'Porta',
-    default: 'Predefinito',
-    colon: ': ',
-    lang_auto: 'Automatico',
-    sections: {
-      entities: 'Entità',
-      ports: 'Porte',
-      status: 'Stato',
-      appearance: 'Aspetto',
-    },
-    fields: {
-      name: 'Nome',
-      subtitle: 'Sottotitolo',
-      icon: 'Icona',
-      url: 'URL di amministrazione (tocco sull’immagine)',
-      switch_entity: 'Interruttore di alimentazione',
-      status_entity: 'Stato generale',
-      connectivity_entity: 'Connettività',
-      uptime_entity: 'Tempo di attività',
-      uptime_unit: 'Unità del tempo di attività',
-      traffic_in_entity: 'Traffico in entrata',
-      traffic_out_entity: 'Traffico in uscita',
-      ports: 'Numero di porte',
-      port_pattern: 'Schema delle entità delle porte ({n} = numero)',
-      port_on_state: 'Stato «porta attiva»',
-      online_state: 'Stato «online»',
-      idle_state: 'Stato «inattivo»',
-      model: 'Modello (pannello frontale disegnato)',
-      image: 'Immagine personalizzata (sostituisce il modello)',
-      port_start: 'Posizione della prima porta (%)',
-      port_step: 'Distanza tra le porte (%)',
-      port_bottom: 'Altezza delle porte (% dal basso)',
-      language: 'Lingua',
-      port_names: 'Nomi delle porte (in ordine)',
-      watched_ports: 'Porte sorvegliate (rosse se giù)',
-      show_history: 'Storico 24 h del traffico',
-      show_title: 'Mostra il titolo',
-      show_subtitle: 'Mostra sottotitolo',
-      zoom: 'Pulsante dettagli',
-      confirm_off: 'Conferma prima di spegnere',
-      illustration: 'Intestazione illustrata',
-      illustration_theme: 'Tema dell’illustrazione',
-    },
-    units: { timeticks: 'Centesimi di secondo (SNMP)', seconds: 'Secondi' },
-    day: 'g',
-    hour: 'h',
-    minute: 'min',
-    generic: 'Generico',
-    open_admin: 'Apri la pagina di amministrazione',
-    online: 'Online',
-    idle: 'Inattivo',
-    total: 'Totale',
-    zoom_in: 'Mostra la scheda completa',
-    zoom_out: 'Torna alla vista compatta',
-    confirm_text: 'Spegnere {name}?',
-    cancel: 'Annulla',
-    turn_off: 'Spegni',
-    power: 'Alimentazione',
-    theme_auto: 'Automatico (segue il tema)',
-    theme_day: 'Giorno',
-    theme_night: 'Notte',
-    mini_name: 'Mini scheda switch di rete',
-    mini_desc: 'Switch di rete compatto: frontale, porte e traffico, con un pulsante per la scheda completa.',
-  },
-  nl: {
-    card_name: 'Netwerkswitchkaart',
-    card_desc: 'Toont een netwerkswitch: status, uptime, poorten en verkeer.',
-    in: 'Download',
-    out: 'Upload',
-    port: 'Poort',
-    default: 'Standaard',
-    colon: ': ',
-    lang_auto: 'Automatisch',
-    sections: {
-      entities: 'Entiteiten',
-      ports: 'Poorten',
-      status: 'Status',
-      appearance: 'Uiterlijk',
-    },
-    fields: {
-      name: 'Naam',
-      subtitle: 'Ondertitel',
-      icon: 'Pictogram',
-      url: 'Beheer-URL (tik op de afbeelding)',
-      switch_entity: 'Voedingsschakelaar',
-      status_entity: 'Algemene status',
-      connectivity_entity: 'Connectiviteit',
-      uptime_entity: 'Uptime',
-      uptime_unit: 'Eenheid van de uptime',
-      traffic_in_entity: 'Inkomend verkeer',
-      traffic_out_entity: 'Uitgaand verkeer',
-      ports: 'Aantal poorten',
-      port_pattern: 'Patroon van de poortentiteiten ({n} = nummer)',
-      port_on_state: 'Status „poort actief”',
-      online_state: 'Status „online”',
-      idle_state: 'Status „inactief”',
-      model: 'Model (getekend frontpaneel)',
-      image: 'Eigen afbeelding (vervangt het model)',
-      port_start: 'Positie van de eerste poort (%)',
-      port_step: 'Afstand tussen de poorten (%)',
-      port_bottom: 'Hoogte van de poorten (% van onderen)',
-      language: 'Taal',
-      port_names: 'Poortnamen (op volgorde)',
-      watched_ports: 'Bewaakte poorten (rood bij uitval)',
-      show_history: '24-uursgeschiedenis van het verkeer',
-      show_title: 'Titel tonen',
-      show_subtitle: 'Ondertitel tonen',
-      zoom: 'Detailknop',
-      confirm_off: 'Bevestigen voor uitschakelen',
-      illustration: 'Geïllustreerde koptekst',
-      illustration_theme: 'Thema van de illustratie',
-    },
-    units: { timeticks: 'Honderdsten van een seconde (SNMP)', seconds: 'Seconden' },
-    day: 'd',
-    hour: 'h',
-    minute: 'min',
-    generic: 'Generiek',
-    open_admin: 'Beheerpagina openen',
-    online: 'Online',
-    idle: 'Inactief',
-    total: 'Totaal',
-    zoom_in: 'Volledige kaart tonen',
-    zoom_out: 'Terug naar de compacte weergave',
-    confirm_text: '{name} uitschakelen?',
-    cancel: 'Annuleren',
-    turn_off: 'Uitschakelen',
-    power: 'Voeding',
-    theme_auto: 'Automatisch (volgt het thema)',
-    theme_day: 'Dag',
-    theme_night: 'Nacht',
-    mini_name: 'Netwerkswitch-minikaart',
-    mini_desc: 'Compacte netwerkswitch: frontpaneel, poorten en verkeer, met een knop voor de volledige kaart.',
-  },
-  pt: {
-    card_name: 'Cartão de switch de rede',
-    card_desc: 'Mostra um switch de rede: estado, tempo de atividade, portas e tráfego.',
-    in: 'Transferência',
-    out: 'Envio',
-    port: 'Porta',
-    default: 'Predefinição',
-    colon: ': ',
-    lang_auto: 'Automático',
-    sections: {
-      entities: 'Entidades',
-      ports: 'Portas',
-      status: 'Estado',
-      appearance: 'Aspeto',
-    },
-    fields: {
-      name: 'Nome',
-      subtitle: 'Subtítulo',
-      icon: 'Ícone',
-      url: 'URL de administração (toque na imagem)',
-      switch_entity: 'Interruptor de alimentação',
-      status_entity: 'Estado geral',
-      connectivity_entity: 'Conectividade',
-      uptime_entity: 'Tempo de atividade',
-      uptime_unit: 'Unidade do tempo de atividade',
-      traffic_in_entity: 'Tráfego de entrada',
-      traffic_out_entity: 'Tráfego de saída',
-      ports: 'Número de portas',
-      port_pattern: 'Padrão de entidade das portas ({n} = número)',
-      port_on_state: 'Estado «porta ativa»',
-      online_state: 'Estado «online»',
-      idle_state: 'Estado «inativo»',
-      model: 'Modelo (painel frontal desenhado)',
-      image: 'Imagem personalizada (substitui o modelo)',
-      port_start: 'Posição da primeira porta (%)',
-      port_step: 'Espaçamento entre portas (%)',
-      port_bottom: 'Altura das portas (% de baixo)',
-      language: 'Idioma',
-      port_names: 'Nomes das portas (por ordem)',
-      watched_ports: 'Portas vigiadas (vermelhas se caírem)',
-      show_history: 'Histórico de 24 h do tráfego',
-      show_title: 'Mostrar o título',
-      show_subtitle: 'Mostrar subtítulo',
-      zoom: 'Botão de detalhe',
-      confirm_off: 'Confirmar antes de desligar',
-      illustration: 'Cabeçalho ilustrado',
-      illustration_theme: 'Tema da ilustração',
-    },
-    units: { timeticks: 'Centésimos de segundo (SNMP)', seconds: 'Segundos' },
-    day: 'd',
-    hour: 'h',
-    minute: 'min',
-    generic: 'Genérico',
-    open_admin: 'Abrir a página de administração',
-    online: 'Online',
-    idle: 'Inativo',
-    total: 'Total',
-    zoom_in: 'Mostrar o cartão completo',
-    zoom_out: 'Voltar à vista compacta',
-    confirm_text: 'Desligar {name}?',
-    cancel: 'Cancelar',
-    turn_off: 'Desligar',
-    power: 'Alimentação',
-    theme_auto: 'Automático (segue o tema)',
-    theme_day: 'Dia',
-    theme_night: 'Noite',
-    mini_name: 'Mini cartão de switch de rede',
-    mini_desc: 'Switch de rede compacto: painel frontal, portas e tráfego, com um botão para o cartão completo.',
-  },
-  pl: {
-    card_name: 'Karta przełącznika sieciowego',
-    card_desc: 'Pokazuje przełącznik sieciowy: status, czas działania, porty i ruch.',
-    in: 'Pobieranie',
-    out: 'Wysyłanie',
-    port: 'Port',
-    default: 'Domyślnie',
-    colon: ': ',
-    lang_auto: 'Automatycznie',
-    sections: {
-      entities: 'Encje',
-      ports: 'Porty',
-      status: 'Status',
-      appearance: 'Wygląd',
-    },
-    fields: {
-      name: 'Nazwa',
-      subtitle: 'Podtytuł',
-      icon: 'Ikona',
-      url: 'Adres URL administracji (dotknięcie obrazu)',
-      switch_entity: 'Przełącznik zasilania',
-      status_entity: 'Status ogólny',
-      connectivity_entity: 'Łączność',
-      uptime_entity: 'Czas działania',
-      uptime_unit: 'Jednostka czasu działania',
-      traffic_in_entity: 'Ruch przychodzący',
-      traffic_out_entity: 'Ruch wychodzący',
-      ports: 'Liczba portów',
-      port_pattern: 'Wzorzec encji portów ({n} = numer)',
-      port_on_state: 'Stan „port aktywny”',
-      online_state: 'Stan „online”',
-      idle_state: 'Stan „bezczynny”',
-      model: 'Model (rysowany panel przedni)',
-      image: 'Własny obraz (zastępuje model)',
-      port_start: 'Pozycja pierwszego portu (%)',
-      port_step: 'Odstęp między portami (%)',
-      port_bottom: 'Wysokość portów (% od dołu)',
-      language: 'Język',
-      port_names: 'Nazwy portów (po kolei)',
-      watched_ports: 'Monitorowane porty (czerwone po awarii)',
-      show_history: 'Historia ruchu z 24 h',
-      show_title: 'Pokaż tytuł',
-      show_subtitle: 'Pokaż podtytuł',
-      zoom: 'Przycisk szczegółów',
-      confirm_off: 'Potwierdzaj przed wyłączeniem',
-      illustration: 'Ilustrowany nagłówek',
-      illustration_theme: 'Motyw ilustracji',
-    },
-    units: { timeticks: 'Setne części sekundy (SNMP)', seconds: 'Sekundy' },
-    day: 'd',
-    hour: 'h',
-    minute: 'min',
-    generic: 'Ogólny',
-    open_admin: 'Otwórz stronę administracyjną',
-    online: 'Online',
-    idle: 'Bezczynny',
-    total: 'Łącznie',
-    zoom_in: 'Pokaż pełną kartę',
-    zoom_out: 'Wróć do widoku kompaktowego',
-    confirm_text: 'Wyłączyć {name}?',
-    cancel: 'Anuluj',
-    turn_off: 'Wyłącz',
-    power: 'Zasilanie',
-    theme_auto: 'Automatycznie (zgodnie z motywem)',
-    theme_day: 'Dzień',
-    theme_night: 'Noc',
-    mini_name: 'Mini karta przełącznika sieciowego',
-    mini_desc: 'Kompaktowy przełącznik sieciowy: panel przedni, porty i ruch, z przyciskiem pełnej karty.',
-  },
-  ro: {
-    card_name: 'Card switch de rețea',
-    card_desc: 'Afișează un switch de rețea: stare, timp de funcționare, porturi și trafic.',
-    in: 'Descărcare',
-    out: 'Încărcare',
-    port: 'Port',
-    default: 'Implicit',
-    colon: ': ',
-    lang_auto: 'Automat',
-    sections: {
-      entities: 'Entități',
-      ports: 'Porturi',
-      status: 'Stare',
-      appearance: 'Aspect',
-    },
-    fields: {
-      name: 'Nume',
-      subtitle: 'Subtitlu',
-      icon: 'Pictogramă',
-      url: 'URL de administrare (atingere pe imagine)',
-      switch_entity: 'Comutator de alimentare',
-      status_entity: 'Stare generală',
-      connectivity_entity: 'Conectivitate',
-      uptime_entity: 'Timp de funcționare',
-      uptime_unit: 'Unitatea timpului de funcționare',
-      traffic_in_entity: 'Trafic de intrare',
-      traffic_out_entity: 'Trafic de ieșire',
-      ports: 'Număr de porturi',
-      port_pattern: 'Model de entitate pentru porturi ({n} = număr)',
-      port_on_state: 'Stare „port activ”',
-      online_state: 'Stare „online”',
-      idle_state: 'Stare „inactiv”',
-      model: 'Model (panou frontal desenat)',
-      image: 'Imagine personalizată (înlocuiește modelul)',
-      port_start: 'Poziția primului port (%)',
-      port_step: 'Spațiere între porturi (%)',
-      port_bottom: 'Înălțimea porturilor (% de jos)',
-      language: 'Limbă',
-      port_names: 'Numele porturilor (în ordine)',
-      watched_ports: 'Porturi supravegheate (roșii la cădere)',
-      show_history: 'Istoricul traficului pe 24 h',
-      show_title: 'Afișează titlul',
-      show_subtitle: 'Afișează subtitlul',
-      zoom: 'Buton de detalii',
-      confirm_off: 'Confirmare înainte de oprire',
-      illustration: 'Antet ilustrat',
-      illustration_theme: 'Tema ilustrației',
-    },
-    units: { timeticks: 'Sutimi de secundă (SNMP)', seconds: 'Secunde' },
-    day: 'z',
-    hour: 'h',
-    minute: 'min',
-    generic: 'Generic',
-    open_admin: 'Deschide pagina de administrare',
-    online: 'Online',
-    idle: 'Inactiv',
-    total: 'Total',
-    zoom_in: 'Afișează cardul complet',
-    zoom_out: 'Înapoi la vizualizarea compactă',
-    confirm_text: 'Opriți {name}?',
-    cancel: 'Anulare',
-    turn_off: 'Oprire',
-    power: 'Alimentare',
-    theme_auto: 'Automat (urmează tema)',
-    theme_day: 'Zi',
-    theme_night: 'Noapte',
-    mini_name: 'Mini card switch de rețea',
-    mini_desc: 'Switch de rețea compact: panou frontal, porturi și trafic, cu un buton pentru cardul complet.',
-  },
-  da: {
-    card_name: 'Netværksswitch-kort',
-    card_desc: 'Viser en netværksswitch: status, oppetid, porte og trafik.',
-    in: 'Download',
-    out: 'Upload',
-    port: 'Port',
-    default: 'Standard',
-    colon: ': ',
-    lang_auto: 'Automatisk',
-    sections: {
-      entities: 'Entiteter',
-      ports: 'Porte',
-      status: 'Status',
-      appearance: 'Udseende',
-    },
-    fields: {
-      name: 'Navn',
-      subtitle: 'Undertitel',
-      icon: 'Ikon',
-      url: 'Administrations-URL (tryk på billedet)',
-      switch_entity: 'Strømkontakt',
-      status_entity: 'Samlet status',
-      connectivity_entity: 'Forbindelse',
-      uptime_entity: 'Oppetid',
-      uptime_unit: 'Enhed for oppetid',
-      traffic_in_entity: 'Indgående trafik',
-      traffic_out_entity: 'Udgående trafik',
-      ports: 'Antal porte',
-      port_pattern: 'Mønster for portentiteter ({n} = nummer)',
-      port_on_state: 'Tilstand »port aktiv«',
-      online_state: 'Tilstand »online«',
-      idle_state: 'Tilstand »inaktiv«',
-      model: 'Model (tegnet frontpanel)',
-      image: 'Brugerdefineret billede (erstatter model)',
-      port_start: 'Position af første port (%)',
-      port_step: 'Afstand mellem porte (%)',
-      port_bottom: 'Porthøjde (% fra bunden)',
-      language: 'Sprog',
-      port_names: 'Portnavne (i rækkefølge)',
-      watched_ports: 'Overvågede porte (røde ved nedbrud)',
-      show_history: '24-timers trafikhistorik',
-      show_title: 'Vis titel',
-      show_subtitle: 'Vis undertitel',
-      zoom: 'Detaljeknap',
-      confirm_off: 'Bekræft før slukning',
-      illustration: 'Illustreret overskrift',
-      illustration_theme: 'Illustrationens tema',
-    },
-    units: { timeticks: 'Hundrededele sekunder (SNMP)', seconds: 'Sekunder' },
-    day: 'd',
-    hour: 't',
-    minute: 'min',
-    generic: 'Generisk',
-    open_admin: 'Åbn administrationssiden',
-    online: 'Online',
-    idle: 'Inaktiv',
-    total: 'I alt',
-    zoom_in: 'Vis hele kortet',
-    zoom_out: 'Tilbage til kompakt visning',
-    confirm_text: 'Sluk {name}?',
-    cancel: 'Annuller',
-    turn_off: 'Sluk',
-    power: 'Strøm',
-    theme_auto: 'Automatisk (følger temaet)',
-    theme_day: 'Dag',
-    theme_night: 'Nat',
-    mini_name: 'Netværksswitch-minikort',
-    mini_desc: 'Kompakt netværksswitch: frontpanel, porte og trafik, med en knap til hele kortet.',
-  },
-  sv: {
-    card_name: 'Nätverksswitchkort',
-    card_desc: 'Visar en nätverksswitch: status, drifttid, portar och trafik.',
-    in: 'Mottagning',
-    out: 'Sändning',
-    port: 'Port',
-    default: 'Standard',
-    colon: ': ',
-    lang_auto: 'Automatiskt',
-    sections: {
-      entities: 'Entiteter',
-      ports: 'Portar',
-      status: 'Status',
-      appearance: 'Utseende',
-    },
-    fields: {
-      name: 'Namn',
-      subtitle: 'Underrubrik',
-      icon: 'Ikon',
-      url: 'Administrations-URL (tryck på bilden)',
-      switch_entity: 'Strömbrytare',
-      status_entity: 'Övergripande status',
-      connectivity_entity: 'Anslutning',
-      uptime_entity: 'Drifttid',
-      uptime_unit: 'Enhet för drifttid',
-      traffic_in_entity: 'Inkommande trafik',
-      traffic_out_entity: 'Utgående trafik',
-      ports: 'Antal portar',
-      port_pattern: 'Mönster för portentiteter ({n} = nummer)',
-      port_on_state: 'Tillstånd ”port aktiv”',
-      online_state: 'Tillstånd ”online”',
-      idle_state: 'Tillstånd ”inaktiv”',
-      model: 'Modell (ritad frontpanel)',
-      image: 'Egen bild (ersätter modell)',
-      port_start: 'Första portens position (%)',
-      port_step: 'Avstånd mellan portar (%)',
-      port_bottom: 'Portarnas höjd (% från botten)',
-      language: 'Språk',
-      port_names: 'Portnamn (i ordning)',
-      watched_ports: 'Övervakade portar (röda vid avbrott)',
-      show_history: '24 h-trafikhistorik',
-      show_title: 'Visa rubrik',
-      show_subtitle: 'Visa undertitel',
-      zoom: 'Detaljknapp',
-      confirm_off: 'Bekräfta före avstängning',
-      illustration: 'Illustrerad rubrik',
-      illustration_theme: 'Illustrationens tema',
-    },
-    units: { timeticks: 'Hundradels sekunder (SNMP)', seconds: 'Sekunder' },
-    day: 'd',
-    hour: 'h',
-    minute: 'min',
-    generic: 'Generisk',
-    open_admin: 'Öppna administrationssidan',
-    online: 'Online',
-    idle: 'Inaktiv',
-    total: 'Totalt',
-    zoom_in: 'Visa hela kortet',
-    zoom_out: 'Tillbaka till kompakt vy',
-    confirm_text: 'Stäng av {name}?',
-    cancel: 'Avbryt',
-    turn_off: 'Stäng av',
-    power: 'Ström',
-    theme_auto: 'Automatiskt (följer temat)',
-    theme_day: 'Dag',
-    theme_night: 'Natt',
-    mini_name: 'Minikort för nätverksswitch',
-    mini_desc: 'Kompakt nätverksswitch: frontpanel, portar och trafik, med en knapp för hela kortet.',
-  },
-  bg: {
-    card_name: 'Карта за мрежов суич',
-    card_desc: 'Показва мрежов суич: състояние, време на работа, портове и трафик.',
-    in: 'Изтегляне',
-    out: 'Качване',
-    port: 'Порт',
-    default: 'По подразбиране',
-    colon: ': ',
-    lang_auto: 'Автоматично',
-    sections: {
-      entities: 'Обекти',
-      ports: 'Портове',
-      status: 'Състояние',
-      appearance: 'Външен вид',
-    },
-    fields: {
-      name: 'Име',
-      subtitle: 'Подзаглавие',
-      icon: 'Икона',
-      url: 'URL за администриране (докосване на изображението)',
-      switch_entity: 'Превключвател на захранването',
-      status_entity: 'Общо състояние',
-      connectivity_entity: 'Свързаност',
-      uptime_entity: 'Време на работа',
-      uptime_unit: 'Единица за времето на работа',
-      traffic_in_entity: 'Входящ трафик',
-      traffic_out_entity: 'Изходящ трафик',
-      ports: 'Брой портове',
-      port_pattern: 'Шаблон на обектите за портовете ({n} = номер)',
-      port_on_state: 'Състояние „порт активен“',
-      online_state: 'Състояние „на линия“',
-      idle_state: 'Състояние „неактивен“',
-      model: 'Модел (нарисуван преден панел)',
-      image: 'Персонализирано изображение (заменя модела)',
-      port_start: 'Позиция на първия порт (%)',
-      port_step: 'Разстояние между портовете (%)',
-      port_bottom: 'Височина на портовете (% отдолу)',
-      language: 'Език',
-      port_names: 'Имена на портовете (по ред)',
-      watched_ports: 'Наблюдавани портове (червени при отпадане)',
-      show_history: 'История на трафика за 24 ч',
-      show_title: 'Показване на заглавието',
-      show_subtitle: 'Покажи подзаглавие',
-      zoom: 'Бутон за подробности',
-      confirm_off: 'Потвърждение преди изключване',
-      illustration: 'Илюстрирана заглавна част',
-      illustration_theme: 'Тема на илюстрацията',
-    },
-    units: { timeticks: 'Стотни от секундата (SNMP)', seconds: 'Секунди' },
-    day: 'д',
-    hour: 'ч',
-    minute: 'мин',
-    generic: 'Общ',
-    open_admin: 'Отвори страницата за администриране',
-    online: 'На линия',
-    idle: 'Неактивен',
-    total: 'Общо',
-    zoom_in: 'Покажи цялата карта',
-    zoom_out: 'Обратно към компактния изглед',
-    confirm_text: 'Изключване на {name}?',
-    cancel: 'Отказ',
-    turn_off: 'Изключи',
-    power: 'Захранване',
-    theme_auto: 'Автоматично (следва темата)',
-    theme_day: 'Ден',
-    theme_night: 'Нощ',
-    mini_name: 'Мини карта на мрежов суич',
-    mini_desc: 'Компактен мрежов суич: преден панел, портове и трафик, с бутон за цялата карта.',
-  },
-  ru: {
-    card_name: 'Карточка сетевого коммутатора',
-    card_desc: 'Показывает сетевой коммутатор: состояние, время работы, порты и трафик.',
-    in: 'Получение',
-    out: 'Отправка',
-    port: 'Порт',
-    default: 'По умолчанию',
-    colon: ': ',
-    lang_auto: 'Автоматически',
-    sections: {
-      entities: 'Объекты',
-      ports: 'Порты',
-      status: 'Состояние',
-      appearance: 'Внешний вид',
-    },
-    fields: {
-      name: 'Название',
-      subtitle: 'Подзаголовок',
-      icon: 'Значок',
-      url: 'URL администрирования (нажатие на изображение)',
-      switch_entity: 'Выключатель питания',
-      status_entity: 'Общее состояние',
-      connectivity_entity: 'Подключение',
-      uptime_entity: 'Время работы',
-      uptime_unit: 'Единица времени работы',
-      traffic_in_entity: 'Входящий трафик',
-      traffic_out_entity: 'Исходящий трафик',
-      ports: 'Количество портов',
-      port_pattern: 'Шаблон объектов портов ({n} = номер)',
-      port_on_state: 'Состояние «порт активен»',
-      online_state: 'Состояние «в сети»',
-      idle_state: 'Состояние «неактивен»',
-      model: 'Модель (нарисованная передняя панель)',
-      image: 'Своё изображение (заменяет модель)',
-      port_start: 'Положение первого порта (%)',
-      port_step: 'Расстояние между портами (%)',
-      port_bottom: 'Высота портов (% от низа)',
-      language: 'Язык',
-      port_names: 'Имена портов (по порядку)',
-      watched_ports: 'Отслеживаемые порты (красные при падении)',
-      show_history: 'История трафика за 24 ч',
-      show_title: 'Показывать заголовок',
-      show_subtitle: 'Показывать подзаголовок',
-      zoom: 'Кнопка подробностей',
-      confirm_off: 'Подтверждать выключение',
-      illustration: 'Иллюстрированный заголовок',
-      illustration_theme: 'Тема иллюстрации',
-    },
-    units: { timeticks: 'Сотые доли секунды (SNMP)', seconds: 'Секунды' },
-    day: 'д',
-    hour: 'ч',
-    minute: 'мин',
-    generic: 'Универсальная',
-    open_admin: 'Открыть страницу администрирования',
-    online: 'В сети',
-    idle: 'Неактивен',
-    total: 'Всего',
-    zoom_in: 'Показать полную карточку',
-    zoom_out: 'Вернуться к компактному виду',
-    confirm_text: 'Выключить {name}?',
-    cancel: 'Отмена',
-    turn_off: 'Выключить',
-    power: 'Питание',
-    theme_auto: 'Автоматически (по теме)',
-    theme_day: 'День',
-    theme_night: 'Ночь',
-    mini_name: 'Мини-карточка сетевого коммутатора',
-    mini_desc: 'Компактный сетевой коммутатор: передняя панель, порты и трафик, с кнопкой полной карточки.',
-  },
-  uk: {
-    card_name: 'Картка мережевого комутатора',
-    card_desc: 'Показує мережевий комутатор: стан, час роботи, порти й трафік.',
-    in: 'Отримання',
-    out: 'Відправка',
-    port: 'Порт',
-    default: 'Типово',
-    colon: ': ',
-    lang_auto: 'Автоматично',
-    sections: {
-      entities: 'Сутності',
-      ports: 'Порти',
-      status: 'Стан',
-      appearance: 'Вигляд',
-    },
-    fields: {
-      name: 'Назва',
-      subtitle: 'Підзаголовок',
-      icon: 'Значок',
-      url: 'URL адміністрування (натискання на зображення)',
-      switch_entity: 'Вимикач живлення',
-      status_entity: 'Загальний стан',
-      connectivity_entity: 'Підключення',
-      uptime_entity: 'Час роботи',
-      uptime_unit: 'Одиниця часу роботи',
-      traffic_in_entity: 'Вхідний трафік',
-      traffic_out_entity: 'Вихідний трафік',
-      ports: 'Кількість портів',
-      port_pattern: 'Шаблон сутностей портів ({n} = номер)',
-      port_on_state: 'Стан «порт активний»',
-      online_state: 'Стан «у мережі»',
-      idle_state: 'Стан «неактивний»',
-      model: 'Модель (намальована передня панель)',
-      image: 'Власне зображення (замінює модель)',
-      port_start: 'Положення першого порту (%)',
-      port_step: 'Відстань між портами (%)',
-      port_bottom: 'Висота портів (% від низу)',
-      language: 'Мова',
-      port_names: 'Назви портів (по порядку)',
-      watched_ports: 'Відстежувані порти (червоні при падінні)',
-      show_history: 'Історія трафіку за 24 год',
-      show_title: 'Показувати заголовок',
-      show_subtitle: 'Показувати підзаголовок',
-      zoom: 'Кнопка деталей',
-      confirm_off: 'Підтверджувати вимкнення',
-      illustration: 'Ілюстрований заголовок',
-      illustration_theme: 'Тема ілюстрації',
-    },
-    units: { timeticks: 'Соті частки секунди (SNMP)', seconds: 'Секунди' },
-    day: 'д',
-    hour: 'год',
-    minute: 'хв',
-    generic: 'Універсальна',
-    open_admin: 'Відкрити сторінку адміністрування',
-    online: 'У мережі',
-    idle: 'Неактивний',
-    total: 'Усього',
-    zoom_in: 'Показати повну картку',
-    zoom_out: 'Повернутися до компактного вигляду',
-    confirm_text: 'Вимкнути {name}?',
-    cancel: 'Скасувати',
-    turn_off: 'Вимкнути',
-    power: 'Живлення',
-    theme_auto: 'Автоматично (за темою)',
-    theme_day: 'День',
-    theme_night: 'Ніч',
-    mini_name: 'Міні-картка мережевого комутатора',
-    mini_desc: 'Компактний мережевий комутатор: передня панель, порти й трафік, з кнопкою повної картки.',
-  },
-  hu: {
-    card_name: 'Hálózati switch kártya',
-    card_desc: 'Hálózati switch megjelenítése: állapot, üzemidő, portok és forgalom.',
-    in: 'Letöltés',
-    out: 'Feltöltés',
-    port: 'Port',
-    default: 'Alapértelmezett',
-    colon: ': ',
-    lang_auto: 'Automatikus',
-    sections: {
-      entities: 'Entitások',
-      ports: 'Portok',
-      status: 'Állapot',
-      appearance: 'Megjelenés',
-    },
-    fields: {
-      name: 'Név',
-      subtitle: 'Alcím',
-      icon: 'Ikon',
-      url: 'Adminisztrációs URL (koppintás a képre)',
-      switch_entity: 'Tápkapcsoló',
-      status_entity: 'Általános állapot',
-      connectivity_entity: 'Kapcsolat',
-      uptime_entity: 'Üzemidő',
-      uptime_unit: 'Üzemidő mértékegysége',
-      traffic_in_entity: 'Bejövő forgalom',
-      traffic_out_entity: 'Kimenő forgalom',
-      ports: 'Portok száma',
-      port_pattern: 'Port entitásminta ({n} = szám)',
-      port_on_state: '„Port aktív” állapot',
-      online_state: '„Online” állapot',
-      idle_state: '„Inaktív” állapot',
-      model: 'Modell (rajzolt előlap)',
-      image: 'Egyéni kép (felülírja a modellt)',
-      port_start: 'Első port helyzete (%)',
-      port_step: 'Portok közötti távolság (%)',
-      port_bottom: 'Portok magassága (% alulról)',
-      language: 'Nyelv',
-      port_names: 'Portnevek (sorrendben)',
-      watched_ports: 'Figyelt portok (pirosak kieséskor)',
-      show_history: '24 órás forgalmi előzmények',
-      show_title: 'Cím megjelenítése',
-      show_subtitle: 'Alcím megjelenítése',
-      zoom: 'Részletek gomb',
-      confirm_off: 'Megerősítés kikapcsolás előtt',
-      illustration: 'Illusztrált fejléc',
-      illustration_theme: 'Az illusztráció témája',
-    },
-    units: { timeticks: 'Századmásodperc (SNMP)', seconds: 'Másodperc' },
-    day: 'n',
-    hour: 'ó',
-    minute: 'p',
-    generic: 'Általános',
-    open_admin: 'Adminisztrációs oldal megnyitása',
-    online: 'Online',
-    idle: 'Inaktív',
-    total: 'Összesen',
-    zoom_in: 'Teljes kártya megjelenítése',
-    zoom_out: 'Vissza a kompakt nézethez',
-    confirm_text: '{name} kikapcsolása?',
-    cancel: 'Mégse',
-    turn_off: 'Kikapcsolás',
-    power: 'Tápellátás',
-    theme_auto: 'Automatikus (a témát követi)',
-    theme_day: 'Nappal',
-    theme_night: 'Éjszaka',
-    mini_name: 'Hálózati switch mini kártya',
-    mini_desc: 'Kompakt hálózati switch: előlap, portok és forgalom, a teljes kártya gombjával.',
-  },
-  sk: {
-    card_name: 'Karta sieťového prepínača',
-    card_desc: 'Zobrazuje sieťový prepínač: stav, čas prevádzky, porty a dátovú prevádzku.',
-    in: 'Sťahovanie',
-    out: 'Odosielanie',
-    port: 'Port',
-    default: 'Predvolené',
-    colon: ': ',
-    lang_auto: 'Automaticky',
-    sections: {
-      entities: 'Entity',
-      ports: 'Porty',
-      status: 'Stav',
-      appearance: 'Vzhľad',
-    },
-    fields: {
-      name: 'Názov',
-      subtitle: 'Podnadpis',
-      icon: 'Ikona',
-      url: 'URL administrácie (ťuknutie na obrázok)',
-      switch_entity: 'Vypínač napájania',
-      status_entity: 'Celkový stav',
-      connectivity_entity: 'Pripojenie',
-      uptime_entity: 'Čas prevádzky',
-      uptime_unit: 'Jednotka času prevádzky',
-      traffic_in_entity: 'Prijatá prevádzka',
-      traffic_out_entity: 'Odoslaná prevádzka',
-      ports: 'Počet portov',
-      port_pattern: 'Vzor entít portov ({n} = číslo)',
-      port_on_state: 'Stav „port aktívny“',
-      online_state: 'Stav „online“',
-      idle_state: 'Stav „nečinný“',
-      model: 'Model (nakreslený predný panel)',
-      image: 'Vlastný obrázok (nahrádza model)',
-      port_start: 'Poloha prvého portu (%)',
-      port_step: 'Rozostup medzi portami (%)',
-      port_bottom: 'Výška portov (% zdola)',
-      language: 'Jazyk',
-      port_names: 'Názvy portov (v poradí)',
-      watched_ports: 'Sledované porty (červené pri výpadku)',
-      show_history: '24 h história prevádzky',
-      show_title: 'Zobraziť názov',
-      show_subtitle: 'Zobraziť podnadpis',
-      zoom: 'Tlačidlo podrobností',
-      confirm_off: 'Potvrdiť pred vypnutím',
-      illustration: 'Ilustrovaná hlavička',
-      illustration_theme: 'Téma ilustrácie',
-    },
-    units: { timeticks: 'Stotiny sekundy (SNMP)', seconds: 'Sekundy' },
-    day: 'd',
-    hour: 'h',
-    minute: 'min',
-    generic: 'Všeobecný',
-    open_admin: 'Otvoriť stránku administrácie',
-    online: 'Online',
-    idle: 'Nečinný',
-    total: 'Spolu',
-    zoom_in: 'Zobraziť celú kartu',
-    zoom_out: 'Späť na kompaktné zobrazenie',
-    confirm_text: 'Vypnúť {name}?',
-    cancel: 'Zrušiť',
-    turn_off: 'Vypnúť',
-    power: 'Napájanie',
-    theme_auto: 'Automaticky (podľa témy)',
-    theme_day: 'Deň',
-    theme_night: 'Noc',
-    mini_name: 'Mini karta sieťového prepínača',
-    mini_desc: 'Kompaktný sieťový prepínač: predný panel, porty a prevádzka, s tlačidlom celej karty.',
-  },
-  cs: {
-    card_name: 'Karta síťového přepínače',
-    card_desc: 'Zobrazuje síťový přepínač: stav, dobu provozu, porty a datový provoz.',
-    in: 'Stahování',
-    out: 'Odesílání',
-    port: 'Port',
-    default: 'Výchozí',
-    colon: ': ',
-    lang_auto: 'Automaticky',
-    sections: {
-      entities: 'Entity',
-      ports: 'Porty',
-      status: 'Stav',
-      appearance: 'Vzhled',
-    },
-    fields: {
-      name: 'Název',
-      subtitle: 'Podnadpis',
-      icon: 'Ikona',
-      url: 'URL administrace (klepnutí na obrázek)',
-      switch_entity: 'Vypínač napájení',
-      status_entity: 'Celkový stav',
-      connectivity_entity: 'Připojení',
-      uptime_entity: 'Doba provozu',
-      uptime_unit: 'Jednotka doby provozu',
-      traffic_in_entity: 'Příchozí provoz',
-      traffic_out_entity: 'Odchozí provoz',
-      ports: 'Počet portů',
-      port_pattern: 'Vzor entit portů ({n} = číslo)',
-      port_on_state: 'Stav „port aktivní“',
-      online_state: 'Stav „online“',
-      idle_state: 'Stav „nečinný“',
-      model: 'Model (kreslený přední panel)',
-      image: 'Vlastní obrázek (nahrazuje model)',
-      port_start: 'Poloha prvního portu (%)',
-      port_step: 'Rozestup mezi porty (%)',
-      port_bottom: 'Výška portů (% zdola)',
-      language: 'Jazyk',
-      port_names: 'Názvy portů (v pořadí)',
-      watched_ports: 'Sledované porty (červené při výpadku)',
-      show_history: '24h historie provozu',
-      show_title: 'Zobrazit název',
-      show_subtitle: 'Zobrazit podtitul',
-      zoom: 'Tlačítko podrobností',
-      confirm_off: 'Potvrdit před vypnutím',
-      illustration: 'Ilustrované záhlaví',
-      illustration_theme: 'Motiv ilustrace',
-    },
-    units: { timeticks: 'Setiny sekundy (SNMP)', seconds: 'Sekundy' },
-    day: 'd',
-    hour: 'h',
-    minute: 'min',
-    generic: 'Obecný',
-    open_admin: 'Otevřít stránku administrace',
-    online: 'Online',
-    idle: 'Nečinný',
-    total: 'Celkem',
-    zoom_in: 'Zobrazit celou kartu',
-    zoom_out: 'Zpět na kompaktní zobrazení',
-    confirm_text: 'Vypnout {name}?',
-    cancel: 'Zrušit',
-    turn_off: 'Vypnout',
-    power: 'Napájení',
-    theme_auto: 'Automaticky (podle motivu)',
-    theme_day: 'Den',
-    theme_night: 'Noc',
-    mini_name: 'Mini karta síťového přepínače',
-    mini_desc: 'Kompaktní síťový přepínač: přední panel, porty a provoz, s tlačítkem celé karty.',
-  },
-  sl: {
-    card_name: 'Kartica omrežnega stikala',
-    card_desc: 'Prikazuje omrežno stikalo: stanje, čas delovanja, vrata in promet.',
-    in: 'Prejemanje',
-    out: 'Pošiljanje',
-    port: 'Vrata',
-    default: 'Privzeto',
-    colon: ': ',
-    lang_auto: 'Samodejno',
-    sections: {
-      entities: 'Entitete',
-      ports: 'Vrata',
-      status: 'Stanje',
-      appearance: 'Videz',
-    },
-    fields: {
-      name: 'Ime',
-      subtitle: 'Podnaslov',
-      icon: 'Ikona',
-      url: 'URL za skrbništvo (dotik slike)',
-      switch_entity: 'Stikalo za napajanje',
-      status_entity: 'Splošno stanje',
-      connectivity_entity: 'Povezljivost',
-      uptime_entity: 'Čas delovanja',
-      uptime_unit: 'Enota časa delovanja',
-      traffic_in_entity: 'Dohodni promet',
-      traffic_out_entity: 'Odhodni promet',
-      ports: 'Število vrat',
-      port_pattern: 'Vzorec entitet vrat ({n} = številka)',
-      port_on_state: 'Stanje »vrata aktivna«',
-      online_state: 'Stanje »povezano«',
-      idle_state: 'Stanje »nedejavno«',
-      model: 'Model (narisana sprednja plošča)',
-      image: 'Slika po meri (nadomesti model)',
-      port_start: 'Položaj prvih vrat (%)',
-      port_step: 'Razmik med vrati (%)',
-      port_bottom: 'Višina vrat (% od spodaj)',
-      language: 'Jezik',
-      port_names: 'Imena vrat (po vrsti)',
-      watched_ports: 'Nadzorovana vrata (rdeča ob izpadu)',
-      show_history: '24-urna zgodovina prometa',
-      show_title: 'Prikaži naslov',
-      show_subtitle: 'Prikaži podnaslov',
-      zoom: 'Gumb za podrobnosti',
-      confirm_off: 'Potrdi pred izklopom',
-      illustration: 'Ilustrirana glava',
-      illustration_theme: 'Tema ilustracije',
-    },
-    units: { timeticks: 'Stotinke sekunde (SNMP)', seconds: 'Sekunde' },
-    day: 'd',
-    hour: 'h',
-    minute: 'min',
-    generic: 'Splošni',
-    open_admin: 'Odpri stran za skrbništvo',
-    online: 'Povezano',
-    idle: 'Nedejavno',
-    total: 'Skupaj',
-    zoom_in: 'Prikaži celotno kartico',
-    zoom_out: 'Nazaj na kompaktni pogled',
-    confirm_text: 'Želite izklopiti {name}?',
-    cancel: 'Prekliči',
-    turn_off: 'Izklopi',
-    power: 'Napajanje',
-    theme_auto: 'Samodejno (sledi temi)',
-    theme_day: 'Dan',
-    theme_night: 'Noč',
-    mini_name: 'Mini kartica omrežnega stikala',
-    mini_desc: 'Kompaktno omrežno stikalo: sprednja plošča, vrata in promet, z gumbom za celotno kartico.',
-  },
-  lv: {
-    card_name: 'Tīkla komutatora kartīte',
-    card_desc: 'Rāda tīkla komutatoru: statusu, darbības laiku, portus un datplūsmu.',
-    in: 'Saņemšana',
-    out: 'Sūtīšana',
-    port: 'Ports',
-    default: 'Noklusējums',
-    colon: ': ',
-    lang_auto: 'Automātiski',
-    sections: {
-      entities: 'Vienības',
-      ports: 'Porti',
-      status: 'Statuss',
-      appearance: 'Izskats',
-    },
-    fields: {
-      name: 'Nosaukums',
-      subtitle: 'Apakšvirsraksts',
-      icon: 'Ikona',
-      url: 'Administrēšanas URL (pieskāriens attēlam)',
-      switch_entity: 'Barošanas slēdzis',
-      status_entity: 'Kopējais statuss',
-      connectivity_entity: 'Savienojamība',
-      uptime_entity: 'Darbības laiks',
-      uptime_unit: 'Darbības laika mērvienība',
-      traffic_in_entity: 'Ienākošā datplūsma',
-      traffic_out_entity: 'Izejošā datplūsma',
-      ports: 'Portu skaits',
-      port_pattern: 'Portu vienību veidne ({n} = numurs)',
-      port_on_state: 'Stāvoklis “ports aktīvs”',
-      online_state: 'Stāvoklis “tiešsaistē”',
-      idle_state: 'Stāvoklis “dīkstāvē”',
-      model: 'Modelis (zīmēts priekšējais panelis)',
-      image: 'Pielāgots attēls (aizstāj modeli)',
-      port_start: 'Pirmā porta pozīcija (%)',
-      port_step: 'Attālums starp portiem (%)',
-      port_bottom: 'Portu augstums (% no apakšas)',
-      language: 'Valoda',
-      port_names: 'Portu nosaukumi (secībā)',
-      watched_ports: 'Uzraudzītie porti (sarkani, ja krīt)',
-      show_history: 'Datplūsmas 24 h vēsture',
-      show_title: 'Rādīt virsrakstu',
-      show_subtitle: 'Rādīt apakšvirsrakstu',
-      zoom: 'Detaļu poga',
-      confirm_off: 'Apstiprināt pirms izslēgšanas',
-      illustration: 'Ilustrēta galvene',
-      illustration_theme: 'Ilustrācijas motīvs',
-    },
-    units: { timeticks: 'Sekundes simtdaļas (SNMP)', seconds: 'Sekundes' },
-    day: 'd',
-    hour: 'h',
-    minute: 'min',
-    generic: 'Vispārīgs',
-    open_admin: 'Atvērt administrēšanas lapu',
-    online: 'Tiešsaistē',
-    idle: 'Dīkstāvē',
-    total: 'Kopā',
-    zoom_in: 'Rādīt pilno karti',
-    zoom_out: 'Atpakaļ uz kompakto skatu',
-    confirm_text: 'Izslēgt {name}?',
-    cancel: 'Atcelt',
-    turn_off: 'Izslēgt',
-    power: 'Barošana',
-    theme_auto: 'Automātiski (atbilstoši tēmai)',
-    theme_day: 'Diena',
-    theme_night: 'Nakts',
-    mini_name: 'Tīkla komutatora mini karte',
-    mini_desc: 'Kompakts tīkla komutators: priekšējais panelis, porti un datplūsma, ar pogu pilnajai kartei.',
-  },
-  el: {
-    card_name: 'Κάρτα μεταγωγέα δικτύου',
-    card_desc: 'Εμφανίζει έναν μεταγωγέα δικτύου: κατάσταση, χρόνο λειτουργίας, θύρες και κίνηση.',
-    in: 'Λήψη',
-    out: 'Αποστολή',
-    port: 'Θύρα',
-    default: 'Προεπιλογή',
-    colon: ': ',
-    lang_auto: 'Αυτόματα',
-    sections: {
-      entities: 'Οντότητες',
-      ports: 'Θύρες',
-      status: 'Κατάσταση',
-      appearance: 'Εμφάνιση',
-    },
-    fields: {
-      name: 'Όνομα',
-      subtitle: 'Υπότιτλος',
-      icon: 'Εικονίδιο',
-      url: 'URL διαχείρισης (πάτημα στην εικόνα)',
-      switch_entity: 'Διακόπτης τροφοδοσίας',
-      status_entity: 'Γενική κατάσταση',
-      connectivity_entity: 'Συνδεσιμότητα',
-      uptime_entity: 'Χρόνος λειτουργίας',
-      uptime_unit: 'Μονάδα χρόνου λειτουργίας',
-      traffic_in_entity: 'Εισερχόμενη κίνηση',
-      traffic_out_entity: 'Εξερχόμενη κίνηση',
-      ports: 'Αριθμός θυρών',
-      port_pattern: 'Μοτίβο οντοτήτων θυρών ({n} = αριθμός)',
-      port_on_state: 'Κατάσταση «θύρα ενεργή»',
-      online_state: 'Κατάσταση «συνδεδεμένο»',
-      idle_state: 'Κατάσταση «ανενεργό»',
-      model: 'Μοντέλο (σχεδιασμένη πρόσοψη)',
-      image: 'Προσαρμοσμένη εικόνα (αντικαθιστά το μοντέλο)',
-      port_start: 'Θέση πρώτης θύρας (%)',
-      port_step: 'Απόσταση μεταξύ θυρών (%)',
-      port_bottom: 'Ύψος θυρών (% από κάτω)',
-      language: 'Γλώσσα',
-      port_names: 'Ονόματα θυρών (με σειρά)',
-      watched_ports: 'Θύρες υπό παρακολούθηση (κόκκινες σε πτώση)',
-      show_history: 'Ιστορικό κίνησης 24 ωρών',
-      show_title: 'Εμφάνιση τίτλου',
-      show_subtitle: 'Εμφάνιση υπότιτλου',
-      zoom: 'Κουμπί λεπτομερειών',
-      confirm_off: 'Επιβεβαίωση πριν από την απενεργοποίηση',
-      illustration: 'Εικονογραφημένη κεφαλίδα',
-      illustration_theme: 'Θέμα εικονογράφησης',
-    },
-    units: { timeticks: 'Εκατοστά του δευτερολέπτου (SNMP)', seconds: 'Δευτερόλεπτα' },
-    day: 'η',
-    hour: 'ώ',
-    minute: 'λ',
-    generic: 'Γενικό',
-    open_admin: 'Άνοιγμα σελίδας διαχείρισης',
-    online: 'Σε σύνδεση',
-    idle: 'Ανενεργό',
-    total: 'Σύνολο',
-    zoom_in: 'Εμφάνιση πλήρους κάρτας',
-    zoom_out: 'Επιστροφή στη συμπαγή προβολή',
-    confirm_text: 'Απενεργοποίηση του {name};',
-    cancel: 'Ακύρωση',
-    turn_off: 'Απενεργοποίηση',
-    power: 'Τροφοδοσία',
-    theme_auto: 'Αυτόματο (ακολουθεί το θέμα)',
-    theme_day: 'Ημέρα',
-    theme_night: 'Νύχτα',
-    mini_name: 'Μίνι κάρτα μεταγωγέα δικτύου',
-    mini_desc: 'Συμπαγής μεταγωγέας δικτύου: πρόσοψη, θύρες και κίνηση, με κουμπί για την πλήρη κάρτα.',
-  },
-};
+export const VERSION = '__VERSION__';
 
-const DEFAULTS = {
+
+export const DEFAULTS = {
   name: 'Switch',
   icon: 'mdi:switch',
   ports: 8,
@@ -1609,13 +24,13 @@ const DEFAULTS = {
 
 // Values of `status_entity` meaning online / idle when `online_state` / `idle_state` are not set: the English
 // and French ones (1.x defaulted to the French `En ligne` / `Inactif`, which still match). Compared case-insensitively.
-const STATUS_DEFAULTS = {
+export const STATUS_DEFAULTS = {
   online_state: ['Online', 'En ligne'],
   idle_state: ['Idle', 'Inactif'],
 };
 
 // Whether a status state is the configured `online_state` / `idle_state` (or one of its defaults).
-const statusIs = (state, config, key) => {
+export const statusIs = (state, config, key) => {
   if (state == null) return false;
   const norm = (v) => String(v).trim().toLowerCase();
   const wanted = config[key] != null && config[key] !== '' ? [config[key]] : STATUS_DEFAULTS[key];
@@ -1623,7 +38,7 @@ const statusIs = (state, config, key) => {
 };
 
 // Theme colors with the Home Assistant defaults as fallbacks, like the other juju35 cards.
-const COLORS = {
+export const COLORS = {
   green: 'var(--success-color, #43a047)',
   orange: 'var(--warning-color, #ffa600)',
   red: 'var(--error-color, #db4437)',
@@ -1633,46 +48,46 @@ const COLORS = {
 };
 
 // Darker shade of a port color, for its contacts and LEDs.
-const shade = (color) => `color-mix(in srgb, ${color} 45%, #000)`;
+export const shade = (color) => `color-mix(in srgb, ${color} 45%, #000)`;
 
 // `language` from the card config wins over the Home Assistant language. The full code when it has its own
 // dictionary (`sr-Latn`), else its base language (`fr-FR` → `fr`), else English.
-const getLang = (hass, config) => {
+export const getLang = (hass, config) => {
   const l = String(config?.language || hass?.locale?.language || hass?.language || navigator.language || 'en');
   const base = l.split('-')[0];
   return I18N[l] ? l : I18N[base] ? base : 'en';
 };
 
-const esc = (s) =>
+export const esc = (s) =>
   String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 // Admin URLs opened on a tap: only http(s) and same-origin relative paths, never javascript:/data:
 // or protocol-relative //evil.com from a YAML config. The browser's URL parser reads `\` as `/` and drops
 // tabs and newlines, so `/\evil.com` or `/<tab>/evil.com` would also open evil.com: a relative path with
 // any of these characters is rejected.
-const isSafeUrl = (url) => {
+export const isSafeUrl = (url) => {
   const s = String(url ?? '');
   return /^https?:\/\//i.test(s) || (/^\/(?!\/)/.test(s) && !/[\\\t\n\r]/.test(s));
 };
 
 // After a successful power toggle call, how long to wait for the switch to report its new state
 // before redrawing the toggle from the unchanged one.
-const TOGGLE_CHECK_MS = 2000;
+export const TOGGLE_CHECK_MS = 2000;
 
 // After the power-off confirmation closes, clicks on the card are ignored for this long: the second click of a
 // double click on Turn off would otherwise land on what lies under the button (a port, opening its more-info).
-const CONFIRM_GUARD_MS = 400;
+export const CONFIRM_GUARD_MS = 400;
 
 // An entity Home Assistant has no value for: drawn grey (state unknown), not red (off / down).
-const isUnavailable = (st) => st?.state === 'unavailable' || st?.state === 'unknown';
+export const isUnavailable = (st) => st?.state === 'unavailable' || st?.state === 'unknown';
 
 // A config number (port overlay position), or its default when the YAML value is not a number.
-const num = (v, def) => (Number.isFinite(Number(v)) && v !== '' && v !== null ? Number(v) : def);
+export const num = (v, def) => (Number.isFinite(Number(v)) && v !== '' && v !== null ? Number(v) : def);
 
 // Locale for Intl: Home Assistant's full locale when its base matches the card's language (keeps the region, e.g.
 // de-CH), otherwise the card's language. Home Assistant's "pt" is European Portuguese, which Intl would format as
 // Brazilian, so bare "pt" becomes "pt-PT".
-const fmtLang = (hass, config) => {
+export const fmtLang = (hass, config) => {
   const l = getLang(hass, config);
   const ha = hass?.locale?.language || hass?.language;
   const loc = ha && ha.split('-')[0] === l.split('-')[0] && l !== 'sr-Latn' ? ha : l;
@@ -1680,8 +95,8 @@ const fmtLang = (hass, config) => {
 };
 
 // The number formats, made once per language, decimals and kind (a render formats many numbers).
-const _numFormats = new Map();
-const numFormat = (loc, min, max) => {
+export const _numFormats = new Map();
+export const numFormat = (loc, min, max) => {
   const key = `${loc}|${min}|${max}`;
   let f = _numFormats.get(key);
   if (!f) _numFormats.set(key, (f = new Intl.NumberFormat(loc, { minimumFractionDigits: min, maximumFractionDigits: max, useGrouping: false })));
@@ -1689,7 +104,7 @@ const numFormat = (loc, min, max) => {
 };
 
 // A number with exactly `d` decimals, with the decimal separator of `loc` (no grouping, as before).
-const fmtNum = (v, d, loc) => {
+export const fmtNum = (v, d, loc) => {
   try {
     return numFormat(loc, d, d).format(v);
   } catch {
@@ -1699,14 +114,14 @@ const fmtNum = (v, d, loc) => {
 
 // Sizes in powers of 1024 with binary prefixes; up to 2 decimals under 10, 1 under 100, none above (trailing zeros
 // dropped: "1.5 KiB", "20 GiB"), as in the system-monitor and docker cards.
-const fmtNumMax = (v, d, loc) => {
+export const fmtNumMax = (v, d, loc) => {
   try {
     return numFormat(loc, 0, d).format(v);
   } catch {
     return String(Number(v.toFixed(d)));
   }
 };
-const formatBytes = (v, loc = 'en') => {
+export const formatBytes = (v, loc = 'en') => {
   if (!Number.isFinite(v)) return '—';
   const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
   let i = 0;
@@ -1719,7 +134,7 @@ const formatBytes = (v, loc = 'en') => {
 
 // Uptime as "12d 16h 15min", with the unit letters of the card language (day / hour / minute of its I18N entry).
 // A number is SNMP timeticks or seconds (`unit`); a date (a timestamp sensor: the boot time) gives now − boot.
-const formatUptime = (raw, unit, u = { day: 'd', hour: 'h', minute: 'min' }) => {
+export const formatUptime = (raw, unit, u = { day: 'd', hour: 'h', minute: 'min' }) => {
   const s = String(raw ?? '').trim();
   let t;
   if (/^\d+(\.\d+)?$/.test(s)) {
@@ -1738,10 +153,10 @@ const formatUptime = (raw, unit, u = { day: 'd', hour: 'h', minute: 'min' }) => 
 
 // Byte counters (an SNMP ifInOctets sensor): their unit's size in bytes. A traffic sensor in one of these units is a
 // running total, from which the card computes a rate; any other unit (kB/s, Mbit/s…) is already a rate.
-const BYTE_UNITS = { B: 1, bytes: 1, octets: 1, o: 1, kB: 1e3, KB: 1024, KiB: 1024, MB: 1e6, MiB: 1048576, GB: 1e9, GiB: 1073741824 };
+export const BYTE_UNITS = { B: 1, bytes: 1, octets: 1, o: 1, kB: 1e3, KB: 1024, KiB: 1024, MB: 1e6, MiB: 1048576, GB: 1e9, GiB: 1073741824 };
 // A rate with three significant digits at most ("3.2 MB/s", "584 KB/s"), so it fits beside the mini card's panel.
 // Rates in powers of 1000 ("3.2 MB/s", "584 kB/s"): 1 decimal under 100, none above, as in the other cards.
-const formatRate = (bps, loc = 'en') => {
+export const formatRate = (bps, loc = 'en') => {
   if (!Number.isFinite(bps)) return '—';
   const units = ['B/s', 'kB/s', 'MB/s', 'GB/s', 'TB/s'];
   let v = bps;
@@ -1754,25 +169,25 @@ const formatRate = (bps, loc = 'en') => {
 };
 
 // Ports whose loss of link is an alarm (red): `watched_ports` as a list (YAML or the editor) or "1, 3, 8".
-const watchedPorts = (c) =>
+export const watchedPorts = (c) =>
   new Set((Array.isArray(c.watched_ports) ? c.watched_ports : String(c.watched_ports ?? '').split(/[\s,;]+/)).map((n) => parseInt(n, 10)).filter(Number.isFinite));
 
 // The name given to a port: `port_names` as a list in port order (YAML or the editor) or a map { 3: NAS }.
-const portName = (c, n) => {
+export const portName = (c, n) => {
   const names = c.port_names;
   const v = Array.isArray(names) ? names[n - 1] : names && typeof names === 'object' ? names[n] : undefined;
   return v == null ? '' : String(v).trim();
 };
 // Under a drawn port, its name fits in about 7 characters: shortened with an ellipsis beyond (the tooltip has it whole).
-const shortName = (name) => (name.length > 7 ? `${name.slice(0, 6)}…` : name);
+export const shortName = (name) => (name.length > 7 ? `${name.slice(0, 6)}…` : name);
 
 // 24 h curve of a series (rates) of { t, v } points (t in ms, the 5-minute bucket's start), scaled from 0 to its
 // peak, on a real time axis ending at `end`: where buckets are missing (more than two periods apart) the curve
 // breaks instead of joining across the hole. Nothing under two points.
-const HIST_REFRESH = 5 * 60000;
-const HIST_WINDOW = 864e5;
-const HIST_PERIOD = 300000;
-const spark = (points, end) => {
+export const HIST_REFRESH = 5 * 60000;
+export const HIST_WINDOW = 864e5;
+export const HIST_PERIOD = 300000;
+export const spark = (points, end) => {
   const start = end - HIST_WINDOW;
   const pts = (points || []).filter((p) => p.t >= start && p.t <= end);
   if (pts.length < 2) return '';
@@ -1792,7 +207,7 @@ const spark = (points, end) => {
   return `<svg class="spark" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path class="spark-a" d="${area}"/><path class="spark-l" d="${line}"/></svg>`;
 };
 
-const portSvg = (color, dark) => `
+export const portSvg = (color, dark) => `
   <svg viewBox="0 0 27 25" xmlns="http://www.w3.org/2000/svg">
     <rect x="1" y="4" width="25" height="20" rx="2" style="fill:${color}"/>
     <rect x="10" y="1" width="6" height="5" rx="1" style="fill:${color}"/>
@@ -1805,10 +220,10 @@ const portSvg = (color, dark) => `
  * The ports and LEDs are laid out on one grid, so they always line up whatever the card width.
  */
 // A port's tooltip: "Port 3", or "Port 3 · NAS" when it has a name.
-const portTitle = (portLabel, p) => `${portLabel} ${p.n}${p.name ? ` · ${p.name}` : ''}`;
+export const portTitle = (portLabel, p) => `${portLabel} ${p.n}${p.name ? ` · ${p.name}` : ''}`;
 
-const GS308T = { H: 150, CELL: 62, GAP: 8, GROUP_GAP: 16, X0: 150, BEZEL_Y: 38, PORT_Y: 52, PORT_H: 44 };
-const gs308tSvg = (ports, powerColor, portLabel) => {
+export const GS308T = { H: 150, CELL: 62, GAP: 8, GROUP_GAP: 16, X0: 150, BEZEL_Y: 38, PORT_Y: 52, PORT_H: 44 };
+export const gs308tSvg = (ports, powerColor, portLabel) => {
   const g = GS308T;
   const portX = (i) => g.X0 + i * (g.CELL + g.GAP) + (i >= 4 ? g.GROUP_GAP : 0);
   const groupW = 4 * g.CELL + 3 * g.GAP;
@@ -1868,7 +283,7 @@ const gs308tSvg = (ports, powerColor, portLabel) => {
 /**
  * Embedded device models: drawn front panel with a fixed number of ports.
  */
-const MODELS = {
+export const MODELS = {
   gs308t: { label: 'Netgear GS308T (S350)', ports: 8, svg: gs308tSvg },
 };
 
@@ -1876,7 +291,7 @@ const MODELS = {
  * Built-in front panel of a desktop switch, drawn as SVG.
  * Up to 12 ports on one row; beyond, odd ports on top and even ports below (like real switches).
  */
-const chassisSvg = (ports, powerColor, portLabel) => {
+export const chassisSvg = (ports, powerColor, portLabel) => {
   const rows = ports.length > 12 ? 2 : 1;
   const perRow = Math.ceil(ports.length / rows);
   const PW = 50; // port slot width
@@ -1937,7 +352,7 @@ const chassisSvg = (ports, powerColor, portLabel) => {
 /* ------------------------------------------------------------------ */
 // Night picture: forced by `illustration_theme`, else Home Assistant's dark theme alone (a light theme keeps the day
 // picture after sunset).
-const isNight = (hass, config) => {
+export const isNight = (hass, config) => {
   const theme = config?.illustration_theme;
   if (theme === 'night') return true;
   if (theme === 'day') return false;
@@ -1945,7 +360,7 @@ const isNight = (hass, config) => {
 };
 
 // The network background of the header's 200 × 80 scene: a dotted grid on its right side, behind the traffic flow.
-const NET_DOTS = (() => {
+export const NET_DOTS = (() => {
   const d = [];
   for (let y = 6; y < 78; y += 6) for (let x = 80; x < 200; x += 6) if ((x * 7 + y * 13) % 11 < 5) d.push(`M${x - 0.9} ${y}a.9 .9 0 1 0 1.8 0a.9 .9 0 1 0-1.8 0`);
   return d.join('');
@@ -1956,15 +371,15 @@ const NET_DOTS = (() => {
 // scale from 4.8 s (1 kB/s or less) to 0.6 s (1 GB/s or more), snapped to a few paces that all divide 4.8 s: a small
 // change of rate does not restart them, and the README GIFs loop seamlessly. A lane at rest (0, unknown, or the
 // switch down) has none.
-const FLOW = { X0: 118, X1: 186, PK: 8, Y: [46, 66] };
-const FLOW_PACES = [0.6, 0.8, 1.2, 1.6, 2.4, 4.8];
-const flowDuration = (bps) => {
+export const FLOW = { X0: 118, X1: 186, PK: 8, Y: [46, 66] };
+export const FLOW_PACES = [0.6, 0.8, 1.2, 1.6, 2.4, 4.8];
+export const flowDuration = (bps) => {
   if (!(bps > 0)) return 0;
   const lvl = Math.min(1, Math.max(0, (Math.log10(bps) - 3) / 6));
   const d = 4.8 * (0.6 / 4.8) ** lvl;
   return FLOW_PACES.reduce((best, p) => (Math.abs(Math.log(p / d)) < Math.abs(Math.log(best / d)) ? p : best));
 };
-const flowScene = (lanes) =>
+export const flowScene = (lanes) =>
   lanes
     .map(({ dir, color, dur, label }, i) => {
       const y = FLOW.Y[i];
@@ -1980,17 +395,17 @@ const flowScene = (lanes) =>
     })
     .join('');
 
-let uidSeq = 0;
+export let uidSeq = 0;
 
 // Port count shared by the drawing and the watched entities: 8 when `ports` is not a number.
-function portCount(c) {
+export function portCount(c) {
   return Math.max(1, Number(c.ports) || 8);
 }
 
 // Config mistakes the editor prevents but YAML allows.
 // Each message is logged once per page: HA calls setConfig on the preview at every keystroke in the editor.
-const warned = new Set();
-function configWarnings(c) {
+export const warned = new Set();
+export function configWarnings(c) {
   const out = [];
   const count = portCount(c);
   if (count > 1 && !String(c.port_pattern || '').includes('{n}')) out.push('port_pattern has no {n}: every port shows the same entity');
@@ -2005,7 +420,7 @@ function configWarnings(c) {
 
 // Identifies a focusable element across renders (the header icon and a chip can share an entity; the power toggle
 // is focusable without a tabindex).
-const focusKey = (el) =>
+export const focusKey = (el) =>
   el?.tagName === 'HA-SWITCH'
     ? 'ha-switch'
     : el?.getAttribute?.('data-action') === 'power'
@@ -2019,14 +434,14 @@ const focusKey = (el) =>
 // the changed text and attributes are written. Nodes carrying a data-key are matched by it, the others by
 // position. A custom element keeps the attributes the new HTML does not name (it may reflect its own state there)
 // and, when the new HTML leaves it empty, its own children.
-const patchAttrs = (cur, next) => {
+export const patchAttrs = (cur, next) => {
   if (!cur.nodeName.includes('-')) for (const { name } of [...cur.attributes]) if (!next.hasAttribute(name)) cur.removeAttribute(name);
   for (const { name, value } of next.attributes) if (cur.getAttribute(name) !== value) cur.setAttribute(name, value);
 };
-const keyOf = (n) => (n.nodeType === 1 ? n.getAttribute('data-key') : null);
-const sameNode = (a, b) => !!a && a.nodeType === b.nodeType && a.nodeName === b.nodeName;
+export const keyOf = (n) => (n.nodeType === 1 ? n.getAttribute('data-key') : null);
+export const sameNode = (a, b) => !!a && a.nodeType === b.nodeType && a.nodeName === b.nodeName;
 // Moves a kept node. moveBefore (where supported) keeps its focus; insertBefore drops it.
-const place = (parent, node, ref) => {
+export const place = (parent, node, ref) => {
   if (node === ref) return;
   try {
     if (parent.moveBefore && node.parentNode === parent) return parent.moveBefore(node, ref);
@@ -2035,7 +450,7 @@ const place = (parent, node, ref) => {
   }
   parent.insertBefore(node, ref);
 };
-const patchChildren = (cur, next) => {
+export const patchChildren = (cur, next) => {
   const old = [...cur.childNodes];
   const fresh = [...next.childNodes];
   const byKey = new Map();
@@ -2063,7 +478,7 @@ const patchChildren = (cur, next) => {
   });
   while (cur.childNodes.length > fresh.length) cur.removeChild(cur.lastChild);
 };
-const morph = (root, html) => {
+export const morph = (root, html) => {
   const tpl = document.createElement('template');
   tpl.innerHTML = html;
   patchChildren(root, tpl.content);
@@ -2072,7 +487,7 @@ const morph = (root, html) => {
 /* ------------------------------------------------------------------ */
 /* Card                                                                */
 /* ------------------------------------------------------------------ */
-class HaSwitchCard extends HTMLElement {
+export class HaSwitchCard extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
@@ -2994,8 +1409,8 @@ class HaSwitchCard extends HTMLElement {
 
 // The banner's ground strip (the network strip), that the title block keeps clear of, and the gap between the name
 // and the status pill on its row (.title-row).
-const PILL_GROUND_PX = 10;
-const PILL_GAP_PX = 8;
+export const PILL_GROUND_PX = 10;
+export const PILL_GAP_PX = 8;
 
 /* ------------------------------------------------------------------ */
 /* Mini card                                                           */
@@ -3005,7 +1420,7 @@ const PILL_GAP_PX = 8;
 // page. It counts when the press and the release are both outside the card (a slider dragged out of the card does not
 // count), and a scroll does not count (the browser cancels the pointer). Keyboard clicks still go through the click
 // event. `tap(ev)` (a press and a release at the same spot) is for the tests.
-const watchOutside = (isOut, handler) => {
+export const watchOutside = (isOut, handler) => {
   let downOutside = false;
   const onDown = (ev) => {
     downOutside = isOut(ev);
@@ -3042,14 +1457,14 @@ const watchOutside = (isOut, handler) => {
 };
 
 // A click in a dialog opened from the card (its more-info) does not fold it back.
-const inDialog = (ev) => ev.composedPath().some((n) => ['ha-more-info-dialog', 'ha-dialog', 'dialog'].includes(n.localName));
+export const inDialog = (ev) => ev.composedPath().some((n) => ['ha-more-info-dialog', 'ha-dialog', 'dialog'].includes(n.localName));
 
 /**
  * Compact card: header with the status and ports up, the front panel and the rates with their 24 h curves.
  * Its detail button (top right, `zoom: false` removes it) switches it to the full card and back; a click outside the
  * card brings the compact view back.
  */
-class HaSwitchMiniCard extends HaSwitchCard {
+export class HaSwitchMiniCard extends HaSwitchCard {
   constructor() {
     super();
     this._zoomed = false;
@@ -3127,11 +1542,11 @@ class HaSwitchMiniCard extends HaSwitchCard {
 /* Visual editor                                                       */
 /* ------------------------------------------------------------------ */
 // Editor toggles whose default is on, and that default.
-const EDITOR_TOGGLES = { show_title: true, show_subtitle: true, show_history: true, zoom: true, confirm_off: true, illustration: true };
+export const EDITOR_TOGGLES = { show_title: true, show_subtitle: true, show_history: true, zoom: true, confirm_off: true, illustration: true };
 
 // Config → form data: `port_names` as a map ({ 3: NAS }) becomes the list in port order the text fields edit
 // (an empty name keeps the number), and `watched_ports` (numbers, or "1, 3, 8") the strings of the port select.
-const toForm = (config) => {
+export const toForm = (config) => {
   const data = { ...EDITOR_TOGGLES, illustration_theme: 'auto', ...config };
   const names = config.port_names;
   if (names && typeof names === 'object') {
@@ -3144,7 +1559,7 @@ const toForm = (config) => {
 
 // Form data → config: port numbers back as numbers, trailing empty port names dropped, toggles left at their
 // default and empty values kept out of the YAML.
-const fromForm = (value) => {
+export const fromForm = (value) => {
   const config = { ...value };
   if (Array.isArray(config.port_names)) {
     const names = config.port_names.map((v) => (v == null ? '' : String(v)));
@@ -3161,7 +1576,7 @@ const fromForm = (value) => {
   return config;
 };
 
-class HaSwitchCardEditor extends HTMLElement {
+export class HaSwitchCardEditor extends HTMLElement {
   setConfig(config) {
     this._config = config;
     this._render();
@@ -3336,7 +1751,7 @@ class HaSwitchCardEditor extends HTMLElement {
 /* ------------------------------------------------------------------ */
 /* Registration                                                        */
 /* ------------------------------------------------------------------ */
-class HaSwitchMiniCardEditor extends HaSwitchCardEditor {
+export class HaSwitchMiniCardEditor extends HaSwitchCardEditor {
   static get mini() {
     return true;
   }
@@ -3347,7 +1762,7 @@ if (!customElements.get('ha-switch-card-editor')) pickerDefine('ha-switch-card-e
 if (!customElements.get('ha-switch-mini-card')) pickerDefine('ha-switch-mini-card', HaSwitchMiniCard);
 if (!customElements.get('ha-switch-mini-card-editor')) pickerDefine('ha-switch-mini-card-editor', HaSwitchMiniCardEditor);
 
-const _t = I18N[getLang()];
+export const _t = I18N[getLang()];
 window.customCards = window.customCards || [];
 if (!window.customCards.some((c) => c.type === 'ha-switch-card')) {
   window.customCards.push({
