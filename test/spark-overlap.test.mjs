@@ -2,8 +2,8 @@
 // never cross the text of their tile, light or dark, compact or zoomed, from 245 to 500 px. Skipped when
 // Playwright or Chromium is not installed, except in CI, where it must run.
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { after, before, test } from "node:test";
+import { source } from "./source.mjs";
 
 const states = Object.fromEntries(
   [
@@ -24,7 +24,7 @@ const config = {
   traffic_out_entity: "sensor.out",
 };
 
-const src = readFileSync(new URL("../src/ha-switch-card.js", import.meta.url), "utf8");
+const src = source;
 let browser;
 let skip = false;
 before(async () => {
